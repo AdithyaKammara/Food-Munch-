@@ -1,21 +1,26 @@
+import { ChefHat, Heart, Leaf, ShieldCheck } from 'lucide-react'
 import { useReveal } from '../../lib/useReveal'
 
-const points = [
+const features = [
   {
-    title: 'Fresh ingredients',
-    text: 'Vegetables, herbs and meat come in fresh and are cooked the same day, never reheated from yesterday.',
+    icon: Leaf,
+    title: 'Fresh Ingredients',
+    text: 'We cook with fresh ingredients for a tasty, wholesome meal.',
   },
   {
-    title: 'Hyderabadi recipes',
-    text: 'Kacchi dum biryani sealed and slow-cooked, mirchi ka salan, double-tempered dal. Cooked the way the city cooks them.',
+    icon: ChefHat,
+    title: 'Expert Chefs',
+    text: 'Authentic Hyderabadi recipes, prepared with care in our kitchen.',
   },
   {
-    title: 'A clean kitchen',
-    text: 'Careful food handling, covered prep stations and sealed packaging from our counter to your door.',
+    icon: ShieldCheck,
+    title: 'Hygienic & Safe',
+    text: 'Clean kitchen practices and careful food handling.',
   },
   {
-    title: 'Made to taste right',
-    text: 'You choose the portion, the spice level and the extras, so every dish arrives the way you like it.',
+    icon: Heart,
+    title: 'Great Taste',
+    text: 'Every dish is made with love to satisfy your cravings.',
   },
 ]
 
@@ -23,40 +28,32 @@ export default function WhyUs() {
   const ref = useReveal<HTMLElement>()
 
   return (
-    <section ref={ref} id="why-us" className="scroll-mt-16 bg-ink py-24 text-white md:py-36">
-      <div className="frame grid gap-14 lg:grid-cols-12 lg:gap-10">
-        <figure data-reveal className="lg:col-span-5">
-          <img
-            src="/images/spice-bowls.jpg"
-            alt="Rows of steel bowls filled with whole and ground spices, in front of a wooden door"
-            width={1000}
-            height={1250}
-            loading="lazy"
-            className="aspect-[4/5] w-full object-cover"
-          />
-          <figcaption className="mt-3 text-sm text-white/60">
-            Whole and ground spices: the base of every Hyderabadi masala.
-          </figcaption>
-        </figure>
-
-        <div className="lg:col-span-7 lg:pl-8 lg:pt-4">
-          <h2 data-reveal className="display text-[clamp(2.5rem,6vw,5.5rem)]">
-            Cooked the Hyderabadi&nbsp;way
-          </h2>
-          <p data-reveal className="mt-8 max-w-2xl text-xl leading-relaxed text-white/90 md:text-2xl">
-            Food Munch is a small kitchen with one rule: cook it properly, then get it to you while
-            it is still hot.
+    <section ref={ref} id="why-us" className="scroll-mt-20 px-4 py-16">
+      <div className="mx-auto max-w-6xl">
+        <div data-reveal className="text-center">
+          <p className="text-xs font-bold uppercase tracking-widest text-gold-text">Why choose us?</p>
+          <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl">More Than Just Food</h2>
+          <p className="mx-auto mt-3 max-w-xl text-muted">
+            We are committed to serving you the best food with quality ingredients and
+            unforgettable flavours.
           </p>
-
-          <ul className="mt-14 grid gap-x-10 gap-y-12 sm:grid-cols-2">
-            {points.map((point) => (
-              <li key={point.title} data-reveal>
-                <h3 className="text-2xl font-bold text-gold">{point.title}</h3>
-                <p className="mt-3 text-[17px] leading-relaxed text-white/85">{point.text}</p>
-              </li>
-            ))}
-          </ul>
         </div>
+
+        <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {features.map(({ icon: Icon, title, text }) => (
+            <li
+              key={title}
+              data-reveal
+              className="rounded-2xl border border-line bg-surface p-6 text-center shadow-card"
+            >
+              <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-cream-deep text-gold-dark">
+                <Icon size={26} aria-hidden="true" />
+              </span>
+              <h3 className="mt-4 text-lg font-bold">{title}</h3>
+              <p className="mt-2 text-sm text-muted">{text}</p>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   )

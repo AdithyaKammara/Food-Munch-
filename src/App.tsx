@@ -29,8 +29,8 @@ export default function App() {
 
       <main id="main" tabIndex={-1} className="outline-none">
         <Hero />
-        <MenuSection />
         <WhyUs />
+        <MenuSection />
         <DeliveryBanner />
       </main>
 

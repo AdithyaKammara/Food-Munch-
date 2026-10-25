@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { Mail } from 'lucide-react'
+import { ChefHat, Mail, MapPin, Phone } from 'lucide-react'
 import { useReveal } from '../../lib/useReveal'
 
 const quickLinks = [
   { href: '#home', label: 'Home' },
+  { href: '#why-us', label: 'Why Us' },
   { href: '#menu', label: 'Menu' },
-  { href: '#why-us', label: 'Why us' },
   { href: '#delivery', label: 'Delivery' },
 ]
 
@@ -16,68 +16,78 @@ export default function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer ref={ref} id="contact" className="scroll-mt-16 overflow-hidden bg-ink pt-24 text-white md:pt-32">
-      <div className="frame">
-        <div className="grid gap-14 md:grid-cols-2 lg:grid-cols-12 lg:gap-10">
-          {/* Subscribe */}
-          <div data-reveal className="md:col-span-2 lg:col-span-5">
-            <h2 className="display text-[clamp(2.25rem,4.4vw,3.75rem)]">Hungry for offers?</h2>
-            <p className="mt-4 max-w-md text-lg text-white/85">
-              New dishes and promo codes, about once a month.
-            </p>
-            <SubscribeForm />
-          </div>
-
-          {/* Quick links */}
-          <nav data-reveal aria-label="Footer" className="lg:col-span-2 lg:col-start-7">
-            <h2 className="text-lg font-bold text-gold">Explore</h2>
-            <ul className="mt-4 space-y-2.5">
-              {quickLinks.map((link) => (
-                <li key={link.href}>
-                  <a href={link.href} className="text-[17px] text-white/85 hover:text-white hover:underline">
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* Contact */}
-          <div data-reveal className="lg:col-span-4">
-            <h2 className="text-lg font-bold text-gold">Contact</h2>
-            <p className="mt-4 text-[17px] leading-relaxed text-white/85">
-              Sample Street, Hyderabad, Telangana
-              <br />
-              +91 00000 00000
-            </p>
-            <p className="mt-2 text-sm text-white/60">
-              Sample details: Food Munch is not a real restaurant.
-            </p>
-
-            <h3 className="mt-8 text-lg font-bold text-gold">Built by Adithya Kammara</h3>
-            <a
-              href={`mailto:${DEVELOPER_EMAIL}`}
-              className="mt-3 inline-flex items-center gap-2 break-all text-[17px] font-semibold text-white underline decoration-gold decoration-2 underline-offset-4 hover:text-gold"
-            >
-              <Mail size={18} aria-hidden="true" className="shrink-0" />
-              {DEVELOPER_EMAIL}
-            </a>
-          </div>
+    <footer ref={ref} id="contact" className="scroll-mt-20 bg-ink text-white">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-[1.1fr_0.7fr_1.2fr_1.3fr]">
+        {/* Brand */}
+        <div data-reveal>
+          <a href="#home" className="flex items-center gap-2 font-display text-xl font-extrabold">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-gold text-on-gold">
+              <ChefHat size={20} aria-hidden="true" />
+            </span>
+            <span>
+              Food <span className="text-gold">Munch</span>
+            </span>
+          </a>
+          <p className="mt-4 text-sm text-white/70">
+            Authentic Hyderabadi flavours, made with fresh ingredients. A portfolio demo project.
+          </p>
         </div>
 
-        <p className="mt-20 flex flex-wrap justify-between gap-x-6 gap-y-2 text-sm text-white/60">
-          <span>© {year} Food Munch. A portfolio demo project.</span>
-          <span>Food photographs from Unsplash.</span>
-        </p>
+        {/* Quick links */}
+        <nav data-reveal aria-label="Footer">
+          <h2 className="font-display font-bold text-gold">Quick Links</h2>
+          <ul className="mt-4 space-y-2 text-sm">
+            {quickLinks.map((link) => (
+              <li key={link.href}>
+                <a href={link.href} className="text-white/70 hover:text-white">
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* Contact */}
+        <div data-reveal>
+          <h2 className="font-display font-bold text-gold">Contact</h2>
+          <p className="mt-3 inline-block rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/80">
+            Sample details: not a real restaurant
+          </p>
+          <ul className="mt-3 space-y-2 text-sm text-white/70">
+            <li className="flex items-start gap-2">
+              <MapPin size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
+              Sample Street, Hyderabad, Telangana
+            </li>
+            <li className="flex items-start gap-2">
+              <Phone size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
+              +91 00000 00000 (sample)
+            </li>
+          </ul>
+
+          <h3 className="mt-5 text-sm font-bold">Project contact</h3>
+          <p className="mt-1 text-sm text-white/70">Built by Adithya Kammara</p>
+          <a
+            href={`mailto:${DEVELOPER_EMAIL}`}
+            className="mt-1 inline-flex items-center gap-2 break-all text-sm font-semibold text-gold hover:underline"
+          >
+            <Mail size={16} aria-hidden="true" className="shrink-0" />
+            {DEVELOPER_EMAIL}
+          </a>
+        </div>
+
+        {/* Subscribe */}
+        <div data-reveal>
+          <h2 className="font-display font-bold text-gold">Get Offers</h2>
+          <p className="mt-3 text-sm text-white/70">Hear about new dishes and promo codes.</p>
+          <SubscribeForm />
+        </div>
       </div>
 
-      {/* The name returns at full width to close the page. */}
-      <p
-        aria-hidden="true"
-        className="display mt-8 select-none whitespace-nowrap text-center text-[16.4vw] leading-[0.8] text-gold"
-      >
-        Food Munch
-      </p>
+      <div className="border-t border-white/10">
+        <p className="mx-auto max-w-6xl px-4 py-5 text-center text-xs text-white/60">
+          © {year} Food Munch · Portfolio project by Adithya Kammara · Food photos from Unsplash
+        </p>
+      </div>
     </footer>
   )
 }
@@ -102,17 +112,17 @@ function SubscribeForm() {
   return (
     <form
       noValidate
-      className="mt-8 max-w-md"
+      className="mt-4"
       onSubmit={(e) => {
         e.preventDefault()
         submit()
       }}
     >
-      <label htmlFor="subscribe-email" className="text-[15px] font-semibold">
+      <label htmlFor="subscribe-email" className="text-sm font-semibold">
         Email address
       </label>
       {/* flex-wrap: the button drops below the input when the column is narrow */}
-      <div className="mt-2 flex flex-wrap gap-2">
+      <div className="mt-1 flex flex-wrap gap-2">
         <input
           id="subscribe-email"
           type="email"
@@ -122,16 +132,16 @@ function SubscribeForm() {
           aria-invalid={hasError}
           aria-describedby="subscribe-note subscribe-result"
           placeholder="name@example.com"
-          className="min-w-[12rem] flex-1 rounded-full border-2 border-white/35 bg-ink-soft px-5 py-3 text-[16px] text-white placeholder:text-white/55 focus:border-gold"
+          className="min-w-[12rem] flex-1 rounded-full border border-white/20 bg-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/50"
         />
         <button
           type="submit"
-          className="shrink-0 rounded-full bg-gold px-6 py-3.5 font-bold text-on-gold transition-transform hover:-translate-y-0.5 active:translate-y-0"
+          className="shrink-0 rounded-full bg-gold px-5 py-2.5 text-sm font-bold text-on-gold"
         >
           Subscribe
         </button>
       </div>
-      <p id="subscribe-note" className="mt-3 text-sm text-white/60">
+      <p id="subscribe-note" className="mt-2 text-xs text-white/60">
         Demo: no emails are sent.
       </p>
       <p

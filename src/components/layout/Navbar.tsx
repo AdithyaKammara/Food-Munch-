@@ -7,14 +7,15 @@ import { useUiStore, type Panel } from '../../store/uiStore'
 import { useUserStore } from '../../store/userStore'
 
 const links = [
+  { href: '#home', label: 'Home' },
+  { href: '#why-us', label: 'Why Us' },
   { href: '#menu', label: 'Menu' },
-  { href: '#why-us', label: 'Why us' },
   { href: '#delivery', label: 'Delivery' },
   { href: '#contact', label: 'Contact' },
 ]
 
 const iconButton =
-  'grid h-11 w-11 place-items-center rounded-full transition-colors hover:bg-cream-deep active:scale-95'
+  'grid h-10 w-10 place-items-center rounded-full border border-line bg-surface hover:border-gold'
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
@@ -62,9 +63,9 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-cream">
-      <nav aria-label="Main" className="frame flex h-[72px] items-center justify-between gap-4">
-        <a href="#home" className="flex items-center gap-2.5 font-display text-xl font-extrabold tracking-tight">
+    <header className="sticky top-0 z-40 border-b border-line bg-cream/90 backdrop-blur">
+      <nav aria-label="Main" className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <a href="#home" className="flex items-center gap-2 font-display text-xl font-extrabold">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-gold text-on-gold">
             <ChefHat size={20} aria-hidden="true" />
           </span>
@@ -73,25 +74,22 @@ export default function Navbar() {
           </span>
         </a>
 
-        <ul className="hidden items-center gap-1 md:flex">
+        <ul className="hidden items-center gap-8 md:flex">
           {links.map((link) => (
             <li key={link.href}>
-              <a
-                href={link.href}
-                className="rounded-full px-4 py-2 text-[15px] font-semibold text-ink transition-colors hover:bg-cream-deep"
-              >
+              <a href={link.href} className="text-sm font-semibold text-ink hover:text-gold-text">
                 {link.label}
               </a>
             </li>
           ))}
         </ul>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           {activeOrderId && (
             <button
               type="button"
               onClick={() => openPanel('tracking')}
-              className="hidden items-center gap-1.5 rounded-full bg-cream-deep px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-gold hover:text-on-gold md:inline-flex"
+              className="hidden items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-2 text-sm font-semibold hover:border-gold md:inline-flex"
             >
               <Truck size={16} aria-hidden="true" /> Track order
             </button>
@@ -126,7 +124,7 @@ export default function Navbar() {
             {count > 0 && (
               <span
                 data-cart-badge
-                className="absolute right-0 top-0 grid h-5 min-w-5 place-items-center rounded-full bg-ink px-1 text-[11px] font-bold text-white"
+                className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-ink px-1 text-[11px] font-bold text-white"
               >
                 {count}
               </span>
@@ -135,7 +133,7 @@ export default function Navbar() {
 
           <a
             href="#menu"
-            className="ml-2 hidden rounded-full bg-gold px-5 py-3 text-sm font-bold text-on-gold transition-transform hover:-translate-y-0.5 active:translate-y-0 md:inline-block"
+            className="hidden rounded-full bg-gold px-5 py-2.5 text-sm font-bold text-on-gold shadow-card hover:shadow-card-hover md:inline-block"
           >
             Order Now
           </a>
@@ -154,14 +152,14 @@ export default function Navbar() {
       </nav>
 
       {open && (
-        <div id="mobile-menu" className="frame bg-cream pb-5 md:hidden">
+        <div id="mobile-menu" className="border-t border-line bg-cream px-4 py-3 md:hidden">
           <ul className="flex flex-col gap-1">
             {links.map((link) => (
               <li key={link.href}>
                 <a
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="block rounded-full px-4 py-3 text-lg font-semibold hover:bg-cream-deep"
+                  className="block rounded-lg px-3 py-2 font-semibold hover:bg-cream-deep"
                 >
                   {link.label}
                 </a>
@@ -171,7 +169,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => go('auth')}
-                className="block w-full rounded-full px-4 py-3 text-left text-lg font-semibold hover:bg-cream-deep"
+                className="block w-full rounded-lg px-3 py-2 text-left font-semibold hover:bg-cream-deep"
               >
                 {user ? `Account (${user.name.split(' ')[0]})` : 'Log in'}
               </button>
@@ -181,7 +179,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => go('history')}
-                  className="block w-full rounded-full px-4 py-3 text-left text-lg font-semibold hover:bg-cream-deep"
+                  className="block w-full rounded-lg px-3 py-2 text-left font-semibold hover:bg-cream-deep"
                 >
                   Order history
                 </button>
@@ -192,7 +190,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => go('tracking')}
-                  className="block w-full rounded-full px-4 py-3 text-left text-lg font-semibold hover:bg-cream-deep"
+                  className="block w-full rounded-lg px-3 py-2 text-left font-semibold hover:bg-cream-deep"
                 >
                   Track order
                 </button>
@@ -202,7 +200,7 @@ export default function Navbar() {
           <a
             href="#menu"
             onClick={() => setOpen(false)}
-            className="mt-3 block rounded-full bg-gold px-5 py-3.5 text-center font-bold text-on-gold"
+            className="mt-3 block rounded-full bg-gold px-5 py-3 text-center font-bold text-on-gold"
           >
             Order Now
           </a>
