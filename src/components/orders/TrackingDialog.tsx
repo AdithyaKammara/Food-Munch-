@@ -137,7 +137,7 @@ function TrackingBody() {
                 <Star
                   size={26}
                   aria-hidden="true"
-                  className={(order.rating ?? 0) >= n ? 'fill-gold text-gold' : 'text-line'}
+                  className={(order.rating ?? 0) >= n ? 'fill-gold text-gold-dark' : 'text-muted'}
                 />
               </button>
             ))}

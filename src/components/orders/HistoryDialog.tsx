@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { paymentLabel, trackingStep, type Order } from '../../lib/orders'
 import { useCartStore } from '../../store/cartStore'
 import { useOrdersStore } from '../../store/ordersStore'
@@ -26,7 +27,8 @@ function HistoryBody() {
   const setActive = useOrdersStore((s) => s.setActive)
   const addLine = useCartStore((s) => s.addLine)
   const openPanel = useUiStore((s) => s.openPanel)
-  const now = Date.now()
+  // Read the clock once, when the dialog opens.
+  const [now] = useState(() => Date.now())
 
   const reorder = (order: Order) => {
     order.lines.forEach(({ qty, ...line }) => {

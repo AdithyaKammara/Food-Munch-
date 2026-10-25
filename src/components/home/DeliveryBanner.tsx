@@ -1,97 +1,89 @@
-import { ArrowRight, MapPin, Timer, Wallet } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowRight } from 'lucide-react'
+import { buildDeliverySlots, TRACKING_STEPS } from '../../lib/orders'
 import { useReveal } from '../../lib/useReveal'
 
-const features = [
+const facts = [
   {
-    icon: Timer,
-    title: 'Quick Delivery',
-    text: 'About 22 minutes in this demo. Real times depend on distance and traffic.',
+    value: '~22 min',
+    title: 'Quick delivery',
+    text: 'The demo estimate for an order placed now. Real times depend on distance and traffic.',
   },
   {
-    icon: Wallet,
-    title: 'Flexible Payment',
-    text: 'UPI QR (demo, no money moves) or Cash on Delivery.',
+    value: 'UPI or cash',
+    title: 'Flexible payment',
+    text: 'Pay with a UPI QR (a demo here, so no money moves) or in cash at the door.',
   },
   {
-    icon: MapPin,
-    title: 'Order Tracking',
-    text: 'A simulated status timeline. There is no live GPS in this demo.',
+    value: `${TRACKING_STEPS.length} steps`,
+    title: 'Order tracking',
+    text: 'Follow your order from confirmed to delivered. The timeline is simulated, with no live GPS.',
   },
 ]
 
 export default function DeliveryBanner() {
   const ref = useReveal<HTMLElement>()
+  // Real slots, worked out from the time you opened the page.
+  const [slots] = useState(() => buildDeliverySlots(new Date()))
 
   return (
-    <section ref={ref} id="delivery" className="scroll-mt-20 px-4 py-16">
-      <div className="mx-auto grid max-w-6xl items-center gap-10 overflow-hidden rounded-3xl bg-cream-deep px-6 py-12 sm:px-10 md:grid-cols-[1.4fr_1fr]">
-        <div>
-          <div data-reveal>
-            <p className="text-xs font-bold uppercase tracking-widest text-gold-text">
-              Delivery &amp; payment
+    <section ref={ref} id="delivery" className="scroll-mt-16 bg-gold py-24 text-on-gold md:py-36">
+      <div className="frame">
+        <div className="grid items-end gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-8">
+            <h2 data-reveal className="display text-[clamp(2.75rem,7.4vw,7rem)]">
+              Fast delivery, easy payment
+            </h2>
+          </div>
+          <div data-reveal className="lg:col-span-4 lg:pb-3">
+            <p className="text-xl leading-relaxed">
+              Order in a few taps, pay how you like, and watch your meal leave the kitchen.
             </p>
-            <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl">Fast Delivery, Easy Payment</h2>
-            <p className="mt-3 max-w-lg text-muted">
-              Order in a few taps and follow your meal from our kitchen to your door.
+            <a
+              href="#menu"
+              className="group mt-7 inline-flex items-center gap-2 rounded-full bg-ink px-7 py-4 font-bold text-white transition-transform hover:-translate-y-0.5 active:translate-y-0"
+            >
+              Start your order
+              <ArrowRight
+                size={18}
+                aria-hidden="true"
+                className="transition-transform group-hover:translate-x-1"
+              />
+            </a>
+          </div>
+        </div>
+
+        <ul className="mt-20 grid gap-12 md:grid-cols-3 md:gap-10">
+          {facts.map((fact) => (
+            <li key={fact.title} data-reveal>
+              <p className="display text-[clamp(2.25rem,4vw,3.5rem)]">{fact.value}</p>
+              <h3 className="mt-4 text-xl font-bold">{fact.title}</h3>
+              <p className="mt-2 max-w-sm text-[17px] leading-relaxed">{fact.text}</p>
+            </li>
+          ))}
+        </ul>
+
+        <div data-reveal className="mt-20 grid gap-8 bg-ink p-8 text-white md:p-12 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <h3 className="text-3xl font-extrabold">Next delivery slots</h3>
+            <p className="mt-3 text-white/80">
+              Worked out from the time you opened this page. You choose one at checkout.
             </p>
           </div>
-
-          <ul className="mt-8 grid gap-5 sm:grid-cols-3">
-            {features.map(({ icon: Icon, title, text }) => (
-              <li key={title} data-reveal>
-                <span className="grid h-12 w-12 place-items-center rounded-full bg-surface text-gold-dark shadow-card">
-                  <Icon size={22} aria-hidden="true" />
-                </span>
-                <h3 className="mt-3 font-bold">{title}</h3>
-                <p className="mt-1 text-sm text-muted">{text}</p>
+          <ul className="grid gap-3 sm:grid-cols-2 lg:col-span-8">
+            {slots.map((slot, i) => (
+              <li
+                key={slot}
+                className={`px-5 py-4 text-lg font-semibold ${
+                  i === 0 ? 'bg-gold text-on-gold' : 'bg-ink-soft'
+                }`}
+              >
+                {slot}
               </li>
             ))}
           </ul>
-
-          <a
-            data-reveal
-            href="#menu"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-gold px-7 py-3.5 font-bold text-on-gold shadow-card hover:shadow-card-hover"
-          >
-            Start your order <ArrowRight size={18} aria-hidden="true" />
-          </a>
-        </div>
-
-        <div data-reveal className="mx-auto w-full max-w-xs md:max-w-sm">
-          <ScooterIllustration />
         </div>
       </div>
     </section>
-  )
-}
-
-/** Original, decorative scooter drawing. Uses theme colours so it will follow dark mode later. */
-function ScooterIllustration() {
-  return (
-    <svg viewBox="0 0 240 170" aria-hidden="true" className="h-auto w-full">
-      {/* speed lines */}
-      <g stroke="var(--color-gold-dark)" strokeWidth="5" strokeLinecap="round">
-        <line x1="4" y1="78" x2="26" y2="78" />
-        <line x1="10" y1="96" x2="36" y2="96" />
-        <line x1="0" y1="114" x2="20" y2="114" />
-      </g>
-      {/* delivery box */}
-      <rect x="34" y="34" width="54" height="44" rx="8" fill="var(--color-ink)" />
-      <rect x="34" y="50" width="54" height="8" fill="var(--color-gold)" />
-      {/* body */}
-      <path d="M44 120 Q44 88 76 88 L124 88 L140 62 L154 62 L172 120 Z" fill="var(--color-gold)" />
-      <rect x="74" y="112" width="90" height="10" rx="5" fill="var(--color-gold-dark)" />
-      {/* seat */}
-      <rect x="68" y="78" width="50" height="11" rx="5.5" fill="var(--color-ink)" />
-      {/* fork and handlebar */}
-      <line x1="152" y1="62" x2="188" y2="134" stroke="var(--color-ink)" strokeWidth="7" strokeLinecap="round" />
-      <line x1="150" y1="62" x2="150" y2="44" stroke="var(--color-ink)" strokeWidth="6" strokeLinecap="round" />
-      <line x1="138" y1="44" x2="164" y2="44" stroke="var(--color-ink)" strokeWidth="6" strokeLinecap="round" />
-      {/* wheels */}
-      <circle cx="64" cy="134" r="24" fill="var(--color-ink)" />
-      <circle cx="64" cy="134" r="10" fill="var(--color-cream)" />
-      <circle cx="188" cy="134" r="24" fill="var(--color-ink)" />
-      <circle cx="188" cy="134" r="10" fill="var(--color-cream)" />
-    </svg>
   )
 }
