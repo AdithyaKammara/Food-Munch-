@@ -64,7 +64,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-cream/90 backdrop-blur">
-      <nav aria-label="Main" className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+      <nav aria-label="Main" className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
         <a href="#home" className="flex items-center gap-2 font-display text-xl font-extrabold">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-gold text-on-gold">
             <ChefHat size={20} aria-hidden="true" />
@@ -74,7 +74,7 @@ export default function Navbar() {
           </span>
         </a>
 
-        <ul className="hidden items-center gap-8 md:flex">
+        <ul className="hidden items-center gap-8 lg:flex">
           {links.map((link) => (
             <li key={link.href}>
               <a href={link.href} className="text-sm font-semibold text-ink hover:text-gold-text">
@@ -89,7 +89,7 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => openPanel('tracking')}
-              className="hidden items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-2 text-sm font-semibold hover:border-gold md:inline-flex"
+              className="hidden items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-2 text-sm font-semibold hover:border-gold lg:inline-flex"
             >
               <Truck size={16} aria-hidden="true" /> Track order
             </button>
@@ -99,7 +99,7 @@ export default function Navbar() {
               type="button"
               aria-label="Order history"
               onClick={() => openPanel('history')}
-              className={`hidden md:grid ${iconButton}`}
+              className={`hidden lg:grid ${iconButton}`}
             >
               <Receipt size={18} aria-hidden="true" />
             </button>
@@ -108,7 +108,7 @@ export default function Navbar() {
             type="button"
             aria-label={user ? `Account: ${user.name}` : 'Log in'}
             onClick={() => openPanel('auth')}
-            className={`hidden md:grid ${iconButton}`}
+            className={`hidden lg:grid ${iconButton}`}
           >
             <User size={18} aria-hidden="true" />
           </button>
@@ -133,7 +133,7 @@ export default function Navbar() {
 
           <a
             href="#menu"
-            className="hidden rounded-full bg-gold px-5 py-2.5 text-sm font-bold text-on-gold shadow-card hover:shadow-card-hover md:inline-block"
+            className="hidden rounded-full bg-gold px-5 py-2.5 text-sm font-bold text-on-gold shadow-card hover:shadow-card-hover lg:inline-block"
           >
             Order Now
           </a>
@@ -144,7 +144,7 @@ export default function Navbar() {
             aria-expanded={open}
             aria-controls="mobile-menu"
             onClick={() => setOpen(!open)}
-            className={`md:hidden ${iconButton}`}
+            className={`lg:hidden ${iconButton}`}
           >
             {open ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
           </button>
@@ -152,7 +152,7 @@ export default function Navbar() {
       </nav>
 
       {open && (
-        <div id="mobile-menu" className="border-t border-line bg-cream px-4 py-3 md:hidden">
+        <div id="mobile-menu" className="border-t border-line bg-cream px-4 py-3 lg:hidden">
           <ul className="flex flex-col gap-1">
             {links.map((link) => (
               <li key={link.href}>
