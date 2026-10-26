@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import {
   ArrowRight,
@@ -68,8 +68,8 @@ export default function CartDrawer() {
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/45" />
-        <Dialog.Content className="fixed right-0 top-0 z-50 flex h-full w-full max-w-[34rem] flex-col bg-[#fffaf1] shadow-[0_0_60px_rgba(0,0,0,0.25)]">
+        <Dialog.Overlay className="motion-overlay fixed inset-0 z-50 bg-black/45" />
+        <Dialog.Content className="motion-drawer fixed right-0 top-0 z-50 flex h-full w-full max-w-[34rem] flex-col bg-[#fffaf1] shadow-[0_0_60px_rgba(0,0,0,0.25)]">
           {/* ---------- Header ---------- */}
           <div className="flex items-center gap-4 px-5 pb-4 pt-5 sm:px-6">
             <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-[#ffeec2] text-ink sm:h-16 sm:w-16">
@@ -98,9 +98,10 @@ export default function CartDrawer() {
               {/* ---------- Scrolling middle ---------- */}
               <div className="flex-1 space-y-3.5 overflow-y-auto px-4 pb-4 sm:px-6">
                 <ul className="space-y-2.5">
-                  {lines.map((line) => (
+                  {lines.map((line, i) => (
                     <BagItem
                       key={lineKey(line)}
+                      index={i}
                       line={line}
                       onChange={(delta) => changeQty(lineKey(line), delta)}
                     />
@@ -205,7 +206,12 @@ export default function CartDrawer() {
                     <Wallet size={22} aria-hidden="true" />
                     Grand total
                   </dt>
-                  <dd className="font-display text-2xl font-extrabold">₹{totals.total}</dd>
+                  <dd className="font-display text-2xl font-extrabold">
+                    {/* key: a fresh element (and a small pop) whenever the total changes */}
+                    <span key={totals.total} className="motion-pop inline-block">
+                      ₹{totals.total}
+                    </span>
+                  </dd>
                 </dl>
                 <button
                   type="button"
@@ -228,12 +234,35 @@ export default function CartDrawer() {
   )
 }
 
-function BagItem({ line, onChange }: { line: CartLine; onChange: (delta: number) => void }) {
+function BagItem({
+  line,
+  index,
+  onChange,
+}: {
+  line: CartLine
+  index: number
+  onChange: (delta: number) => void
+}) {
   const item = MENU_ITEMS.find((m) => m.id === line.itemId)
   const title = item?.title ?? 'Unknown dish'
 
+  // Removing: the card collapses first, then the line leaves the bag.
+  // The timer is a safety net in case the animation event never fires.
+  const [removing, setRemoving] = useState(false)
+  useEffect(() => {
+    if (!removing) return
+    const timer = setTimeout(() => onChange(-line.qty), 300)
+    return () => clearTimeout(timer)
+  }, [removing, onChange, line.qty])
+
   return (
-    <li className="relative flex gap-3 rounded-2xl bg-white p-3 pr-4 shadow-[0_4px_14px_rgba(79,54,10,0.06)] ring-1 ring-[#f1e6cf] sm:gap-4">
+    <li
+      style={{ '--i': index } as CSSProperties}
+      onAnimationEnd={(e) => {
+        if (removing && e.target === e.currentTarget) onChange(-line.qty)
+      }}
+      className={`${removing ? 'motion-collapse' : 'motion-rise'} relative flex gap-3 rounded-2xl bg-white p-3 pr-4 shadow-[0_4px_14px_rgba(79,54,10,0.06)] ring-1 ring-[#f1e6cf] sm:gap-4`}
+    >
       {item ? (
         <img
           src={item.image}
@@ -264,7 +293,9 @@ function BagItem({ line, onChange }: { line: CartLine; onChange: (delta: number)
             </button>
             <span className="w-5 text-center font-bold" aria-live="polite">
               <span className="sr-only">Quantity </span>
-              {line.qty}
+              <span key={line.qty} className="motion-pop inline-block">
+                {line.qty}
+              </span>
             </span>
             <button
               type="button"
@@ -281,7 +312,8 @@ function BagItem({ line, onChange }: { line: CartLine; onChange: (delta: number)
       <button
         type="button"
         aria-label={`Remove ${title} from bag`}
-        onClick={() => onChange(-line.qty)}
+        disabled={removing}
+        onClick={() => setRemoving(true)}
         className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full text-gold-dark transition-colors hover:bg-red-50 hover:text-red-700"
       >
         <Trash2 size={17} aria-hidden="true" />
@@ -293,7 +325,7 @@ function BagItem({ line, onChange }: { line: CartLine; onChange: (delta: number)
 function EmptyBag({ onBrowse }: { onBrowse: () => void }) {
   return (
     <div className="grid flex-1 place-items-center px-6 pb-16 text-center">
-      <div>
+      <div className="motion-rise">
         <span className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-[#ffeec2] text-gold-dark">
           <ShoppingBag size={36} aria-hidden="true" />
         </span>

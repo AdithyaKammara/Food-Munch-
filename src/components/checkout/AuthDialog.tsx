@@ -18,8 +18,8 @@ export default function AuthDialog() {
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/45" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[92vh] w-[calc(100%-1.5rem)] max-w-[44rem] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overflow-x-hidden rounded-[1.75rem] bg-white shadow-[0_30px_80px_rgba(0,0,0,0.3)]">
+        <Dialog.Overlay className="motion-overlay fixed inset-0 z-50 bg-black/45" />
+        <Dialog.Content className="motion-dialog fixed left-1/2 top-1/2 z-50 max-h-[92vh] w-[calc(100%-1.5rem)] max-w-[44rem] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overflow-x-hidden rounded-[1.75rem] bg-white shadow-[0_30px_80px_rgba(0,0,0,0.3)]">
           {/* ---------- Header strip ---------- */}
           <div className="relative isolate overflow-hidden bg-[#fff6e3] px-6 pb-6 pt-7 sm:px-8">
             {/* Faint gold spice shapes in the background */}

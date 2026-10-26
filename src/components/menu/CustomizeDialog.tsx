@@ -26,8 +26,8 @@ export default function CustomizeDialog({ item, onClose, onConfirm }: Props) {
   return (
     <Dialog.Root open onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl bg-surface p-6 shadow-card-hover">
+        <Dialog.Overlay className="motion-overlay fixed inset-0 z-50 bg-black/40" />
+        <Dialog.Content className="motion-dialog fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl bg-surface p-6 shadow-card-hover">
           <div className="flex items-start justify-between gap-4">
             <div>
               <Dialog.Title className="text-xl font-extrabold">Customize {item.title}</Dialog.Title>

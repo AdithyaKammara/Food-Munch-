@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { ArrowRight, Bike, ConciergeBell, Crown, Leaf, MapPin, ShoppingCart, Star } from 'lucide-react'
 import { MENU_ITEMS } from '../../data/menu'
 import { gsap, MOTION_OK, useGSAP } from '../../lib/gsap'
+import { MOTION } from '../../lib/motion'
 
 // Every number here comes from the real menu data, not made-up review counts.
 const averageRating = (
@@ -26,38 +27,29 @@ export default function Hero() {
     () => {
       const mm = gsap.matchMedia()
 
+      // One coordinated entrance (about 1.4 s). Nothing waits for it: links and buttons work at once.
       mm.add(MOTION_OK, () => {
-        const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.8 } })
+        const tl = gsap.timeline({ defaults: { ease: MOTION.ease, duration: MOTION.duration } })
 
-        // Text column, top to bottom
-        tl.from('[data-hero="badge"]', { y: 16, autoAlpha: 0, duration: 0.6 })
-          .from('[data-hero="line"]', { y: 44, autoAlpha: 0, stagger: 0.12, duration: 0.9 }, '-=0.3')
-          .from(
-            '[data-hero="mark"]',
-            { scaleX: 0, transformOrigin: 'left center', duration: 0.7, ease: 'power2.inOut' },
-            '-=0.35',
-          )
-          .from('[data-hero="text"]', { y: 20, autoAlpha: 0 }, '-=0.5')
-          .from('[data-hero="cta"]', { y: 16, autoAlpha: 0 }, '-=0.5')
-          .from('[data-hero="stat"]', { y: 16, autoAlpha: 0, stagger: 0.08 }, '-=0.45')
+        // Words, top to bottom
+        tl.from('[data-hero="badge"]', { y: 16, autoAlpha: 0, duration: 0.5 })
+          .from('[data-hero="line"]', { y: 32, autoAlpha: 0, stagger: 0.1 }, '-=0.3')
+          .from('[data-hero="mark"]', { scaleX: 0, transformOrigin: 'left center', duration: 0.5, ease: 'power2.inOut' }, '-=0.25')
+          .from('[data-hero="text"]', { y: 20, autoAlpha: 0 }, '-=0.3')
+          .from('[data-hero="cta"] > *', { y: 16, autoAlpha: 0, stagger: MOTION.stagger }, '-=0.35')
+          .from('[data-hero="stat"]', { y: 16, autoAlpha: 0, stagger: 0.08 }, '-=0.3')
 
-        // Visual column, in parallel
-        tl.from('[data-hero="blob"]', { scale: 0.7, autoAlpha: 0, duration: 1.2, ease: 'back.out(1.2)' }, 0.1)
-          .from('[data-hero="photo"]', { scale: 0.8, rotate: -12, autoAlpha: 0, duration: 1.2 }, 0.25)
-          .from('[data-hero="leaf"]', { scale: 0, rotate: -60, autoAlpha: 0, stagger: 0.08, duration: 0.7, ease: 'back.out(2)' }, 0.8)
-          .from('[data-hero="float"]', { y: 24, scale: 0.92, autoAlpha: 0, stagger: 0.15, duration: 0.7, ease: 'back.out(1.6)' }, 0.9)
-
+        // Picture: blob grows, photo comes in from the right and settles, then the small cards
+        tl.from('[data-hero="blob"]', { scale: 0.85, autoAlpha: 0, duration: 0.9 }, 0.1)
+          .from('[data-hero="photo"]', { x: 60, scale: 0.96, autoAlpha: 0, duration: 0.9 }, 0.2)
+          .from('[data-hero="leaf"]', { scale: 0, autoAlpha: 0, stagger: 0.05, duration: 0.4, ease: MOTION.pop }, 0.7)
+          .from('[data-hero="float"]', { y: MOTION.offset * 0.7, autoAlpha: 0, stagger: 0.12, duration: 0.5 }, 0.9)
       })
 
-      // Gentle depth while the page scrolls (large screens only): photo and cards drift at different speeds.
+      // Very small depth on the photo while the hero scrolls away (desktop only).
       mm.add(`${MOTION_OK} and (min-width: 1024px)`, () => {
         gsap.to('[data-hero="photo"]', {
-          yPercent: -6,
-          ease: 'none',
-          scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
-        })
-        gsap.to('[data-hero="float"]', {
-          y: -40,
+          yPercent: -4,
           ease: 'none',
           scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom top', scrub: true },
         })
@@ -118,14 +110,14 @@ export default function Hero() {
           <div data-hero="cta" className="mt-9 flex flex-wrap justify-center gap-4 lg:justify-start">
             <a
               href="#menu"
-              className="group inline-flex items-center gap-2 rounded-2xl bg-gold px-8 py-4 text-lg font-bold text-on-gold shadow-[0_12px_24px_rgba(255,191,0,0.35)] transition-transform hover:-translate-y-0.5 active:translate-y-0"
+              className="group inline-flex items-center gap-2 rounded-2xl bg-gold px-8 py-4 text-lg font-bold text-on-gold shadow-[0_12px_24px_rgba(255,191,0,0.35)] transition-[translate] hover:-translate-y-0.5 active:translate-y-0"
             >
               Explore Menu
-              <ArrowRight size={20} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
+              <ArrowRight size={20} aria-hidden="true" className="transition-[translate] group-hover:translate-x-1" />
             </a>
             <a
               href="#menu"
-              className="inline-flex items-center gap-2.5 rounded-2xl border-2 border-ink bg-white/60 px-8 py-4 text-lg font-bold transition-colors hover:bg-ink hover:text-white"
+              className="inline-flex items-center gap-2.5 rounded-2xl border-2 border-ink bg-white/60 px-8 py-4 text-lg font-bold transition-[background-color,color] hover:bg-ink hover:text-white"
             >
               <ShoppingCart size={20} aria-hidden="true" />
               Order Now

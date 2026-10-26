@@ -1,10 +1,14 @@
 import { useRef } from 'react'
-import { gsap, MOTION_OK, useGSAP } from './gsap'
+import { gsap, MOTION_OK, ScrollTrigger, useGSAP } from './gsap'
+import { MOTION } from './motion'
 
 /**
- * Fades + slides up every element marked `data-reveal` inside the returned ref,
- * one after another, the first time the section scrolls into view.
- * Does nothing for users who prefer reduced motion (content just shows).
+ * Fades + slides up every element marked `data-reveal` inside the returned ref.
+ * Each element animates when IT scrolls into view (things that enter together are staggered),
+ * so tall sections on phones don't finish animating before you reach them.
+ *
+ * Content is only hidden by JavaScript right before it is animated, so if scripts fail
+ * everything is simply visible. Reduced motion: nothing moves, everything shows.
  */
 export function useReveal<T extends HTMLElement>() {
   const ref = useRef<T>(null)
@@ -19,17 +23,21 @@ export function useReveal<T extends HTMLElement>() {
         const items = gsap.utils.toArray<HTMLElement>(section.querySelectorAll('[data-reveal]'))
         if (items.length === 0) return
 
-        gsap.from(items, {
-          y: 28,
-          autoAlpha: 0,
-          duration: 0.7,
-          ease: 'power3.out',
-          stagger: 0.12,
-          scrollTrigger: {
-            trigger: section,
-            start: 'top 80%', // when the section's top reaches 80% down the screen
-            once: true, // play once, never hide again on scroll up
-          },
+        gsap.set(items, { autoAlpha: 0, y: MOTION.offset })
+        ScrollTrigger.batch(items, {
+          start: 'top 88%',
+          once: true,
+          interval: 0.1,
+          onEnter: (batch) =>
+            gsap.to(batch, {
+              autoAlpha: 1,
+              y: 0,
+              duration: MOTION.duration,
+              ease: MOTION.ease,
+              stagger: MOTION.stagger,
+              overwrite: true,
+              clearProps: 'transform,visibility',
+            }),
         })
       })
 

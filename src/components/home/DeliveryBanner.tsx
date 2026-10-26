@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { ArrowRight, Bike, ChefHat, CreditCard, MapPin, Truck } from 'lucide-react'
 import { gsap, MOTION_OK, useGSAP } from '../../lib/gsap'
+import { MOTION } from '../../lib/motion'
 import { useReveal } from '../../lib/useReveal'
 
 const features = [
@@ -36,17 +37,18 @@ export default function DeliveryBanner() {
       mm.add(MOTION_OK, () => {
         gsap
           .timeline({
-            defaults: { ease: 'power3.out' },
-            scrollTrigger: { trigger: visual.current, start: 'top 75%', once: true },
+            defaults: { ease: MOTION.ease, duration: MOTION.duration },
+            scrollTrigger: { trigger: visual.current, start: 'top 78%', once: true },
           })
-          .from('[data-dl="sun"]', { scale: 0.6, autoAlpha: 0, duration: 1, ease: 'back.out(1.3)' })
-          .from('[data-dl="phone"]', { y: 80, rotate: 8, autoAlpha: 0, duration: 1.1 }, 0.15)
-          // The progress bar fills once to "Out for delivery".
-          .from('[data-dl="progress"]', { scaleX: 0, transformOrigin: 'left center', duration: 1.2, ease: 'power2.inOut' }, 0.8)
-          .from('[data-dl="dot"]', { scale: 0, stagger: 0.35, duration: 0.4, ease: 'back.out(3)' }, 0.8)
-          .from('[data-dl="route"]', { strokeDashoffset: 300, duration: 1.4, ease: 'power2.out' }, 0.7)
-          .from('[data-dl="deco"]', { scale: 0, autoAlpha: 0, stagger: 0.06, duration: 0.5, ease: 'back.out(2)' }, 0.7)
-          .from('[data-dl="float"]', { y: 24, autoAlpha: 0, stagger: 0.15, duration: 0.7, ease: 'back.out(1.6)' }, 0.9)
+          .from('[data-dl="sun"]', { scale: 0.85, autoAlpha: 0, duration: 0.8 })
+          // The phone slides in from the right and settles.
+          .from('[data-dl="phone"]', { x: 70, autoAlpha: 0, duration: 0.8 }, 0.1)
+          // The (simulated) progress bar fills once to "Out for delivery".
+          .from('[data-dl="progress"]', { scaleX: 0, transformOrigin: 'left center', duration: 0.9, ease: 'power2.inOut' }, 0.6)
+          .from('[data-dl="dot"]', { scale: 0, stagger: 0.25, duration: 0.3, ease: MOTION.pop }, 0.6)
+          .from('[data-dl="route"]', { strokeDashoffset: 300, duration: 1.1 }, 0.5)
+          .from('[data-dl="deco"]', { scale: 0, autoAlpha: 0, stagger: 0.05, duration: 0.4, ease: MOTION.pop }, 0.5)
+          .from('[data-dl="float"]', { y: 16, autoAlpha: 0, stagger: 0.12, duration: 0.5 }, 0.7)
       })
       return () => mm.revert()
     },
@@ -110,7 +112,7 @@ export default function DeliveryBanner() {
           <a
             data-reveal
             href="#menu"
-            className="group mt-9 inline-flex items-center gap-2 rounded-full bg-gold px-8 py-4 font-bold text-on-gold shadow-[0_12px_24px_rgba(255,191,0,0.35)] transition-transform hover:-translate-y-0.5 active:translate-y-0"
+            className="group mt-9 inline-flex items-center gap-2 rounded-full bg-gold px-8 py-4 font-bold text-on-gold shadow-[0_12px_24px_rgba(255,191,0,0.35)] transition-[translate] hover:-translate-y-0.5 active:translate-y-0"
           >
             Start your order
             <ArrowRight size={18} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />

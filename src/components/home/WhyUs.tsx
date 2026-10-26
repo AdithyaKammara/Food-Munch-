@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { MENU_ITEMS } from '../../data/menu'
 import { gsap, MOTION_OK, useGSAP } from '../../lib/gsap'
+import { countUp, MOTION } from '../../lib/motion'
 import { useReveal } from '../../lib/useReveal'
 
 // Real numbers from the menu data (no made-up customer counts).
@@ -54,10 +55,11 @@ const benefits = [
   },
 ]
 
+// Real numbers only (from the menu data). `count` drives the count-up animation.
 const stats = [
-  { icon: ConciergeBell, value: String(MENU_ITEMS.length), label: 'Signature dishes' },
-  { icon: Star, value: `${averageRating}★`, label: 'Average rating' },
-  { icon: UtensilsCrossed, value: String(courseCount), label: 'Menu courses' },
+  { icon: ConciergeBell, count: MENU_ITEMS.length, decimals: 0, suffix: '', label: 'Signature dishes' },
+  { icon: Star, count: Number(averageRating), decimals: 1, suffix: '★', label: 'Average rating' },
+  { icon: UtensilsCrossed, count: courseCount, decimals: 0, suffix: '', label: 'Menu courses' },
 ]
 
 const floatCard = 'absolute rounded-2xl bg-white shadow-[0_16px_36px_rgba(79,54,10,0.14)]'
@@ -65,25 +67,41 @@ const floatCard = 'absolute rounded-2xl bg-white shadow-[0_16px_36px_rgba(79,54,
 export default function WhyUs() {
   const ref = useReveal<HTMLElement>()
   const visual = useRef<HTMLDivElement>(null)
+  const statsRef = useRef<HTMLDListElement>(null)
 
-  // The food visual: blob grows, photo settles, cards pop in when it scrolls into view.
+  // The food visual: blob grows, photo rises and settles, small cards fade in last.
   useGSAP(
     () => {
       const mm = gsap.matchMedia()
       mm.add(MOTION_OK, () => {
         gsap
           .timeline({
-            defaults: { ease: 'power3.out' },
-            scrollTrigger: { trigger: visual.current, start: 'top 75%', once: true },
+            defaults: { ease: MOTION.ease, duration: MOTION.duration },
+            scrollTrigger: { trigger: visual.current, start: 'top 78%', once: true },
           })
-          .from('[data-why="blob"]', { scale: 0.75, autoAlpha: 0, duration: 1.1, ease: 'back.out(1.2)' })
-          .from('[data-why="photo"]', { scale: 0.88, rotate: -4, autoAlpha: 0, duration: 1.1 }, 0.15)
-          .from('[data-why="deco"]', { scale: 0, autoAlpha: 0, stagger: 0.07, duration: 0.6, ease: 'back.out(2)' }, 0.6)
-          .from('[data-why="float"]', { y: 24, autoAlpha: 0, stagger: 0.15, duration: 0.7, ease: 'back.out(1.6)' }, 0.7)
+          .from('[data-why="blob"]', { scale: 0.88, autoAlpha: 0, duration: 0.8 })
+          .from('[data-why="photo"]', { y: 32, scale: 0.96, autoAlpha: 0, duration: 0.8 }, 0.1)
+          .from('[data-why="deco"]', { scale: 0, autoAlpha: 0, stagger: 0.05, duration: 0.4, ease: MOTION.pop }, 0.5)
+          .from('[data-why="float"]', { y: 16, autoAlpha: 0, stagger: 0.12, duration: 0.5 }, 0.6)
       })
       return () => mm.revert()
     },
     { scope: visual },
+  )
+
+  // Count the real stats up once, when they come into view.
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia()
+      mm.add(MOTION_OK, () => {
+        statsRef.current?.querySelectorAll<HTMLElement>('[data-count]').forEach((el, i) => {
+          const s = stats[i]
+          countUp(el, s.count, s.decimals, s.suffix)
+        })
+      })
+      return () => mm.revert()
+    },
+    { scope: statsRef },
   )
 
   return (
@@ -147,8 +165,8 @@ export default function WhyUs() {
             ))}
           </ul>
 
-          <dl data-reveal className="mt-10 grid grid-cols-3">
-            {stats.map(({ icon: Icon, value, label }, i) => (
+          <dl ref={statsRef} data-reveal className="mt-10 grid grid-cols-3">
+            {stats.map(({ icon: Icon, count, decimals, suffix, label }, i) => (
               <div
                 key={label}
                 className={`flex flex-col items-start gap-2 px-3 sm:flex-row sm:items-center sm:gap-3 sm:px-6 ${
@@ -160,7 +178,14 @@ export default function WhyUs() {
                 </span>
                 <div className="flex flex-col-reverse leading-tight">
                   <dt className="text-[13px] text-muted sm:text-sm">{label}</dt>
-                  <dd className="font-display text-2xl font-extrabold sm:text-3xl">{value}</dd>
+                  <dd className="font-display text-2xl font-extrabold tabular-nums sm:text-3xl">
+                    {/* The visible number counts up; screen readers get the final value straight away. */}
+                    <span data-count aria-hidden="true">
+                      {count.toFixed(decimals)}
+                      {suffix}
+                    </span>
+                    <span className="sr-only">{count.toFixed(decimals)}</span>
+                  </dd>
                 </div>
               </div>
             ))}

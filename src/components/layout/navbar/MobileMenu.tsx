@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { ReceiptText, Truck, User, X } from 'lucide-react'
 import { useOrdersStore } from '../../../store/ordersStore'
@@ -33,10 +34,10 @@ export default function MobileMenu({ open, onOpenChange, active }: Props) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+        <Dialog.Overlay className="motion-overlay fixed inset-0 z-50 bg-black/40" />
         <Dialog.Content
           id="mobile-menu"
-          className="fixed right-0 top-0 z-50 flex h-full w-full max-w-sm flex-col overflow-y-auto bg-[#fffaf1] p-5 shadow-card-hover"
+          className="motion-drawer fixed right-0 top-0 z-50 flex h-full w-full max-w-sm flex-col overflow-y-auto bg-[#fffaf1] p-5 shadow-card-hover"
         >
           <div className="flex items-center justify-between">
             <BrandLogo onClick={close} />
@@ -56,8 +57,8 @@ export default function MobileMenu({ open, onOpenChange, active }: Props) {
 
           <nav aria-label="Main" className="mt-4">
             <ul className="space-y-1">
-              {NAV_LINKS.map(({ id, label, icon: Icon }) => (
-                <li key={id}>
+              {NAV_LINKS.map(({ id, label, icon: Icon }, i) => (
+                <li key={id} className="motion-rise" style={{ '--i': i } as CSSProperties}>
                   <a
                     href={`#${id}`}
                     onClick={close}

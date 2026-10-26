@@ -19,8 +19,8 @@ export default function HistoryDialog() {
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/45" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-[calc(100%-1.5rem)] max-w-[40rem] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-[1.75rem] bg-[#fffaf1] shadow-[0_30px_80px_rgba(0,0,0,0.3)]">
+        <Dialog.Overlay className="motion-overlay fixed inset-0 z-50 bg-black/45" />
+        <Dialog.Content className="motion-dialog fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-[calc(100%-1.5rem)] max-w-[40rem] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-[1.75rem] bg-[#fffaf1] shadow-[0_30px_80px_rgba(0,0,0,0.3)]">
           {/* ---------- Header ---------- */}
           <div className="relative flex items-center gap-4 px-5 pb-5 pt-6 sm:gap-5 sm:px-8 sm:pt-7">
             <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-[#ffe7a3] text-ink sm:h-[4.5rem] sm:w-[4.5rem]">

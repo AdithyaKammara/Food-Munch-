@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Award,
   ChefHat,
@@ -6,6 +6,7 @@ import {
   Coffee,
   Crown,
   Flame,
+  Check,
   Heart,
   Leaf,
   ShoppingCart,
@@ -17,6 +18,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import type { MenuItem } from '../../data/menu'
+import { pop } from '../../lib/motion'
 import { useFavoritesStore } from '../../store/favoritesStore'
 
 interface Props {
@@ -51,8 +53,20 @@ export default function DishCard({ item, onAdd }: Props) {
   const badge = badgeFor(item.ribbon)
   const BadgeIcon = badge.icon
 
+  const heartRef = useRef<SVGSVGElement>(null)
+  // Brief "Added" state on the button, only for dishes that go straight into the bag
+  // (dishes with options open the customise dialog first, so nothing is added yet).
+  const [added, setAdded] = useState(false)
+  useEffect(() => {
+    if (!added) return
+    const timer = setTimeout(() => setAdded(false), 1400)
+    return () => clearTimeout(timer)
+  }, [added])
+
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl bg-surface shadow-[0_6px_20px_rgba(79,54,10,0.07)] ring-1 ring-[#f1e6cf] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_rgba(79,54,10,0.14)]">
+    <article data-reveal
+      data-id={item.id}
+      className="group flex h-full flex-col overflow-hidden rounded-2xl bg-surface shadow-[0_6px_20px_rgba(79,54,10,0.07)] ring-1 ring-[#f1e6cf] transition-[translate,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_rgba(79,54,10,0.14)]">
       {/* Photo */}
       <div className="relative aspect-[16/10] overflow-hidden bg-cream-deep">
         {imgFailed ? (
@@ -80,10 +94,14 @@ export default function DishCard({ item, onAdd }: Props) {
           type="button"
           aria-pressed={isFav}
           aria-label={isFav ? `Remove ${item.title} from favourites` : `Add ${item.title} to favourites`}
-          onClick={() => toggleFav(item.id)}
+          onClick={() => {
+            toggleFav(item.id)
+            pop(heartRef.current, 1.35)
+          }}
           className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-white shadow-sm transition-transform hover:scale-110 active:scale-95"
         >
           <Heart
+            ref={heartRef}
             size={18}
             aria-hidden="true"
             fill={isFav ? 'currentColor' : 'none'}
@@ -128,12 +146,26 @@ export default function DishCard({ item, onAdd }: Props) {
           <span className="font-display text-[22px] font-extrabold">₹{item.price}</span>
           <button
             type="button"
-            onClick={() => onAdd(item)}
+            onClick={() => {
+              onAdd(item)
+              if (!item.customizable) setAdded(true)
+            }}
             aria-label={`Add ${item.title} to cart`}
-            className="inline-flex items-center gap-2 rounded-full bg-gold px-4 py-2.5 text-sm font-bold text-on-gold transition-transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+            className={`inline-flex min-w-[8.25rem] items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-[background-color,color,translate,scale] duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 ${
+              added ? 'bg-ink text-white' : 'bg-gold text-on-gold'
+            }`}
           >
-            <ShoppingCart size={16} aria-hidden="true" />
-            Add to Cart
+            {added ? (
+              <>
+                <Check size={16} aria-hidden="true" strokeWidth={3} className="motion-pop" />
+                Added
+              </>
+            ) : (
+              <>
+                <ShoppingCart size={16} aria-hidden="true" />
+                Add to Cart
+              </>
+            )}
           </button>
         </div>
       </div>

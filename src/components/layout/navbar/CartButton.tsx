@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { ShoppingCart } from 'lucide-react'
 import { gsap, MOTION_OK, useGSAP } from '../../../lib/gsap'
+import { MOTION } from '../../../lib/motion'
 import { selectCartCount, useCartStore } from '../../../store/cartStore'
 import { useUiStore } from '../../../store/uiStore'
 import IconButton from './IconButton'
@@ -22,14 +23,11 @@ export default function CartButton() {
 
       const mm = gsap.matchMedia()
       mm.add(MOTION_OK, () => {
-        gsap
-          .timeline()
-          .fromTo(button, { scale: 1 }, { scale: 1.18, duration: 0.15, ease: 'power2.out' })
-          .to(button, { scale: 1, duration: 0.5, ease: 'elastic.out(1, 0.5)', clearProps: 'transform' })
-        const badge = button.querySelector('[data-cart-badge]')
-        if (badge) {
-          gsap.fromTo(badge, { scale: 0.4 }, { scale: 1, duration: 0.4, ease: 'back.out(3)', clearProps: 'transform' })
-        }
+        gsap.fromTo(
+          button,
+          { scale: 1.15 },
+          { scale: 1, duration: MOTION.quick + 0.15, ease: MOTION.pop, clearProps: 'scale,transform' },
+        )
       })
       return () => mm.revert()
     },
@@ -41,8 +39,9 @@ export default function CartButton() {
       <ShoppingCart size={20} aria-hidden="true" />
       {count > 0 && (
         <span
+          key={count}
           data-cart-badge
-          className="absolute -right-1 -top-1 grid h-6 min-w-6 place-items-center rounded-full bg-ink px-1 text-xs font-bold text-white ring-2 ring-white"
+          className="motion-pop absolute -right-1 -top-1 grid h-6 min-w-6 place-items-center rounded-full bg-ink px-1 text-xs font-bold text-white ring-2 ring-white"
         >
           {count}
         </span>

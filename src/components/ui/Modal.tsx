@@ -20,9 +20,9 @@ export default function Modal({ open, onClose, title, description, children, wid
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+        <Dialog.Overlay className="motion-overlay fixed inset-0 z-50 bg-black/40" />
         <Dialog.Content
-          className={`fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl bg-surface p-6 shadow-card-hover ${
+          className={`motion-dialog fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl bg-surface p-6 shadow-card-hover ${
             wide ? 'max-w-xl' : 'max-w-md'
           }`}
         >

@@ -5,6 +5,7 @@ import { MENU_ITEMS, type Category, type MenuItem } from '../../data/menu'
 import { gsap, MOTION_OK, useGSAP } from '../../lib/gsap'
 import { filterMenu, type SortKey } from '../../lib/menuFilters'
 import type { CartLine } from '../../lib/pricing'
+import { MOTION } from '../../lib/motion'
 import { useReveal } from '../../lib/useReveal'
 import { useCartStore } from '../../store/cartStore'
 import { useFavoritesStore } from '../../store/favoritesStore'
@@ -50,39 +51,43 @@ export default function MenuSection() {
     [category, query, vegOnly, highProtein, favouritesOnly, favouriteIds, sort],
   )
 
-  // Fade the cards in when a filter changes (but not while typing in search,
-  // and not on the first page load).
-  const filterKey = `${category}|${vegOnly}|${highProtein}|${favouritesOnly}|${sort}`
-  const previousFilterKey = useRef(filterKey)
+  // When filters change, only the cards that weren't showing before fade in.
+  // Cards that stay on screen are left alone, so filtering never feels like a reload.
+  const itemsKey = items.map((m) => m.id).join(',')
+  const shownIds = useRef<Set<number> | null>(null)
 
   useGSAP(
     () => {
-      if (previousFilterKey.current === filterKey) return
-      previousFilterKey.current = filterKey
-
       const grid = gridRef.current
-      if (!grid) return
+      const ids = new Set(items.map((m) => m.id))
+      const before = shownIds.current
+      shownIds.current = ids
+      if (!grid || !before) return // first render: the scroll reveal handles it
+
+      const entering = Array.from(grid.querySelectorAll<HTMLElement>('[data-id]')).filter(
+        (el) => !before.has(Number(el.dataset.id)),
+      )
+      if (entering.length === 0) return
 
       const mm = gsap.matchMedia()
       mm.add(MOTION_OK, () => {
         gsap.fromTo(
-          grid.children,
-          { autoAlpha: 0, y: 16 },
+          entering.slice(0, 8), // never animate a big batch at once
+          { autoAlpha: 0, y: 14 },
           {
             autoAlpha: 1,
             y: 0,
-            duration: 0.35,
-            ease: 'power2.out',
+            duration: 0.4,
+            ease: MOTION.ease,
             stagger: 0.04,
             overwrite: true,
-            // Remove GSAP's inline styles afterwards so card hover effects keep working.
             clearProps: 'transform,opacity,visibility',
           },
         )
       })
       return () => mm.revert()
     },
-    { dependencies: [filterKey], revertOnUpdate: true },
+    { dependencies: [itemsKey] },
   )
 
   const confirmLine = (line: Omit<CartLine, 'qty'>) => {
