@@ -94,10 +94,9 @@ export default function WhyUs() {
         className="absolute -left-24 -top-24 -z-10 h-64 w-64 rounded-full bg-[#ffe7a3]/70"
       />
 
-      <div className="mx-auto grid max-w-7xl items-center gap-16 px-4 sm:px-6 lg:grid-cols-[1.2fr_1fr] lg:gap-10">
-        {/* ---------- Left: heading, benefit grid, stats ---------- */}
-        <div>
-          <div data-reveal className="text-center">
+      {/* Phones: heading, photo, cards, stats. Large screens: words on the left, photo on the right. */}
+      <div className="mx-auto grid max-w-7xl items-center gap-x-10 px-4 sm:px-6 lg:grid-cols-[1.2fr_1fr]">
+          <div data-reveal className="order-1 text-center lg:order-none lg:col-start-1 lg:row-start-1">
             <p className="flex items-center justify-center gap-4">
               <span aria-hidden="true" className="h-px w-12 bg-ink/40" />
               <span className="rounded-full bg-[#ffe7a3] px-5 py-2 text-xs font-bold uppercase tracking-wider text-on-gold">
@@ -106,7 +105,7 @@ export default function WhyUs() {
               <span aria-hidden="true" className="h-px w-12 bg-ink/40" />
             </p>
 
-            <h2 className="mt-6 font-display text-4xl font-extrabold leading-[1.1] tracking-[-0.03em] sm:text-5xl xl:text-[3.4rem]">
+            <h2 className="mt-6 font-display text-[1.85rem] font-extrabold leading-[1.12] min-[400px]:text-4xl tracking-[-0.03em] sm:text-5xl xl:text-[3.4rem]">
               More Than Just Food,
               <br />
               <span className="relative isolate inline-block px-[0.12em]">
@@ -131,18 +130,19 @@ export default function WhyUs() {
             </p>
           </div>
 
-          <ul className="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="order-3 lg:order-none lg:col-start-1 lg:row-start-2">
+          <ul className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:mt-12 lg:grid-cols-2 xl:grid-cols-3">
             {benefits.map(({ icon: Icon, title, text }) => (
               <li
                 key={title}
                 data-reveal
-                className="rounded-2xl border border-[#f1e4c9] bg-white/70 p-5 transition-colors hover:border-gold hover:bg-white"
+                className="rounded-2xl border border-[#f1e4c9] bg-white/70 p-4 transition-colors hover:border-gold hover:bg-white sm:p-5"
               >
-                <span className="grid h-12 w-12 place-items-center rounded-full bg-gold text-ink">
-                  <Icon size={22} aria-hidden="true" />
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-gold text-ink sm:h-12 sm:w-12">
+                  <Icon size={20} aria-hidden="true" />
                 </span>
-                <h3 className="mt-4 text-lg font-bold leading-snug">{title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted">{text}</p>
+                <h3 className="mt-3 text-[15px] font-bold leading-snug sm:mt-4 sm:text-lg">{title}</h3>
+                <p className="mt-1 text-[13px] leading-relaxed text-muted sm:mt-1.5 sm:text-sm">{text}</p>
               </li>
             ))}
           </ul>
@@ -168,7 +168,10 @@ export default function WhyUs() {
         </div>
 
         {/* ---------- Right: food photo on a golden blob ---------- */}
-        <div ref={visual} className="relative mx-auto mb-20 aspect-square w-full max-w-[36rem] sm:mb-10 lg:mb-0">
+        <div
+          ref={visual}
+          className="relative order-2 mx-auto mb-16 mt-14 aspect-square lg:order-none w-full max-w-[26rem] sm:mb-10 sm:max-w-[36rem] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:my-0"
+        >
           <div data-why="blob" aria-hidden="true" className="absolute inset-[-8%] -z-10">
             <svg viewBox="0 0 600 600" className="h-full w-full overflow-visible">
               <path
