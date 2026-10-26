@@ -54,7 +54,7 @@ export default function DeliveryBanner() {
   )
 
   return (
-    <section ref={ref} id="delivery" className="scroll-mt-20 px-4 py-16 sm:px-6 md:py-20">
+    <section ref={ref} id="delivery" className="px-4 py-16 sm:px-6 md:py-20">
       <div className="relative isolate mx-auto grid max-w-7xl items-center gap-12 overflow-hidden rounded-[2rem] bg-[#fff8ec] px-6 py-12 ring-1 ring-[#f3e6cc] sm:px-10 lg:grid-cols-[1.45fr_1fr] lg:gap-6 lg:px-14 lg:py-10">
         {/* ---------- Left: words ---------- */}
         <div>

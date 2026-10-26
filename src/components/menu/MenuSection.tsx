@@ -8,6 +8,7 @@ import type { CartLine } from '../../lib/pricing'
 import { useReveal } from '../../lib/useReveal'
 import { useCartStore } from '../../store/cartStore'
 import { useFavoritesStore } from '../../store/favoritesStore'
+import { useUiStore } from '../../store/uiStore'
 import CustomizeDialog from './CustomizeDialog'
 import DishCard from './DishCard'
 
@@ -21,7 +22,9 @@ const CATEGORIES: { id: Category | 'all'; label: string }[] = [
 
 export default function MenuSection() {
   const [category, setCategory] = useState<Category | 'all'>('all')
-  const [query, setQuery] = useState('')
+  // Shared with the navbar search, so typing in either place filters the menu.
+  const query = useUiStore((s) => s.menuQuery)
+  const setQuery = useUiStore((s) => s.setMenuQuery)
   const [vegOnly, setVegOnly] = useState(false)
   const [highProtein, setHighProtein] = useState(false)
   const [favouritesOnly, setFavouritesOnly] = useState(false)
@@ -106,7 +109,7 @@ export default function MenuSection() {
   }
 
   return (
-    <section ref={sectionRef} id="menu" className="scroll-mt-20 px-4 py-20 sm:px-6 md:py-24">
+    <section ref={sectionRef} id="menu" className="px-4 py-20 sm:px-6 md:py-24">
       <div className="mx-auto max-w-7xl">
         <div data-reveal className="text-center">
           <p className="flex items-center justify-center gap-4 text-sm font-bold uppercase tracking-[0.18em] text-gold-text">

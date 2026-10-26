@@ -87,7 +87,7 @@ export default function WhyUs() {
   )
 
   return (
-    <section ref={ref} id="why-us" className="relative isolate scroll-mt-20 overflow-hidden bg-[#fff8ec] py-20 md:py-28">
+    <section ref={ref} id="why-us" className="relative isolate overflow-hidden bg-[#fff8ec] py-20 md:py-28">
       {/* Soft corner shape, top left */}
       <div
         aria-hidden="true"

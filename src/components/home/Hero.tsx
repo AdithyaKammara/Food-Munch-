@@ -69,7 +69,7 @@ export default function Hero() {
   )
 
   return (
-    <section ref={root} id="home" className="relative isolate scroll-mt-20 overflow-hidden">
+    <section ref={root} id="home" className="relative isolate overflow-hidden">
       <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 pb-20 pt-10 sm:px-6 md:pt-14 lg:min-h-[min(calc(100svh-65px),780px)] lg:grid-cols-[1.35fr_1fr] lg:gap-6 lg:py-12">
         {/* ---------- Text column ---------- */}
         <div className="text-center lg:text-left">

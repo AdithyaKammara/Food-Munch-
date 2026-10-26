@@ -34,7 +34,7 @@ export default function Footer() {
   const [policy, setPolicy] = useState<'privacy' | 'terms' | null>(null)
 
   return (
-    <footer ref={ref} id="contact" className="relative isolate scroll-mt-20 overflow-hidden bg-[#121212] text-white">
+    <footer ref={ref} id="contact" className="relative isolate overflow-hidden bg-[#121212] text-white">
       {/* Warm glow in the corners, like light from the kitchen */}
       <div
         aria-hidden="true"

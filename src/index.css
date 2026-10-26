@@ -23,6 +23,8 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Room for the floating navbar when jumping to a section */
+    scroll-padding-top: 6.5rem;
   }
 
   body {
