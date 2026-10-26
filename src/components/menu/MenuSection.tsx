@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import * as Switch from '@radix-ui/react-switch'
-import { Heart, Search } from 'lucide-react'
+import { BicepsFlexed, ChevronDown, Heart, Leaf, Search, X } from 'lucide-react'
 import { MENU_ITEMS, type Category, type MenuItem } from '../../data/menu'
 import { gsap, MOTION_OK, useGSAP } from '../../lib/gsap'
 import { filterMenu, type SortKey } from '../../lib/menuFilters'
@@ -106,28 +106,50 @@ export default function MenuSection() {
   }
 
   return (
-    <section ref={sectionRef} id="menu" className="scroll-mt-20 px-4 py-16">
-      <div className="mx-auto max-w-6xl">
+    <section ref={sectionRef} id="menu" className="scroll-mt-20 px-4 py-20 sm:px-6 md:py-24">
+      <div className="mx-auto max-w-7xl">
         <div data-reveal className="text-center">
-          <p className="text-xs font-bold uppercase tracking-widest text-gold-text">Explore menu</p>
-          <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl">Our Popular Dishes</h2>
-          <p className="mx-auto mt-3 max-w-xl text-muted">
-            Discover a wide range of delicious food items made with love.
+          <p className="flex items-center justify-center gap-4 text-sm font-bold uppercase tracking-[0.18em] text-gold-text">
+            <span aria-hidden="true" className="h-px w-12 bg-gold-dark/60" />
+            Explore menu
+            <span aria-hidden="true" className="h-px w-12 bg-gold-dark/60" />
           </p>
+
+          <h2 className="relative mx-auto mt-4 inline-block font-display text-4xl font-extrabold leading-tight tracking-[-0.03em] sm:text-5xl">
+            {/* Little gold sparks either side of the heading */}
+            <Sparks className="absolute -left-12 -top-1 hidden sm:block" />
+            <Sparks className="absolute -right-12 -top-1 hidden -scale-x-100 sm:block" />
+            Find Your Next{' '}
+            <span className="relative isolate inline-block px-[0.1em]">
+              Favourite
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 400 80"
+                preserveAspectRatio="none"
+                className="absolute -inset-x-[0.04em] bottom-[-0.04em] -z-10 h-[0.9em] w-[calc(100%+0.08em)]"
+              >
+                <path
+                  d="M8 22 C 70 6, 160 14, 250 8 S 370 4, 394 16 C 398 34, 392 52, 386 66 C 300 74, 200 70, 110 76 S 20 74, 6 64 C 2 50, 4 36, 8 22 Z"
+                  fill="var(--color-gold)"
+                />
+              </svg>
+            </span>
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-lg text-muted">Made fresh, packed with flavour.</p>
         </div>
 
         {/* Category pills */}
-        <div data-reveal className="mt-8 flex justify-start gap-2 overflow-x-auto pb-2 sm:justify-center">
+        <div data-reveal role="group" aria-label="Course" className="-mx-4 mt-8 flex justify-start gap-2.5 overflow-x-auto px-4 pb-2 sm:mx-0 sm:justify-center sm:px-0">
           {CATEGORIES.map((c) => (
             <button
               key={c.id}
               type="button"
               aria-pressed={category === c.id}
               onClick={() => setCategory(c.id)}
-              className={`shrink-0 rounded-full border px-5 py-2 text-sm font-semibold ${
+              className={`shrink-0 rounded-full border px-6 py-2.5 text-sm font-semibold transition-colors ${
                 category === c.id
-                  ? 'border-gold bg-gold text-on-gold'
-                  : 'border-line bg-surface hover:border-gold'
+                  ? 'border-gold bg-gold text-on-gold shadow-[0_6px_14px_rgba(255,191,0,0.35)]'
+                  : 'border-[#ead9b6] bg-surface hover:border-gold'
               }`}
             >
               {c.label}
@@ -136,8 +158,8 @@ export default function MenuSection() {
         </div>
 
         {/* Search and filters */}
-        <div data-reveal className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="relative w-full lg:max-w-sm">
+        <div data-reveal className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="relative w-full lg:max-w-md">
             <label htmlFor="menu-search" className="sr-only">
               Search dishes
             </label>
@@ -152,15 +174,32 @@ export default function MenuSection() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search dishes or ingredients..."
-              className="w-full rounded-full border border-line bg-surface py-2.5 pl-11 pr-4 text-sm"
+              className="w-full rounded-full border border-[#ead9b6] bg-surface py-3 pl-11 pr-11 text-sm placeholder:text-muted focus:border-gold"
             />
+            {query && (
+              <button
+                type="button"
+                aria-label="Clear search"
+                onClick={() => setQuery('')}
+                className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-muted hover:bg-cream-deep hover:text-ink"
+              >
+                <X size={16} aria-hidden="true" />
+              </button>
+            )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
-            <SwitchField id="veg-only" label="Veg only" checked={vegOnly} onChange={setVegOnly} />
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-3 sm:gap-x-6">
+            <SwitchField
+              id="veg-only"
+              label="Veg only"
+              icon={<Leaf size={16} aria-hidden="true" className="fill-green-600 text-green-700" />}
+              checked={vegOnly}
+              onChange={setVegOnly}
+            />
             <SwitchField
               id="high-protein"
               label="High protein (20g+)"
+              icon={<BicepsFlexed size={16} aria-hidden="true" />}
               checked={highProtein}
               onChange={setHighProtein}
             />
@@ -168,8 +207,8 @@ export default function MenuSection() {
               type="button"
               aria-pressed={favouritesOnly}
               onClick={() => setFavouritesOnly(!favouritesOnly)}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-semibold ${
-                favouritesOnly ? 'border-red-600 bg-red-50 text-red-700' : 'border-line bg-surface'
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
+                favouritesOnly ? 'border-red-600 bg-red-50 text-red-700' : 'border-[#ead9b6] bg-surface hover:border-gold'
               }`}
             >
               <Heart size={16} aria-hidden="true" fill={favouritesOnly ? 'currentColor' : 'none'} />
@@ -177,13 +216,14 @@ export default function MenuSection() {
             </button>
             <div className="flex items-center gap-2 text-sm">
               <label htmlFor="menu-sort" className="text-muted">
-                Sort
+                Sort:
               </label>
+              <span className="relative">
               <select
                 id="menu-sort"
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortKey)}
-                className="rounded-full border border-line bg-surface px-3 py-1.5"
+                className="appearance-none rounded-full border border-[#ead9b6] bg-surface py-2 pl-4 pr-10 font-medium hover:border-gold"
               >
                 <option value="default">Recommended</option>
                 <option value="price-asc">Price: Low to High</option>
@@ -192,11 +232,17 @@ export default function MenuSection() {
                 <option value="protein-desc">Protein: High to Low</option>
                 <option value="prep-asc">Fastest prep</option>
               </select>
+              <ChevronDown
+                size={16}
+                aria-hidden="true"
+                className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2"
+              />
+              </span>
             </div>
           </div>
         </div>
 
-        <p className="mt-4 text-sm text-muted" aria-live="polite">
+        <p className="mt-5 text-sm text-muted" aria-live="polite">
           Showing {items.length} {items.length === 1 ? 'dish' : 'dishes'}
         </p>
 
@@ -212,7 +258,7 @@ export default function MenuSection() {
             </button>
           </div>
         ) : (
-          <div ref={gridRef} className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div ref={gridRef} className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6">
             {items.map((item) => (
               <DishCard key={item.id} item={item} onAdd={handleAdd} />
             ))}
@@ -243,27 +289,42 @@ export default function MenuSection() {
 function SwitchField({
   id,
   label,
+  icon,
   checked,
   onChange,
 }: {
   id: string
   label: string
+  icon?: ReactNode
   checked: boolean
   onChange: (value: boolean) => void
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2.5">
       <Switch.Root
         id={id}
         checked={checked}
         onCheckedChange={onChange}
-        className="relative h-6 w-11 rounded-full bg-line data-[state=checked]:bg-gold"
+        className="relative h-6 w-11 rounded-full bg-[#ddd2bd] transition-colors data-[state=checked]:bg-gold"
       >
         <Switch.Thumb className="block h-5 w-5 translate-x-0.5 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-[22px]" />
       </Switch.Root>
-      <label htmlFor={id} className="cursor-pointer text-sm font-semibold">
+      <label htmlFor={id} className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-semibold">
+        {icon}
         {label}
       </label>
     </div>
+  )
+}
+
+/** Three small gold strokes that "burst" out beside the heading. */
+function Sparks({ className }: { className: string }) {
+  return (
+    <svg viewBox="0 0 40 40" aria-hidden="true" className={`h-9 w-9 text-gold ${className}`}>
+      <g stroke="currentColor" strokeWidth="5" strokeLinecap="round">
+        <line x1="30" y1="22" x2="18" y2="6" />
+        <line x1="30" y1="30" x2="8" y2="24" />
+      </g>
+    </svg>
   )
 }
