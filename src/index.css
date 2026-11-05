@@ -5,12 +5,26 @@
   --color-cream-deep: #fff2d6;
   --color-surface: #ffffff;
   --color-line: #eee5d4;
+  --color-line-strong: #ead9b6;
+  /* Edges of form fields: 3:1 against white, so a field can be seen as a field */
+  --color-field: #94897a;
   --color-ink: #171717;
   --color-muted: #68645c;
   --color-gold: #ffbf00;
+  --color-gold-soft: #ffe7a3;
   --color-gold-dark: #d99500;
+  /* Gold that is dark enough to read as large text on white */
+  --color-gold-deep: #b47500;
   --color-gold-text: #8a5a00;
   --color-on-gold: #251a00;
+  --color-leaf: #2f7d4f;
+  --color-leaf-deep: #1f5c39;
+  --color-leaf-soft: #e8f4ec;
+  /* Keyboard focus ring. Dark surfaces override this below. */
+  --color-focus: #8a5a00;
+  --color-roast: #2a1c06;
+  --color-roast-deep: #140d02;
+  --color-on-roast-muted: #dccfb6;
 
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif;
@@ -18,10 +32,14 @@
 
   --shadow-card: 0 8px 24px rgba(79, 54, 10, 0.06), 0 2px 8px rgba(79, 54, 10, 0.03);
   --shadow-card-hover: 0 16px 32px rgba(79, 54, 10, 0.12);
+  --shadow-lift: 0 24px 48px rgba(79, 54, 10, 0.2);
+  --shadow-gold: 0 10px 22px rgba(255, 191, 0, 0.38);
+  --shadow-dialog: 0 30px 80px rgba(0, 0, 0, 0.3);
 }
 
 @layer base {
   html {
+    overflow-x: clip;
     scroll-behavior: smooth;
     /* Room for the floating navbar when jumping to a section */
     scroll-padding-top: 6.5rem;
@@ -31,16 +49,35 @@
     background-color: var(--color-cream);
     color: var(--color-ink);
     font-family: var(--font-sans);
+    overflow-x: clip;
+    caret-color: var(--color-gold-text);
+  }
+
+  ::selection {
+    background-color: var(--color-gold-soft);
+    color: var(--color-ink);
   }
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
     letter-spacing: -0.025em;
+    min-width: 0;
+    overflow-wrap: break-word;
+    text-wrap: balance;
   }
 
   :focus-visible {
-    outline: 3px solid var(--color-gold-dark);
+    outline: 3px solid var(--color-focus);
     outline-offset: 2px;
+  }
+
+  footer, .dl-card {
+    --color-focus: var(--color-gold);
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
   }
 }
 
@@ -74,6 +111,68 @@
 .motion-pop { animation: fm-pop 0.3s ease-out } /* add inline-block on inline elements */
 /* A list item being removed */
 .motion-collapse { overflow: hidden; max-height: 12rem; animation: fm-collapse 0.24s ease-in forwards }
+
+/* ---------------------------------------------------------------
+   Delivery & payment. The plain layout is the default, so the section
+   reads fine on phones, with reduced motion, or if scripts fail.
+   DeliveryBanner adds .is-cinematic only when the pinned scroll runs.
+---------------------------------------------------------------- */
+.dl-card {
+  background: linear-gradient(145deg, var(--color-roast) 0%, var(--color-roast-deep) 100%);
+}
+
+.dl-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    700px circle at var(--mouse-x, 50%) var(--mouse-y, 40%),
+    color-mix(in srgb, var(--color-gold) 14%, transparent) 0%,
+    transparent 45%
+  );
+}
+
+/* Land exactly where the pin starts, not a navbar's height above it */
+#delivery:has(.is-cinematic) { scroll-margin-top: -6.5rem }
+
+.dl-stage.is-cinematic {
+  position: relative;
+  height: 100svh;
+  padding: 0;
+  overflow: hidden;
+}
+
+.is-cinematic .dl-intro,
+.is-cinematic .dl-outro {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  padding-inline: 1.5rem;
+}
+
+.is-cinematic .dl-intro { pointer-events: none }
+
+.is-cinematic .dl-card {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  max-width: none;
+  margin: 0;
+  border-radius: 0;
+}
+
+/* Clears the floating navbar once the card fills the screen */
+.is-cinematic .dl-grid {
+  height: 100%;
+  padding-block: 7rem 2rem;
+}
+
+@media (max-height: 760px) {
+  .is-cinematic .dl-phone-fit { scale: 0.82 }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

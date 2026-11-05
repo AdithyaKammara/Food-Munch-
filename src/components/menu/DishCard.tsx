@@ -65,10 +65,11 @@ export default function DishCard({ item, onAdd }: Props) {
 
   return (
     <article data-reveal
+      id={`dish-${item.id}`}
       data-id={item.id}
-      className="group flex h-full flex-col overflow-hidden rounded-2xl bg-surface shadow-[0_6px_20px_rgba(79,54,10,0.07)] ring-1 ring-[#f1e6cf] transition-[translate,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_rgba(79,54,10,0.14)]">
+      className="group flex h-full scroll-mt-8 flex-row overflow-hidden sm:flex-col rounded-2xl bg-surface shadow-card ring-1 ring-line transition-[translate,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lift">
       {/* Photo */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-cream-deep">
+      <div className="relative w-28 shrink-0 overflow-hidden bg-cream-deep sm:aspect-[16/10] sm:w-auto">
         {imgFailed ? (
           <div className="absolute inset-0 grid place-items-center text-gold-dark">
             <Utensils size={36} aria-hidden="true" />
@@ -85,7 +86,7 @@ export default function DishCard({ item, onAdd }: Props) {
           />
         )}
 
-        <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-bold text-ink shadow-sm">
+        <span className="absolute left-3 top-3 hidden items-center gap-1.5 rounded-full bg-white sm:inline-flex px-3 py-1 text-xs font-bold text-ink shadow-sm">
           <BadgeIcon size={14} aria-hidden="true" className={badge.tone} fill={BadgeIcon === Crown ? 'currentColor' : 'none'} />
           {badge.label}
         </span>
@@ -98,7 +99,7 @@ export default function DishCard({ item, onAdd }: Props) {
             toggleFav(item.id)
             pop(heartRef.current, 1.35)
           }}
-          className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-white shadow-sm transition-transform hover:scale-110 active:scale-95"
+          className="absolute left-1 top-1 grid h-11 w-11 place-items-center rounded-full bg-white sm:left-auto sm:right-2 sm:top-2 shadow-sm transition-transform hover:scale-110 active:scale-95"
         >
           <Heart
             ref={heartRef}
@@ -111,7 +112,7 @@ export default function DishCard({ item, onAdd }: Props) {
       </div>
 
       {/* Details */}
-      <div className="flex flex-1 flex-col px-4 pb-4 pt-3.5">
+      <div className="flex min-w-0 flex-1 flex-col px-3 py-3 sm:px-4 sm:pb-4 sm:pt-3.5">
         <div className="flex items-center gap-2">
           <span
             role="img"
@@ -122,10 +123,10 @@ export default function DishCard({ item, onAdd }: Props) {
           >
             <span className={`h-1.5 w-1.5 rounded-full ${item.veg ? 'bg-green-700' : 'bg-red-600'}`} />
           </span>
-          <h3 className="truncate text-[17px] font-bold leading-snug">{item.title}</h3>
+          <h3 className="min-w-0 text-base font-bold leading-snug sm:truncate sm:text-[17px]">{item.title}</h3>
         </div>
 
-        <p className="mt-1.5 line-clamp-2 min-h-10 text-sm leading-5 text-muted">{item.desc}</p>
+        <p className="mt-1.5 line-clamp-2 min-h-10 text-sm leading-5 text-muted max-sm:hidden">{item.desc}</p>
 
         <p className="mt-2.5 flex flex-wrap items-center gap-y-1 text-[13px] text-muted">
           <span className="inline-flex items-center gap-1 font-semibold text-ink">
@@ -142,8 +143,8 @@ export default function DishCard({ item, onAdd }: Props) {
           <span>{item.calories} kcal</span>
         </p>
 
-        <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-          <span className="font-display text-[22px] font-extrabold">₹{item.price}</span>
+        <div className="mt-auto flex items-center justify-between gap-2 pt-2.5 sm:gap-3 sm:pt-4">
+          <span className="font-display text-xl font-extrabold sm:text-[22px]">₹{item.price}</span>
           <button
             type="button"
             onClick={() => {
@@ -151,7 +152,7 @@ export default function DishCard({ item, onAdd }: Props) {
               if (!item.customizable) setAdded(true)
             }}
             aria-label={`Add ${item.title} to cart`}
-            className={`inline-flex min-w-[8.25rem] items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-[background-color,color,translate,scale] duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 ${
+            className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold sm:min-w-[8.25rem] transition-[background-color,color,translate,scale] duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 ${
               added ? 'bg-ink text-white' : 'bg-gold text-on-gold'
             }`}
           >
@@ -163,7 +164,7 @@ export default function DishCard({ item, onAdd }: Props) {
             ) : (
               <>
                 <ShoppingCart size={16} aria-hidden="true" />
-                Add to Cart
+                <span>Add<span className="hidden sm:inline"> to Cart</span></span>
               </>
             )}
           </button>

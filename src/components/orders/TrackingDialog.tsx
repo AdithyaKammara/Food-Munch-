@@ -14,24 +14,35 @@ export default function TrackingDialog() {
   const open = useUiStore((s) => s.panel === 'tracking')
   const closePanel = useUiStore((s) => s.closePanel)
 
+  // Every way out (button, X, Esc, clicking outside) lands here, so a delivered order always finishes.
+  const close = () => {
+    const { orders, activeOrderId, setActive } = useOrdersStore.getState()
+    const active = orders.find((o) => o.id === activeOrderId)
+    if (active && trackingStep(active.placedAt, Date.now()) === 4) setActive(null)
+    closePanel()
+  }
+
   return (
     <Modal
       open={open}
-      onClose={closePanel}
+      onClose={close}
       title="Order status"
       description="Demo timeline: it is simulated, not real GPS tracking."
       wide
     >
-      <TrackingBody />
+      <TrackingBody onClose={close} />
     </Modal>
   )
 }
 
-function TrackingBody() {
-  const order = useOrdersStore((s) => s.orders.find((o) => o.id === s.activeOrderId))
-  const setActive = useOrdersStore((s) => s.setActive)
+function TrackingBody({ onClose }: { onClose: () => void }) {
+  const activeOrder = useOrdersStore((s) => s.orders.find((o) => o.id === s.activeOrderId))
   const rateOrder = useOrdersStore((s) => s.rateOrder)
-  const closePanel = useUiStore((s) => s.closePanel)
+
+  // Closing a delivered order clears it, so keep showing it while the dialog fades out.
+  const [lastOrder, setLastOrder] = useState(activeOrder)
+  if (activeOrder && activeOrder !== lastOrder) setLastOrder(activeOrder)
+  const order = activeOrder ?? lastOrder
 
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
@@ -85,7 +96,7 @@ function TrackingBody() {
         aria-valuenow={percent}
         className="h-2 overflow-hidden rounded-full bg-line"
       >
-        <div className="h-full rounded-full bg-gold transition-all" style={{ width: `${percent}%` }} />
+        <div className="h-full origin-left rounded-full bg-gold transition-transform" style={{ transform: `scaleX(${percent / 100})` }} />
       </div>
 
       <p role="status" className="sr-only">
@@ -148,10 +159,7 @@ function TrackingBody() {
 
       <button
         type="button"
-        onClick={() => {
-          if (delivered) setActive(null)
-          closePanel()
-        }}
+        onClick={onClose}
         className="w-full rounded-full bg-gold px-6 py-3 font-bold text-on-gold shadow-card hover:shadow-card-hover"
       >
         {delivered ? 'Done' : 'Close (reopen from Track order)'}

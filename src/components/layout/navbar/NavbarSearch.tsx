@@ -30,7 +30,7 @@ export default function NavbarSearch({ id, onSubmit }: { id: string; onSubmit?: 
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search dishes..."
-        className="w-full rounded-full border border-[#eee2c8] bg-white py-3 pl-11 pr-10 text-sm placeholder:text-muted focus:border-gold [&::-webkit-search-cancel-button]:hidden"
+        className="w-full rounded-full border border-field bg-white py-3 pl-11 pr-10 text-sm placeholder:text-muted focus:border-gold [&::-webkit-search-cancel-button]:hidden"
       />
       {query && (
         <button
