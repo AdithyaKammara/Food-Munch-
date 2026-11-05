@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { ArrowRight, Bike, ConciergeBell, Crown, Leaf, MapPin, ShoppingCart, Star } from 'lucide-react'
+import { ArrowRight, Bike, ConciergeBell, Crown, Leaf, MapPin, Star } from 'lucide-react'
 import { MENU_ITEMS } from '../../data/menu'
 import { gsap, MOTION_OK, useGSAP } from '../../lib/gsap'
 import { MOTION } from '../../lib/motion'
@@ -11,14 +11,14 @@ const averageRating = (
 
 const stats = [
   { icon: ConciergeBell, value: String(MENU_ITEMS.length), label: 'Signature dishes', note: 'Authentic & delicious' },
-  { icon: Star, value: averageRating, label: 'Average rating', note: `Across all ${MENU_ITEMS.length} dishes` },
+  { icon: Star, value: averageRating, label: 'Average rating', note: 'Demo ratings' },
   { icon: Bike, value: '~22 min', label: 'Delivery time', note: 'Demo estimate' },
 ]
 
 // The "Chef's pick" card is a real dish from the menu.
 const featured = MENU_ITEMS.find((m) => m.id === 4) ?? MENU_ITEMS[0]
 
-const floatCard = 'absolute rounded-2xl bg-white/95 shadow-[0_18px_40px_rgba(79,54,10,0.14)]'
+const floatCard = 'absolute rounded-2xl bg-white/95 shadow-lift'
 
 export default function Hero() {
   const root = useRef<HTMLElement>(null)
@@ -62,22 +62,18 @@ export default function Hero() {
 
   return (
     <section ref={root} id="home" className="relative isolate overflow-hidden">
-      <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 pb-20 pt-10 sm:px-6 md:pt-14 lg:min-h-[min(calc(100svh-65px),780px)] lg:grid-cols-[1.35fr_1fr] lg:gap-6 lg:py-12">
+      <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 pb-10 pt-6 sm:gap-14 sm:px-6 sm:pb-20 md:pt-14 lg:min-h-[min(calc(100svh-65px),780px)] lg:grid-cols-[1.35fr_1fr] lg:gap-6 lg:py-12">
         {/* ---------- Text column ---------- */}
         <div className="text-center lg:text-left">
           <span
             data-hero="badge"
-            className="inline-flex items-center gap-2 rounded-full bg-green-50 px-4 py-2 text-sm font-semibold text-green-800 ring-1 ring-green-100"
+            className="inline-flex items-center gap-2 rounded-full bg-leaf-soft px-4 py-2 text-sm font-semibold text-leaf-deep ring-1 ring-leaf-soft"
           >
-            <span aria-hidden="true" className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-60" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-600" />
-            </span>
             Now delivering in Hyderabad (demo)
             <MapPin size={16} aria-hidden="true" />
           </span>
 
-          <h1 className="mt-7 font-display text-[2.6rem] font-extrabold leading-[1.08] tracking-[-0.035em] sm:text-6xl lg:text-[min(3.45vw,3.2rem)]">
+          <h1 className="mt-7 font-display text-[2.1rem] font-extrabold min-[380px]:text-[2.6rem] leading-[1.08] tracking-[-0.035em] sm:text-6xl lg:text-[min(3.45vw,3.2rem)]">
             <span data-hero="line" className="block">
               Delicious food<span className="-ml-[0.06em]">.</span>
             </span>
@@ -103,28 +99,19 @@ export default function Hero() {
           </h1>
 
           <p data-hero="text" className="mx-auto mt-7 max-w-xl text-lg leading-relaxed text-muted sm:text-xl lg:mx-0">
-            From authentic Hyderabadi biryanis to mouth-watering snacks and meals, Food Munch brings
-            you fresh, flavourful food at your doorstep.
+            Hyderabadi biryanis, snacks and meals, made fresh and brought to your door.
           </p>
 
           <div data-hero="cta" className="mt-9 flex flex-wrap justify-center gap-4 lg:justify-start">
             <a
               href="#menu"
-              className="group inline-flex items-center gap-2 rounded-2xl bg-gold px-8 py-4 text-lg font-bold text-on-gold shadow-[0_12px_24px_rgba(255,191,0,0.35)] transition-[translate] hover:-translate-y-0.5 active:translate-y-0"
+              className="inline-flex items-center rounded-2xl bg-gold px-8 py-4 text-lg font-bold text-on-gold shadow-gold transition-[translate] hover:-translate-y-0.5 active:translate-y-0"
             >
               Explore Menu
-              <ArrowRight size={20} aria-hidden="true" className="transition-[translate] group-hover:translate-x-1" />
-            </a>
-            <a
-              href="#menu"
-              className="inline-flex items-center gap-2.5 rounded-2xl border-2 border-ink bg-white/60 px-8 py-4 text-lg font-bold transition-[background-color,color] hover:bg-ink hover:text-white"
-            >
-              <ShoppingCart size={20} aria-hidden="true" />
-              Order Now
             </a>
           </div>
 
-          <dl className="mx-auto mt-12 grid max-w-2xl grid-cols-3 text-left lg:mx-0">
+          <dl className="mx-auto mt-12 hidden max-w-2xl grid-cols-3 text-left sm:grid lg:mx-0">
             {stats.map(({ icon: Icon, value, label, note }, i) => (
               <div
                 key={label}
@@ -139,7 +126,7 @@ export default function Hero() {
                     <span className="block text-[13px] font-medium text-ink sm:text-sm">{label}</span>
                     <span className="block text-xs text-muted">{note}</span>
                   </dt>
-                  <dd className="font-display text-xl font-extrabold sm:text-2xl">{value}</dd>
+                  <dd className="font-display text-xl font-extrabold tabular-nums sm:text-2xl">{value}</dd>
                 </div>
               </div>
             ))}
@@ -147,13 +134,13 @@ export default function Hero() {
         </div>
 
         {/* ---------- Visual column ---------- */}
-        <div className="relative mx-auto mb-24 aspect-square w-full max-w-[34rem] sm:mb-0">
+        <div className="relative mx-auto aspect-square w-full max-w-[17rem] sm:max-w-[34rem]">
           {/* Two-tone gold blob: the deep gold shape sits lower right, the pale one upper left */}
           <div data-hero="blob" aria-hidden="true" className="absolute inset-[-8%] -z-10">
             <svg viewBox="0 0 600 600" className="h-full w-full overflow-visible">
               <path
                 d="M300 20c96-6 186 44 230 128 40 78 30 170-12 236-40 64-118 88-196 80C232 456 150 430 96 370 40 306 18 214 50 142 82 72 208 26 300 20Z"
-                fill="#ffe7a3"
+                fill="var(--color-gold-soft)"
               />
               <path
                 d="M430 150c78 40 140 120 150 214 10 96-34 186-112 226-80 40-196 36-282-10-64-34-110-96-104-160 8-72 74-110 140-146 70-38 132-162 208-124Z"
@@ -170,47 +157,20 @@ export default function Hero() {
             width={1200}
             height={1200}
             fetchPriority="high"
-            className="absolute inset-[9%] h-[82%] w-[82%] rounded-full object-cover shadow-[0_30px_60px_rgba(79,54,10,0.25)] ring-[10px] ring-white"
+            className="absolute inset-[9%] h-[82%] w-[82%] rounded-full object-cover shadow-lift ring-[10px] ring-white"
           />
 
           {/* Decorative leaves and spice flecks */}
-          <Leaf data-hero="leaf" aria-hidden="true" className="absolute right-[6%] top-[2%] h-9 w-9 rotate-[25deg] fill-green-600 text-green-700" />
-          <Leaf data-hero="leaf" aria-hidden="true" className="absolute left-[2%] top-[34%] h-8 w-8 -rotate-45 fill-green-500 text-green-700" />
-          <Leaf data-hero="leaf" aria-hidden="true" className="absolute bottom-[14%] left-[6%] h-10 w-10 rotate-[140deg] fill-green-600 text-green-800" />
-          <span data-hero="leaf" aria-hidden="true" className="absolute right-[2%] top-[56%] h-2.5 w-2.5 rounded-full bg-red-500" />
-          <span data-hero="leaf" aria-hidden="true" className="absolute right-[12%] top-[16%] h-2 w-2 rounded-full bg-gold-dark" />
-          <span data-hero="leaf" aria-hidden="true" className="absolute bottom-[30%] left-[0%] h-2 w-2 rounded-full bg-red-400" />
-
-          {/* Card: rating */}
-          <div data-hero="float" className={`${floatCard} left-[0%] top-[2%] flex items-center gap-2.5 px-3 py-2.5 sm:left-[10%] sm:top-[4%] sm:gap-3 sm:px-4 sm:py-3`}>
-            <span className="grid h-11 w-11 place-items-center rounded-full bg-cream-deep text-gold-dark">
-              <Star size={22} aria-hidden="true" fill="currentColor" />
-            </span>
-            <span className="leading-tight">
-              <span className="block font-display text-xl font-extrabold">{averageRating}</span>
-              <span className="block text-sm font-medium">Average rating</span>
-              <span className="hidden text-xs text-muted sm:block">Across {MENU_ITEMS.length} dishes</span>
-            </span>
-          </div>
-
-          {/* Card: delivery time */}
-          <div data-hero="float" className={`${floatCard} right-[0%] top-[30%] flex items-center gap-2.5 px-3 py-2.5 sm:right-[-6%] sm:top-[28%] sm:gap-3 sm:px-4 sm:py-3`}>
-            <span className="grid h-11 w-11 place-items-center rounded-full bg-cream-deep text-gold-dark">
-              <Bike size={22} aria-hidden="true" />
-            </span>
-            <span className="leading-tight">
-              <span className="block font-display text-xl font-extrabold">~22 min</span>
-              <span className="block text-sm font-medium">Delivery time</span>
-              <span className="hidden text-xs text-muted sm:block">Demo estimate</span>
-            </span>
-          </div>
+          <Leaf data-hero="leaf" aria-hidden="true" className="absolute right-[6%] top-[2%] h-9 w-9 rotate-[25deg] fill-leaf text-leaf-deep" />
+          <Leaf data-hero="leaf" aria-hidden="true" className="absolute left-[2%] top-[34%] h-8 w-8 -rotate-45 fill-leaf text-leaf-deep" />
+          <Leaf data-hero="leaf" aria-hidden="true" className="absolute bottom-[14%] left-[6%] h-10 w-10 rotate-[140deg] fill-leaf text-leaf-deep" />
 
           {/* Card: chef's pick (a real dish from the menu) */}
           <div
             data-hero="float"
-            className={`${floatCard} bottom-[-24%] left-[0%] right-[0%] flex items-center gap-3 p-3 pt-5 sm:bottom-[-2%] sm:left-auto sm:right-[-6%] sm:w-[25rem]`}
+            className={`${floatCard} bottom-[-2%] left-[0%] right-[0%] hidden items-center gap-3 p-3 pt-5 sm:flex sm:left-auto sm:right-0 sm:w-[25rem] min-[1400px]:right-[-6%]`}
           >
-            <span className="absolute -top-3.5 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-[#ffe7a3] px-3 py-1 text-xs font-bold text-on-gold sm:left-24 sm:translate-x-0">
+            <span className="absolute -top-3.5 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-gold-soft px-3 py-1 text-xs font-bold text-on-gold sm:left-24 sm:translate-x-0">
               <Crown size={14} aria-hidden="true" className="text-gold-dark" fill="currentColor" />
               Chef&apos;s Pick
             </span>
@@ -227,7 +187,7 @@ export default function Hero() {
             </span>
             <span className="font-display text-lg font-extrabold">₹{featured.price}</span>
             <a
-              href="#menu"
+              href={`#dish-${featured.id}`}
               aria-label={`See ${featured.title} on the menu`}
               className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gold text-on-gold transition-transform hover:scale-110"
             >

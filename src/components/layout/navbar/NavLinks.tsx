@@ -10,11 +10,11 @@ export default function NavLinks({ active }: { active: string }) {
             <a
               href={`#${id}`}
               aria-current={isActive ? 'true' : undefined}
-              className="group flex w-[4.75rem] flex-col items-center gap-1 rounded-2xl pb-1 pt-0.5 text-[14px] xl:w-20"
+              className="group flex w-[4.75rem] flex-col items-center gap-1 rounded-2xl pb-1 pt-0.5 text-[14px]"
             >
               <span
                 className={`grid h-10 w-10 place-items-center rounded-full transition-colors ${
-                  isActive ? 'bg-[#ffe7a3] text-ink' : 'text-ink group-hover:bg-cream-deep'
+                  isActive ? 'bg-gold-soft text-ink' : 'text-ink group-hover:bg-cream-deep'
                 }`}
               >
                 <Icon size={20} aria-hidden="true" />
@@ -22,7 +22,7 @@ export default function NavLinks({ active }: { active: string }) {
               <span className={`whitespace-nowrap ${isActive ? 'font-bold' : 'font-medium'}`}>{label}</span>
               <span
                 aria-hidden="true"
-                className={`h-[3px] rounded-full bg-gold transition-all duration-300 ${isActive ? 'w-9' : 'w-0'}`}
+                className={`h-[3px] w-9 rounded-full bg-gold transition-transform duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0'}`}
               />
             </a>
           </li>

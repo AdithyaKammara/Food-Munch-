@@ -9,8 +9,9 @@ import { MOTION } from './motion'
  *
  * Content is only hidden by JavaScript right before it is animated, so if scripts fail
  * everything is simply visible. Reduced motion: nothing moves, everything shows.
+ * Pass `media` to limit reveals to a narrower media query than the default.
  */
-export function useReveal<T extends HTMLElement>() {
+export function useReveal<T extends HTMLElement>(media: string = MOTION_OK) {
   const ref = useRef<T>(null)
 
   useGSAP(
@@ -19,7 +20,7 @@ export function useReveal<T extends HTMLElement>() {
       if (!section) return
 
       const mm = gsap.matchMedia()
-      mm.add(MOTION_OK, () => {
+      mm.add(media, () => {
         const items = gsap.utils.toArray<HTMLElement>(section.querySelectorAll('[data-reveal]'))
         if (items.length === 0) return
 

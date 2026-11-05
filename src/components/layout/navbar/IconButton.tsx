@@ -18,7 +18,7 @@ const IconButton = forwardRef<HTMLButtonElement, Props>(function IconButton(
       type="button"
       aria-label={label}
       onClick={onClick}
-      className={`relative grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#eee2c8] bg-white text-ink transition-colors hover:border-gold hover:bg-[#fff7e0] active:scale-95 sm:h-12 sm:w-12 ${className}`}
+      className={`relative grid h-11 w-11 shrink-0 place-items-center rounded-full border border-line bg-white text-ink transition-colors hover:border-gold hover:bg-cream active:scale-95 sm:h-12 sm:w-12 ${className}`}
     >
       {children}
     </button>

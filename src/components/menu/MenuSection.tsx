@@ -114,50 +114,29 @@ export default function MenuSection() {
   }
 
   return (
-    <section ref={sectionRef} id="menu" className="px-4 py-20 sm:px-6 md:py-24">
+    <section ref={sectionRef} id="menu" className="px-4 py-10 sm:px-6 sm:py-20 md:py-24">
       <div className="mx-auto max-w-7xl">
         <div data-reveal className="text-center">
-          <p className="flex items-center justify-center gap-4 text-sm font-bold uppercase tracking-[0.18em] text-gold-text">
-            <span aria-hidden="true" className="h-px w-12 bg-gold-dark/60" />
-            Explore menu
-            <span aria-hidden="true" className="h-px w-12 bg-gold-dark/60" />
-          </p>
 
           <h2 className="relative mx-auto mt-4 inline-block font-display text-4xl font-extrabold leading-tight tracking-[-0.03em] sm:text-5xl">
-            {/* Little gold sparks either side of the heading */}
-            <Sparks className="absolute -left-12 -top-1 hidden sm:block" />
-            <Sparks className="absolute -right-12 -top-1 hidden -scale-x-100 sm:block" />
             Find Your Next{' '}
-            <span className="relative isolate inline-block px-[0.1em]">
-              Favourite
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 400 80"
-                preserveAspectRatio="none"
-                className="absolute -inset-x-[0.04em] bottom-[-0.04em] -z-10 h-[0.9em] w-[calc(100%+0.08em)]"
-              >
-                <path
-                  d="M8 22 C 70 6, 160 14, 250 8 S 370 4, 394 16 C 398 34, 392 52, 386 66 C 300 74, 200 70, 110 76 S 20 74, 6 64 C 2 50, 4 36, 8 22 Z"
-                  fill="var(--color-gold)"
-                />
-              </svg>
-            </span>
+            Favourite
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-lg text-muted">Made fresh, packed with flavour.</p>
         </div>
 
         {/* Category pills */}
-        <div data-reveal role="group" aria-label="Course" className="-mx-4 mt-8 flex justify-start gap-2.5 overflow-x-auto px-4 pb-2 sm:mx-0 sm:justify-center sm:px-0">
+        <div data-reveal role="group" aria-label="Course" className="-mx-4 mt-5 flex justify-start gap-2.5 sm:mt-8 overflow-x-auto px-4 pb-2 sm:mx-0 sm:justify-center sm:px-0">
           {CATEGORIES.map((c) => (
             <button
               key={c.id}
               type="button"
               aria-pressed={category === c.id}
               onClick={() => setCategory(c.id)}
-              className={`shrink-0 rounded-full border px-6 py-2.5 text-sm font-semibold transition-colors ${
+              className={`min-h-11 shrink-0 rounded-full border px-6 py-2.5 text-sm font-semibold transition-colors ${
                 category === c.id
-                  ? 'border-gold bg-gold text-on-gold shadow-[0_6px_14px_rgba(255,191,0,0.35)]'
-                  : 'border-[#ead9b6] bg-surface hover:border-gold'
+                  ? 'border-gold bg-gold text-on-gold shadow-gold'
+                  : 'border-line-strong bg-surface hover:border-gold'
               }`}
             >
               {c.label}
@@ -166,7 +145,7 @@ export default function MenuSection() {
         </div>
 
         {/* Search and filters */}
-        <div data-reveal className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div data-reveal className="mt-4 flex flex-col gap-3 sm:mt-8 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="relative w-full lg:max-w-md">
             <label htmlFor="menu-search" className="sr-only">
               Search dishes
@@ -182,7 +161,7 @@ export default function MenuSection() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search dishes or ingredients..."
-              className="w-full rounded-full border border-[#ead9b6] bg-surface py-3 pl-11 pr-11 text-sm placeholder:text-muted focus:border-gold"
+              className="w-full rounded-full border border-field bg-surface py-3 pl-11 pr-11 text-sm placeholder:text-muted focus:border-gold"
             />
             {query && (
               <button
@@ -215,8 +194,8 @@ export default function MenuSection() {
               type="button"
               aria-pressed={favouritesOnly}
               onClick={() => setFavouritesOnly(!favouritesOnly)}
-              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
-                favouritesOnly ? 'border-red-600 bg-red-50 text-red-700' : 'border-[#ead9b6] bg-surface hover:border-gold'
+              className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
+                favouritesOnly ? 'border-red-600 bg-red-50 text-red-700' : 'border-line-strong bg-surface hover:border-gold'
               }`}
             >
               <Heart size={16} aria-hidden="true" fill={favouritesOnly ? 'currentColor' : 'none'} />
@@ -231,7 +210,7 @@ export default function MenuSection() {
                 id="menu-sort"
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortKey)}
-                className="appearance-none rounded-full border border-[#ead9b6] bg-surface py-2 pl-4 pr-10 font-medium hover:border-gold"
+                className="min-h-11 appearance-none rounded-full border border-field bg-surface py-2 pl-4 pr-10 font-medium hover:border-gold"
               >
                 <option value="default">Recommended</option>
                 <option value="price-asc">Price: Low to High</option>
@@ -253,6 +232,7 @@ export default function MenuSection() {
         <p className="mt-5 text-sm text-muted" aria-live="polite">
           Showing {items.length} {items.length === 1 ? 'dish' : 'dishes'}
         </p>
+        <p className="mt-1 text-xs text-muted">Ratings and badges are demo data.</p>
 
         {items.length === 0 ? (
           <div className="mt-8 rounded-2xl border border-dashed border-line bg-surface p-10 text-center">
@@ -266,7 +246,7 @@ export default function MenuSection() {
             </button>
           </div>
         ) : (
-          <div ref={gridRef} className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6">
+          <div ref={gridRef} className="mt-4 grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6">
             {items.map((item) => (
               <DishCard key={item.id} item={item} onAdd={handleAdd} />
             ))}
@@ -313,26 +293,14 @@ function SwitchField({
         id={id}
         checked={checked}
         onCheckedChange={onChange}
-        className="relative h-6 w-11 rounded-full bg-[#ddd2bd] transition-colors data-[state=checked]:bg-gold"
+        className="relative h-6 w-11 rounded-full bg-line-strong transition-colors before:absolute before:inset-x-0 before:-inset-y-2.5 before:content-[''] data-[state=checked]:bg-gold"
       >
         <Switch.Thumb className="block h-5 w-5 translate-x-0.5 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-[22px]" />
       </Switch.Root>
-      <label htmlFor={id} className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-semibold">
+      <label htmlFor={id} className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 text-sm font-semibold">
         {icon}
         {label}
       </label>
     </div>
-  )
-}
-
-/** Three small gold strokes that "burst" out beside the heading. */
-function Sparks({ className }: { className: string }) {
-  return (
-    <svg viewBox="0 0 40 40" aria-hidden="true" className={`h-9 w-9 text-gold ${className}`}>
-      <g stroke="currentColor" strokeWidth="5" strokeLinecap="round">
-        <line x1="30" y1="22" x2="18" y2="6" />
-        <line x1="30" y1="30" x2="8" y2="24" />
-      </g>
-    </svg>
   )
 }

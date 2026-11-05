@@ -1,14 +1,39 @@
 import { useState } from 'react'
-import { ArrowRight, ChefHat, Leaf, Mail, MapPin, Phone, Utensils } from 'lucide-react'
+import { ChefHat, Mail, MapPin, Phone, Utensils } from 'lucide-react'
 import { useReveal } from '../../lib/useReveal'
 import Modal from '../ui/Modal'
 
 const quickLinks = [
   { href: '#home', label: 'Home' },
-  { href: '#why-us', label: 'Why Us' },
   { href: '#menu', label: 'Menu' },
+  { href: '#why-us', label: 'Why Us' },
   { href: '#delivery', label: 'Delivery' },
   { href: '#contact', label: 'Contact' },
+]
+
+// Creative Commons photos need their author, source and licence shown.
+const photoCredits = [
+  {
+    dish: 'Veg Spring Rolls',
+    author: 'Srujanabotcha',
+    source: 'https://commons.wikimedia.org/wiki/File:Golden_Vegetable_Spring_Rolls_Served_with_Dipping_Sauce.jpg',
+    licence: 'CC BY-SA 4.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
+  },
+  {
+    dish: 'Chicken 65',
+    author: 'Jose Nicdao',
+    source: 'https://commons.wikimedia.org/wiki/File:Chicken-65.jpg',
+    licence: 'CC BY 2.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by/2.0/',
+  },
+  {
+    dish: 'Alphonso Mango Lassi',
+    author: 'Nithyasrm',
+    source: 'https://commons.wikimedia.org/wiki/File:Tasty_Mango_lassi_picture.JPG',
+    licence: 'CC BY-SA 4.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
+  },
 ]
 
 const DEVELOPER_EMAIL = 'adithyakammara13@gmail.com'
@@ -31,61 +56,12 @@ function Heading({ children }: { children: string }) {
 export default function Footer() {
   const ref = useReveal<HTMLElement>()
   const year = new Date().getFullYear()
-  const [policy, setPolicy] = useState<'privacy' | 'terms' | null>(null)
+  const [policy, setPolicy] = useState<'privacy' | 'terms' | 'credits' | null>(null)
 
   return (
-    <footer ref={ref} id="contact" className="relative isolate overflow-hidden bg-[#121212] text-white">
-      {/* Warm glow in the corners, like light from the kitchen */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 -z-20"
-        style={{
-          background:
-            'radial-gradient(40% 70% at 0% 100%, rgb(217 149 0 / 0.16), transparent 70%), radial-gradient(35% 70% at 100% 60%, rgb(217 149 0 / 0.12), transparent 70%)',
-        }}
-      />
-
-      {/* ---------- Left edge: Charminar, steam and biryani ---------- */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 -z-10 hidden w-[15%] xl:block">
-        <Charminar className="absolute left-[6%] top-8 h-52 w-auto text-gold/35 2xl:h-60" />
-        <Steam className="absolute bottom-[11.5rem] left-[6%] h-28 w-auto text-white/25" />
-        <img
-          src="/images/why-biryani.jpg"
-          alt=""
-          width={1400}
-          height={1050}
-          loading="lazy"
-          className="absolute -bottom-6 -left-[48%] h-64 w-auto max-w-none 2xl:-left-[36%] 2xl:h-72"
-          style={{
-            maskImage: 'radial-gradient(60% 62% at 50% 58%, black 55%, transparent 78%)',
-            WebkitMaskImage: 'radial-gradient(60% 62% at 50% 58%, black 55%, transparent 78%)',
-          }}
-        />
-        <Leaf className="absolute bottom-[10%] right-[2%] h-8 w-8 rotate-[200deg] fill-green-600 text-green-800" />
-        <Sparks className="absolute bottom-[12rem] right-[-8%] h-9 w-9 -scale-x-100 text-gold" />
-      </div>
-
-      {/* ---------- Right edge: spices ---------- */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 -z-10 hidden w-[17%] xl:block">
-        <img
-          src="/images/footer-spices.jpg"
-          alt=""
-          width={560}
-          height={560}
-          loading="lazy"
-          className="absolute -right-[34%] top-20 h-60 w-auto max-w-none 2xl:-right-[20%] 2xl:h-72"
-          style={{
-            maskImage: 'radial-gradient(closest-side, black 62%, transparent 100%)',
-            WebkitMaskImage: 'radial-gradient(closest-side, black 62%, transparent 100%)',
-          }}
-        />
-        <Leaf className="absolute bottom-[14%] left-[8%] h-9 w-9 rotate-[30deg] fill-green-600 text-green-800" />
-        <Leaf className="absolute right-[4%] top-[8%] h-7 w-7 -rotate-12 fill-green-500 text-green-700" />
-        <Sparks className="absolute left-[2%] top-[16%] h-10 w-10 text-gold" />
-      </div>
-
+    <footer ref={ref} id="contact" className="bg-ink text-white">
       {/* ---------- Columns ---------- */}
-      <div className="mx-auto grid max-w-[72rem] gap-12 px-6 pb-12 pt-16 sm:grid-cols-2 lg:gap-x-16 xl:max-w-none xl:grid-cols-[1.25fr_0.65fr_1.3fr_1.7fr] xl:gap-8 xl:pl-[16%] xl:pr-[15%] 2xl:gap-10">
+      <div className="mx-auto grid max-w-7xl gap-12 px-4 pb-12 pt-16 sm:grid-cols-2 sm:px-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1.5fr)_minmax(0,0.7fr)_minmax(0,1.4fr)] xl:gap-10">
         {/* Brand */}
         <div data-reveal>
           <a href="#home" className="inline-flex items-center gap-3 font-display text-[1.75rem] font-extrabold tracking-tight xl:text-[1.6rem] 2xl:text-[1.85rem]">
@@ -114,6 +90,15 @@ export default function Footer() {
               </li>
             ))}
           </ul>
+        </div>
+
+        {/* Subscribe */}
+        <div data-reveal>
+          <Heading>Get Offers</Heading>
+          <p className="mt-5 text-[15px] leading-relaxed text-white/85 xl:text-sm 2xl:text-[15px]">
+            Be the first to know about new dishes, promo codes and special offers.
+          </p>
+          <SubscribeForm />
         </div>
 
         {/* Quick links */}
@@ -160,31 +145,17 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Subscribe */}
-        <div data-reveal>
-          <Heading>Get Offers</Heading>
-          <p className="mt-5 text-[15px] leading-relaxed text-white/85 xl:text-sm 2xl:text-[15px]">
-            Be the first to know about new dishes, promo codes and special offers.
-          </p>
-          <SubscribeForm />
-        </div>
       </div>
 
       {/* ---------- Bottom bar ---------- */}
-      <div className="relative">
-        {/* Gold line that glows in the middle */}
-        <span
-          aria-hidden="true"
-          className="absolute inset-x-0 top-0 h-px"
-          style={{ background: 'linear-gradient(90deg, transparent, rgb(255 191 0 / 0.7) 30%, rgb(255 191 0 / 0.7) 70%, transparent)' }}
-        />
-        <div className="mx-auto flex max-w-[72rem] flex-col items-center gap-3 px-6 py-5 text-center text-[13px] text-white/70 lg:flex-row lg:justify-between lg:gap-6 lg:text-left xl:max-w-none xl:pl-[15%] xl:pr-[15%] xl:text-xs 2xl:text-[13px]">
+      <div className="border-t border-white/15">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 py-5 sm:px-6 text-center text-[13px] text-white/70 lg:flex-row lg:justify-between lg:gap-6 lg:text-left">
           <p className="inline-flex items-center gap-2 whitespace-nowrap font-script text-xl text-gold">
             <Utensils size={18} aria-hidden="true" />
             Good food brings good people together.
           </p>
           <p className="2xl:whitespace-nowrap">
-            © {year} Food Munch · Portfolio project by Adithya Kammara · Food photos from Unsplash
+            © {year} Food Munch. Portfolio project by Adithya Kammara.
           </p>
           <p className="flex items-center gap-3 whitespace-nowrap text-white/85">
             <button type="button" onClick={() => setPolicy('privacy')} className="hover:text-gold hover:underline">
@@ -193,6 +164,10 @@ export default function Footer() {
             <span aria-hidden="true" className="h-3.5 w-px bg-white/40" />
             <button type="button" onClick={() => setPolicy('terms')} className="hover:text-gold hover:underline">
               Terms of Service
+            </button>
+            <span aria-hidden="true" className="h-3.5 w-px bg-white/40" />
+            <button type="button" onClick={() => setPolicy('credits')} className="hover:text-gold hover:underline">
+              Photo Credits
             </button>
           </p>
         </div>
@@ -221,7 +196,29 @@ export default function Footer() {
           <li>Food Munch is not a real restaurant. Orders are not cooked or delivered.</li>
           <li>Payments are simulated: the UPI QR moves no money, and no card details are ever asked for.</li>
           <li>Order tracking is a timed demo, not live location.</li>
-          <li>Built by Adithya Kammara as a portfolio project. Food photos are from Unsplash.</li>
+          <li>Built by Adithya Kammara as a portfolio project. Photo credits are listed in the footer.</li>
+        </ul>
+      </Modal>
+      <Modal
+        open={policy === 'credits'}
+        onClose={() => setPolicy(null)}
+        title="Photo Credits"
+        description="These photos were resized and cropped to fit the menu."
+      >
+        <ul className="space-y-3 text-sm leading-relaxed text-ink">
+          {photoCredits.map(({ dish, author, source, licence, licenceUrl }) => (
+            <li key={dish}>
+              <span className="font-semibold">{dish}</span>: photo by{' '}
+              <a href={source} target="_blank" rel="noreferrer" className="underline">
+                {author}
+              </a>
+              , via Wikimedia Commons,{' '}
+              <a href={licenceUrl} target="_blank" rel="noreferrer" className="underline">
+                {licence}
+              </a>
+            </li>
+          ))}
+          <li>The other food photos are from Unsplash.</li>
         </ul>
       </Modal>
     </footer>
@@ -259,8 +256,8 @@ function SubscribeForm() {
       </label>
       {/* One pill with the button inside when there is room; otherwise the button sits below. */}
       <div className="@container">
-        <div className="flex flex-col gap-2.5 @[18.5rem]:flex-row @[18.5rem]:items-center @[18.5rem]:gap-2 @[18.5rem]:rounded-full @[18.5rem]:border @[18.5rem]:border-white/20 @[18.5rem]:bg-white/[0.06] @[18.5rem]:p-1.5 @[18.5rem]:focus-within:border-gold">
-          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-white/20 bg-white/[0.06] px-4 focus-within:border-gold @[18.5rem]:border-0 @[18.5rem]:bg-transparent @[18.5rem]:pl-3 @[18.5rem]:pr-0">
+        <div className="flex flex-col gap-2.5 @[18.5rem]:flex-row @[18.5rem]:items-center @[18.5rem]:gap-2 @[18.5rem]:rounded-full @[18.5rem]:border @[18.5rem]:border-white/50 @[18.5rem]:bg-white/[0.06] @[18.5rem]:p-1.5 @[18.5rem]:focus-within:border-gold">
+          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-white/50 bg-white/[0.06] px-4 focus-within:border-gold @[18.5rem]:border-0 @[18.5rem]:bg-transparent @[18.5rem]:pl-3 @[18.5rem]:pr-0">
             <Mail size={18} aria-hidden="true" className="shrink-0 text-white/70" />
             <input
               id="subscribe-email"
@@ -276,9 +273,9 @@ function SubscribeForm() {
           </div>
           <button
             type="submit"
-            className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-gold px-5 py-3 text-sm font-bold text-on-gold transition-transform hover:-translate-y-0.5 active:translate-y-0 @[18.5rem]:py-2.5"
+            className="inline-flex shrink-0 items-center justify-center rounded-full bg-gold px-5 py-3 text-sm font-bold text-on-gold transition-transform hover:-translate-y-0.5 active:translate-y-0 @[18.5rem]:py-2.5"
           >
-            Subscribe <ArrowRight size={16} aria-hidden="true" />
+            Subscribe
           </button>
         </div>
       </div>
@@ -315,54 +312,3 @@ function LinkedInMark() {
   )
 }
 
-/** Simple line drawing of the Charminar, Hyderabad's landmark. */
-function Charminar({ className }: { className: string }) {
-  return (
-    <svg viewBox="0 0 200 240" aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
-      {/* Minarets */}
-      {[22, 178].map((x) => (
-        <g key={x}>
-          <path d={`M${x - 9} 236V70h18v166`} />
-          <path d={`M${x - 12} 70h24M${x - 12} 112h24M${x - 12} 154h24`} />
-          <path d={`M${x - 8} 70c0-14 8-18 8-28 0 10 8 14 8 28`} />
-          <path d={`M${x} 42v-14`} />
-          <circle cx={x} cy="25" r="3" />
-          <path d={`M${x - 5} 90h10v14h-10zM${x - 5} 128h10v14h-10z`} />
-        </g>
-      ))}
-      {/* Main body */}
-      <path d="M31 236V122h138v114" />
-      <path d="M31 122h138M31 112h138" />
-      <path d="M70 236v-56c0-22 30-22 30-40 0 18 30 18 30 40v56" />
-      <path d="M44 236v-40c0-12 14-12 14-22 0 10 14 10 14 22" />
-      <path d="M128 196c0-12 14-12 14-22 0 10 14 10 14 22v40" />
-      {/* Upper gallery */}
-      <path d="M40 112V96h120v16" />
-      {[52, 72, 92, 112, 132, 150].map((x) => (
-        <path key={x} d={`M${x} 112v-8c0-5 6-5 6 0v8`} />
-      ))}
-    </svg>
-  )
-}
-
-function Sparks({ className }: { className: string }) {
-  return (
-    <svg viewBox="0 0 40 40" aria-hidden="true" className={className}>
-      <g stroke="currentColor" strokeWidth="4.5" strokeLinecap="round">
-        <line x1="30" y1="22" x2="18" y2="6" />
-        <line x1="30" y1="30" x2="8" y2="24" />
-      </g>
-    </svg>
-  )
-}
-
-/** Soft wisps of steam rising from the biryani. */
-function Steam({ className }: { className: string }) {
-  return (
-    <svg viewBox="0 0 80 120" aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round">
-      <path d="M20 115c-12-18 12-26 0-46s10-28 2-44" />
-      <path d="M44 112c-10-16 10-24 0-40s8-24 2-38" opacity="0.7" />
-      <path d="M64 116c-8-14 8-20 0-34" opacity="0.5" />
-    </svg>
-  )
-}

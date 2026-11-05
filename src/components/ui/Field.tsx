@@ -16,7 +16,7 @@ function useFieldIds(error?: string | null, hint?: string) {
 
 const controlClass = (error?: string | null) =>
   `mt-1 w-full rounded-xl border bg-surface px-4 py-2.5 text-sm ${
-    error ? 'border-red-600' : 'border-line'
+    error ? 'border-red-600' : 'border-field'
   }`
 
 function Messages({ error, hint, ids }: { error?: string | null; hint?: string; ids: { hintId: string; errorId: string } }) {
