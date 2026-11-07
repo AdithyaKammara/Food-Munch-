@@ -8,7 +8,6 @@ const quickLinks = [
   { href: '#menu', label: 'Menu' },
   { href: '#why-us', label: 'Why Us' },
   { href: '#delivery', label: 'Delivery' },
-  { href: '#contact', label: 'Contact' },
 ]
 
 // Creative Commons photos need their author, source and licence shown.
@@ -48,7 +47,6 @@ function Heading({ children }: { children: string }) {
   return (
     <h2 className="whitespace-nowrap font-display text-xl font-bold text-gold">
       {children}
-      <span aria-hidden="true" className="mt-2.5 block h-0.5 w-7 rounded-full bg-gold" />
     </h2>
   )
 }
@@ -120,13 +118,13 @@ export default function Footer() {
           <Heading>Contact</Heading>
           <ul className="mt-5 space-y-4 text-[15px] text-white/85 xl:text-sm 2xl:text-[15px]">
             <li className="flex items-start gap-3">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-gold/70 text-gold">
+              <span className="mt-0.5 shrink-0 text-gold">
                 <MapPin size={17} aria-hidden="true" />
               </span>
-              <span className="pt-1.5">Sample Street, Hyderabad, Telangana</span>
+              <span>Sample Street, Hyderabad, Telangana</span>
             </li>
             <li className="flex items-center gap-3">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-gold/70 text-gold">
+              <span className="mt-0.5 shrink-0 text-gold">
                 <Phone size={17} aria-hidden="true" />
               </span>
               +91 00000 00000 (sample)
@@ -150,7 +148,7 @@ export default function Footer() {
       {/* ---------- Bottom bar ---------- */}
       <div className="border-t border-white/15">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 py-5 sm:px-6 text-center text-[13px] text-white/70 lg:flex-row lg:justify-between lg:gap-6 lg:text-left">
-          <p className="inline-flex items-center gap-2 whitespace-nowrap font-script text-xl text-gold">
+          <p className="inline-flex items-center gap-2 whitespace-nowrap font-display text-base font-bold text-gold">
             <Utensils size={18} aria-hidden="true" />
             Good food brings good people together.
           </p>

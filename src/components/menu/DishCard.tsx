@@ -24,6 +24,8 @@ import { useFavoritesStore } from '../../store/favoritesStore'
 interface Props {
   item: MenuItem
   onAdd: (item: MenuItem) => void
+  /** Leads its course as a wide card. */
+  featured?: boolean
 }
 
 /**
@@ -46,11 +48,13 @@ function badgeFor(ribbon: string): { label: string; icon: LucideIcon; tone: stri
   return { label, icon: Zap, tone: 'text-gold-dark' }
 }
 
-export default function DishCard({ item, onAdd }: Props) {
+export default function DishCard({ item, onAdd, featured = false }: Props) {
   const isFav = useFavoritesStore((s) => s.ids.includes(item.id))
   const toggleFav = useFavoritesStore((s) => s.toggle)
   const [imgFailed, setImgFailed] = useState(false)
   const badge = badgeFor(item.ribbon)
+  // A badge on every dish means nothing, so only the true headliners keep theirs.
+  const showBadge = /#1|chef|bestseller/i.test(item.ribbon)
   const BadgeIcon = badge.icon
 
   const heartRef = useRef<SVGSVGElement>(null)
@@ -67,9 +71,9 @@ export default function DishCard({ item, onAdd }: Props) {
     <article data-reveal
       id={`dish-${item.id}`}
       data-id={item.id}
-      className="group flex h-full scroll-mt-8 flex-row overflow-hidden sm:flex-col rounded-2xl bg-surface shadow-card ring-1 ring-line transition-[translate,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lift">
+      className={`group flex h-full scroll-mt-8 flex-row overflow-hidden ${featured ? 'sm:col-span-2 lg:col-span-3' : 'sm:flex-col'} rounded-2xl bg-surface shadow-card ring-1 ring-line transition-[translate,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lift`}>
       {/* Photo */}
-      <div className="relative w-28 shrink-0 overflow-hidden bg-cream-deep sm:aspect-[16/10] sm:w-auto">
+      <div className={`relative w-28 shrink-0 overflow-hidden bg-cream-deep ${featured ? 'sm:min-h-72 sm:w-1/2' : 'sm:aspect-[16/10] sm:w-auto'}`}>
         {imgFailed ? (
           <div className="absolute inset-0 grid place-items-center text-gold-dark">
             <Utensils size={36} aria-hidden="true" />
@@ -86,10 +90,12 @@ export default function DishCard({ item, onAdd }: Props) {
           />
         )}
 
-        <span className="absolute left-3 top-3 hidden items-center gap-1.5 rounded-full bg-white sm:inline-flex px-3 py-1 text-xs font-bold text-ink shadow-sm">
+        {showBadge && (
+          <span className="absolute left-3 top-3 hidden items-center gap-1.5 rounded-full bg-white sm:inline-flex px-3 py-1 text-xs font-bold text-ink shadow-sm">
           <BadgeIcon size={14} aria-hidden="true" className={badge.tone} fill={BadgeIcon === Crown ? 'currentColor' : 'none'} />
           {badge.label}
         </span>
+        )}
 
         <button
           type="button"
@@ -112,7 +118,7 @@ export default function DishCard({ item, onAdd }: Props) {
       </div>
 
       {/* Details */}
-      <div className="flex min-w-0 flex-1 flex-col px-3 py-3 sm:px-4 sm:pb-4 sm:pt-3.5">
+      <div className={`flex min-w-0 flex-1 flex-col px-3 py-3 ${featured ? 'sm:p-8' : 'sm:px-4 sm:pb-4 sm:pt-3.5'}`}>
         <div className="flex items-center gap-2">
           <span
             role="img"
@@ -123,10 +129,10 @@ export default function DishCard({ item, onAdd }: Props) {
           >
             <span className={`h-1.5 w-1.5 rounded-full ${item.veg ? 'bg-green-700' : 'bg-red-600'}`} />
           </span>
-          <h3 className="min-w-0 text-base font-bold leading-snug sm:truncate sm:text-[17px]">{item.title}</h3>
+          <h4 className={`min-w-0 text-base font-bold leading-snug ${featured ? 'sm:text-3xl' : 'sm:truncate sm:text-[17px]'}`}>{item.title}</h4>
         </div>
 
-        <p className="mt-1.5 line-clamp-2 min-h-10 text-sm leading-5 text-muted max-sm:hidden">{item.desc}</p>
+        <p className={`mt-1.5 text-muted max-sm:hidden ${featured ? 'text-base leading-relaxed' : 'line-clamp-2 min-h-10 text-sm leading-5'}`}>{item.desc}</p>
 
         <p className="mt-2.5 flex flex-wrap items-center gap-y-1 text-[13px] text-muted">
           <span className="inline-flex items-center gap-1 font-semibold text-ink">

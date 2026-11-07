@@ -7,7 +7,7 @@ export default function BrandLogo({ onClick }: { onClick?: () => void }) {
         <ChefHat size={26} aria-hidden="true" />
       </span>
       <span className="leading-tight">
-        <span className="block whitespace-nowrap font-display text-xl font-extrabold tracking-tight sm:text-2xl">
+        <span className="block whitespace-nowrap font-display text-xl font-extrabold tracking-tight max-[359px]:text-lg sm:text-2xl">
           Food <span className="text-gold-deep">Munch</span>
         </span>
         <span className="hidden whitespace-nowrap text-[13px] text-muted sm:block lg:hidden">

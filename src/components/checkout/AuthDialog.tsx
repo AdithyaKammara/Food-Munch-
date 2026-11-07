@@ -30,11 +30,11 @@ export default function AuthDialog() {
             <Dialog.Title className="pr-16 font-display text-[1.9rem] font-extrabold leading-tight tracking-[-0.03em] sm:text-4xl">
               {user ? (
                 <>
-                  Your <span className="text-gold-deep">account</span>
+                  Your account
                 </>
               ) : (
                 <>
-                  Log <span className="text-gold-deep">in</span>
+                  Log in
                 </>
               )}
             </Dialog.Title>

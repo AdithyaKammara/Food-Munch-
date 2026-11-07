@@ -29,7 +29,7 @@ const benefits = [
   },
   {
     icon: Star,
-    title: 'Customer Favourites',
+    title: 'Favourite Dishes',
     text: 'Discover popular dishes and find something delicious for your next meal.',
   },
   {

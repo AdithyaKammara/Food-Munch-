@@ -21,6 +21,11 @@ const CATEGORIES: { id: Category | 'all'; label: string }[] = [
   { id: 'drinks', label: 'Drinks' },
 ]
 
+// The dish that leads the Mains: Hyderabadi Chicken Biryani.
+const FEATURED_DISH_ID = 4
+
+const GRID = 'grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:gap-6'
+
 export default function MenuSection() {
   const [category, setCategory] = useState<Category | 'all'>('all')
   // Shared with the navbar search, so typing in either place filters the menu.
@@ -50,6 +55,12 @@ export default function MenuSection() {
       filterMenu(MENU_ITEMS, { category, query, vegOnly, highProtein, favouritesOnly, favouriteIds, sort }),
     [category, query, vegOnly, highProtein, favouritesOnly, favouriteIds, sort],
   )
+
+  // The default view reads like a real menu, course by course. Picking a course or a sort shows one flat list.
+  const grouped = category === 'all' && sort === 'default'
+  const courses = CATEGORIES.filter((c) => c.id !== 'all')
+    .map((c) => ({ ...c, dishes: items.filter((m) => m.category === c.id) }))
+    .filter((c) => c.dishes.length > 0)
 
   // When filters change, only the cards that weren't showing before fade in.
   // Cards that stay on screen are left alone, so filtering never feels like a reload.
@@ -245,8 +256,21 @@ export default function MenuSection() {
               Clear filters
             </button>
           </div>
+        ) : grouped ? (
+          <div ref={gridRef} className="mt-6 space-y-10">
+            {courses.map(({ id, label, dishes }) => (
+              <div key={id}>
+                <h3 className="font-display text-2xl font-extrabold">{label}</h3>
+                <div className={`mt-4 ${GRID}`}>
+                  {dishes.map((item) => (
+                    <DishCard key={item.id} item={item} onAdd={handleAdd} featured={item.id === FEATURED_DISH_ID} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
-          <div ref={gridRef} className="mt-4 grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6">
+          <div ref={gridRef} className={`mt-4 ${GRID}`}>
             {items.map((item) => (
               <DishCard key={item.id} item={item} onAdd={handleAdd} />
             ))}
