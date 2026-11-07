@@ -47,10 +47,10 @@ export default function NavbarSection() {
       />
       <div
         ref={bar}
-        className={`mx-auto flex max-w-[86rem] items-center gap-3 rounded-[1.75rem] px-3 py-2.5 ring-1 backdrop-blur-md transition-[background-color,box-shadow] duration-300 sm:rounded-[2.25rem] sm:px-5 lg:gap-4 xl:px-6 ${
+        className={`mx-auto flex max-w-7xl items-center gap-3 rounded-[1.75rem] px-3 py-2.5 ring-1 backdrop-blur-md transition-[background-color,box-shadow] duration-300 sm:rounded-[2.25rem] sm:px-5 lg:gap-4 xl:px-6 ${
           scrolled
-            ? 'bg-white/95 shadow-[0_12px_32px_rgba(79,54,10,0.14)] ring-[#f1e6cf]'
-            : 'bg-white/75 shadow-[0_4px_14px_rgba(79,54,10,0.05)] ring-[#f1e6cf]/70'
+            ? 'bg-white/95 shadow-lift ring-line'
+            : 'bg-white/75 shadow-card ring-line/70'
         }`}
       >
         <BrandLogo />
@@ -60,9 +60,9 @@ export default function NavbarSection() {
           <NavLinks active={active} />
         </nav>
 
-        <span aria-hidden="true" className="hidden h-12 w-px bg-[#eee2c8] xl:block" />
+        <span aria-hidden="true" className="hidden h-12 w-px bg-line xl:block" />
 
-        <div className="hidden w-48 shrink-0 xl:block 2xl:w-60">
+        <div className="hidden w-48 shrink-0 xl:block">
           <NavbarSearch id="navbar-search" />
         </div>
 

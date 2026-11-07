@@ -206,7 +206,7 @@ function CheckoutBody() {
           id="checkout-slot"
           value={slot}
           onChange={(e) => setSlot(e.target.value)}
-          className="mt-1 w-full rounded-xl border border-line bg-surface px-4 py-2.5 text-sm"
+          className="mt-1 w-full rounded-xl border border-field bg-surface px-4 py-2.5 text-sm"
         >
           {slots.map((s) => (
             <option key={s} value={s}>
@@ -250,7 +250,7 @@ function CheckoutBody() {
 
       <dl className="space-y-1 rounded-xl bg-cream p-4 text-sm">
         <SummaryRow label="Subtotal" value={`₹${totals.subtotal}`} />
-        <SummaryRow label="Discount" value={`-₹${totals.discount}`} />
+        <SummaryRow label="Discount" value={totals.discount > 0 ? `-₹${totals.discount}` : '₹0'} />
         <SummaryRow label="GST (5% after discount)" value={`₹${totals.tax}`} />
         <SummaryRow label="Rider tip" value={`₹${totals.tip}`} />
         <div className="flex justify-between border-t border-line pt-2 text-base font-extrabold">

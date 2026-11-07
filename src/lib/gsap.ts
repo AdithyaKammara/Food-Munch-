@@ -12,6 +12,13 @@ export const MOTION_OK = '(prefers-reduced-motion: no-preference)'
 if (typeof window !== 'undefined') {
   window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true })
   document.fonts?.ready.then(() => ScrollTrigger.refresh())
+
+  // Filtering the menu changes the page height, which moves everything below it.
+  let refreshTimer = 0
+  new ResizeObserver(() => {
+    window.clearTimeout(refreshTimer)
+    refreshTimer = window.setTimeout(() => ScrollTrigger.refresh(), 150)
+  }).observe(document.body)
 }
 
 export { gsap, ScrollTrigger, useGSAP }

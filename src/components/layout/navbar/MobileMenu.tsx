@@ -37,13 +37,13 @@ export default function MobileMenu({ open, onOpenChange, active }: Props) {
         <Dialog.Overlay className="motion-overlay fixed inset-0 z-50 bg-black/40" />
         <Dialog.Content
           id="mobile-menu"
-          className="motion-drawer fixed right-0 top-0 z-50 flex h-full w-full max-w-sm flex-col overflow-y-auto bg-[#fffaf1] p-5 shadow-card-hover"
+          className="motion-drawer fixed right-0 top-0 z-50 flex h-full w-full max-w-sm flex-col overflow-y-auto bg-cream p-5 shadow-card-hover"
         >
           <div className="flex items-center justify-between">
             <BrandLogo onClick={close} />
             <Dialog.Close
               aria-label="Close menu"
-              className="grid h-11 w-11 place-items-center rounded-full border border-[#eee2c8] bg-white hover:border-gold"
+              className="grid h-11 w-11 place-items-center rounded-full border border-line bg-white hover:border-gold"
             >
               <X size={20} aria-hidden="true" />
             </Dialog.Close>
@@ -63,7 +63,7 @@ export default function MobileMenu({ open, onOpenChange, active }: Props) {
                     href={`#${id}`}
                     onClick={close}
                     aria-current={active === id ? 'true' : undefined}
-                    className={`${row} ${active === id ? 'bg-[#ffe7a3]' : ''}`}
+                    className={`${row} ${active === id ? 'bg-gold-soft' : ''}`}
                   >
                     <Icon size={20} aria-hidden="true" />
                     {label}
@@ -73,7 +73,7 @@ export default function MobileMenu({ open, onOpenChange, active }: Props) {
             </ul>
           </nav>
 
-          <div className="mt-4 space-y-1 border-t border-[#eee2c8] pt-4">
+          <div className="mt-4 space-y-1 border-t border-line pt-4">
             {activeOrderId && (
               <button type="button" onClick={() => go('tracking')} className={row}>
                 <Truck size={20} aria-hidden="true" className="text-green-700" />

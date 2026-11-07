@@ -19,22 +19,22 @@ export default function AuthDialog() {
     >
       <Dialog.Portal>
         <Dialog.Overlay className="motion-overlay fixed inset-0 z-50 bg-black/45" />
-        <Dialog.Content className="motion-dialog fixed left-1/2 top-1/2 z-50 max-h-[92vh] w-[calc(100%-1.5rem)] max-w-[44rem] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overflow-x-hidden rounded-[1.75rem] bg-white shadow-[0_30px_80px_rgba(0,0,0,0.3)]">
+        <Dialog.Content className="motion-dialog fixed left-1/2 top-1/2 z-50 max-h-[92vh] w-[calc(100%-1.5rem)] max-w-[44rem] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overflow-x-hidden rounded-[1.75rem] bg-white shadow-dialog">
           {/* ---------- Header strip ---------- */}
-          <div className="relative isolate overflow-hidden bg-[#fff6e3] px-6 pb-6 pt-7 sm:px-8">
+          <div className="relative isolate overflow-hidden bg-cream px-6 pb-6 pt-7 sm:px-8">
             {/* Faint gold spice shapes in the background */}
-            <span aria-hidden="true" className="absolute -right-10 -top-16 -z-10 h-48 w-48 rounded-full bg-[#ffe7a3]/70" />
+            <span aria-hidden="true" className="absolute -right-10 -top-16 -z-10 h-48 w-48 rounded-full bg-gold-soft/70" />
             <span aria-hidden="true" className="absolute left-[46%] top-5 -z-10 h-2 w-2 rounded-full bg-gold-dark/50" />
             <span aria-hidden="true" className="absolute left-[56%] top-12 -z-10 h-1.5 w-1.5 rounded-full bg-gold-dark/40" />
 
             <Dialog.Title className="pr-16 font-display text-[1.9rem] font-extrabold leading-tight tracking-[-0.03em] sm:text-4xl">
               {user ? (
                 <>
-                  Your <span className="text-[#b47500]">account</span>
+                  Your account
                 </>
               ) : (
                 <>
-                  Log <span className="text-[#b47500]">in</span>
+                  Log in
                 </>
               )}
             </Dialog.Title>
@@ -101,7 +101,7 @@ function AccountForm() {
           alt=""
           width={1400}
           height={1050}
-          className="h-full w-full rounded-full object-cover shadow-[0_24px_50px_rgba(79,54,10,0.3)] ring-[10px] ring-white"
+          className="h-full w-full rounded-full object-cover shadow-lift ring-[10px] ring-white"
         />
       </div>
 
@@ -128,7 +128,7 @@ function AccountForm() {
           placeholder="10-digit mobile number"
         />
 
-        <p className="flex items-start gap-3 rounded-2xl bg-[#fff3d6] p-4 text-sm leading-relaxed text-ink/80">
+        <p className="flex items-start gap-3 rounded-2xl bg-cream-deep p-4 text-sm leading-relaxed text-ink/80">
           <Info size={26} aria-hidden="true" className="shrink-0 fill-gold text-ink" />
           Demo account: details are saved in this browser only. There is no password and no server.
         </p>
@@ -136,7 +136,7 @@ function AccountForm() {
         <div className={`grid gap-3 ${user ? 'sm:grid-cols-2' : ''}`}>
           <button
             type="submit"
-            className="rounded-full bg-gold px-6 py-4 text-[17px] font-bold text-on-gold shadow-[0_10px_22px_rgba(255,191,0,0.4)] transition-transform hover:-translate-y-0.5 active:translate-y-0"
+            className="rounded-full bg-gold px-6 py-4 text-[17px] font-bold text-on-gold shadow-gold transition-transform hover:-translate-y-0.5 active:translate-y-0"
           >
             {user ? 'Save changes' : 'Save and continue'}
           </button>
@@ -147,7 +147,7 @@ function AccountForm() {
                 logout()
                 closePanel()
               }}
-              className="rounded-full border-2 border-[#eee2c8] bg-white px-6 py-4 text-[17px] font-bold transition-colors hover:border-red-600 hover:text-red-700"
+              className="rounded-full border-2 border-line bg-white px-6 py-4 text-[17px] font-bold transition-colors hover:border-red-600 hover:text-red-700"
             >
               Log out
             </button>
@@ -174,8 +174,8 @@ function IconField({ label, icon, error, ...props }: IconFieldProps) {
         {label}
       </label>
       <div
-        className={`mt-2 flex items-center gap-3 rounded-2xl border bg-white px-4 transition-colors focus-within:border-gold ${
-          error ? 'border-red-600' : 'border-[#e8dcc3]'
+        className={`mt-2 flex items-center gap-3 rounded-2xl border bg-white px-4 transition-colors focus-within:border-gold-text ${
+          error ? 'border-red-600' : 'border-field'
         }`}
       >
         <span className="shrink-0 text-ink">{icon}</span>
