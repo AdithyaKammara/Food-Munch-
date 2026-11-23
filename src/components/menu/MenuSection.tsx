@@ -88,76 +88,80 @@ export default function MenuSection() {
   }
 
   return (
-    <section
-      ref={sectionRef}
-      id="menu"
-      tabIndex={-1}
-      aria-label="Menu"
-      className="px-4 pb-12 pt-6 outline-none sm:px-6 md:pb-16 lg:px-8 lg:pb-24 lg:pt-8"
-    >
-      <div className="mx-auto max-w-[77.5rem]">
-        <MenuToolbar
-          category={category}
-          onCategory={setCategory}
-          filters={filters}
-          onFilters={(next) => setFilters((f) => ({ ...f, ...next }))}
-          favouriteCount={favouriteIds.length}
-          onClearAll={() => setFilters(NO_FILTERS)}
-        />
+    <>
+      <section
+        ref={sectionRef}
+        id="menu"
+        tabIndex={-1}
+        aria-label="Menu"
+        className="px-4 pb-12 pt-6 outline-none sm:px-6 md:pb-16 lg:px-8 lg:pb-24 lg:pt-8"
+      >
+        <div className="mx-auto max-w-[77.5rem]">
+          <MenuToolbar
+            category={category}
+            onCategory={setCategory}
+            filters={filters}
+            onFilters={(next) => setFilters((f) => ({ ...f, ...next }))}
+            favouriteCount={favouriteIds.length}
+            onClearAll={() => setFilters(NO_FILTERS)}
+          />
 
-        <CategoryTiles category={category} onCategory={setCategory} />
+          <CategoryTiles category={category} onCategory={setCategory} />
 
-        <DishRail
-          label="Our menu"
-          heading={
-            <>
-              {title}
-              {filtered && ' '}
-              {filtered && <span className="tabular ml-1 align-middle text-title font-semibold text-ink-600">({items.length})</span>}
-            </>
-          }
-          listName={`${title}, ${countText}`}
-          items={items}
-          onAdd={handleAdd}
-          empty={
-            <div className="rounded-md border border-dashed border-line-200 bg-cream-50 px-6 py-10 text-center">
-              <p className="font-display text-title font-semibold">No dishes match.</p>
-              <p className="mt-1 text-sm text-ink-600">Try another search, or clear your filters.</p>
-              <Button variant="secondary" onClick={clearAll} className="mt-5">
-                Clear filters
-              </Button>
-            </div>
-          }
-          footer={
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-              <p className="text-caption text-ink-600">
-                <span aria-live="polite">
-                  {/* The number crossfades when it changes; the live region itself stays put */}
-                  <span key={countText} className="motion-fade">
-                    Showing {countText}.
-                  </span>
-                </span>{' '}
-                Ratings are demo data.
-              </p>
-              {!filtered && (
-                <Button variant="secondary" onClick={() => setShowAll((v) => !v)}>
-                  {showAll ? "Show the chef's picks" : `See all ${MENU_ITEMS.length} dishes`}
+          <DishRail
+            label="Our menu"
+            heading={
+              <>
+                {title}
+                {filtered && ' '}
+                {filtered && <span className="tabular ml-1 align-middle text-title font-semibold text-ink-600">({items.length})</span>}
+              </>
+            }
+            listName={`${title}, ${countText}`}
+            items={items}
+            onAdd={handleAdd}
+            empty={
+              <div className="rounded-md border border-dashed border-line-200 bg-cream-50 px-6 py-10 text-center">
+                <p className="font-display text-title font-semibold">No dishes match.</p>
+                <p className="mt-1 text-sm text-ink-600">Try another search, or clear your filters.</p>
+                <Button variant="secondary" onClick={clearAll} className="mt-5">
+                  Clear filters
                 </Button>
-              )}
-            </div>
-          }
-        />
-      </div>
+              </div>
+            }
+            footer={
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+                <p className="text-caption text-ink-600">
+                  <span aria-live="polite">
+                    {/* The number crossfades when it changes; the live region itself stays put */}
+                    <span key={countText} className="motion-fade">
+                      Showing {countText}.
+                    </span>
+                  </span>{' '}
+                  Ratings are demo data.
+                </p>
+                {!filtered && (
+                  <Button variant="secondary" onClick={() => setShowAll((v) => !v)}>
+                    {showAll ? "Show the chef's picks" : `See all ${MENU_ITEMS.length} dishes`}
+                  </Button>
+                )}
+              </div>
+            }
+          />
+        </div>
 
-      {customizing && (
-        <CustomizeDialog
-          key={customizing.id}
-          item={customizing}
-          onClose={() => setCustomizing(null)}
-          onConfirm={confirmLine}
-        />
-      )}
+        {customizing && (
+          <CustomizeDialog
+            key={customizing.id}
+            item={customizing}
+            onClose={() => setCustomizing(null)}
+            onConfirm={confirmLine}
+          />
+        )}
+      </section>
 
+      {/* Outside the section: it is fixed to the screen, and the section's content-visibility
+          (index.css) would otherwise make the section its containing block. */}
       <div role="status" aria-live="polite" className="pointer-events-none fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
         {toast && (
           <span className="motion-toast inline-block rounded-full bg-forest-800 px-5 py-2.5 text-sm font-semibold text-cream-50 shadow-lift">
@@ -165,6 +169,6 @@ export default function MenuSection() {
           </span>
         )}
       </div>
-    </section>
+    </>
   )
 }

@@ -1,8 +1,6 @@
-import { useRef } from 'react'
+import type { CSSProperties } from 'react'
 import { ArrowRight, Clock, Star, UtensilsCrossed } from 'lucide-react'
 import { MENU_ITEMS } from '../../data/menu'
-import { gsap, MOTION_OK, useGSAP } from '../../lib/gsap'
-import { MOTION } from '../../lib/motion'
 import CharminarMark from '../brand/CharminarMark'
 import Flourish from '../brand/Flourish'
 import TornEdge from '../brand/TornEdge'
@@ -23,57 +21,20 @@ const stats = [
 // The bottom padding keeps descenders (y, g) inside the mask.
 const lineMask = 'block overflow-hidden pb-[0.1em] -mb-[0.1em] lg:whitespace-nowrap'
 
+/** Stagger position for the hero entrance, which is CSS in index.css (`--i`). */
+const order = (i: number) => ({ '--i': i }) as CSSProperties
+
 /**
  * The opening screen (component-guidelines.md §6): words on the left, the dish on a torn
  * forest panel that runs to the right edge of the screen, behind the navbar.
  * Phones and tablets get the words, then the panel at full width, then the stats.
+ *
+ * The entrance (animation-guidelines.md §4) is CSS keyframes, not GSAP: this section is
+ * prerendered into index.html, and CSS starts it with the first paint, before any script runs.
  */
 export default function Hero() {
-  const root = useRef<HTMLElement>(null)
-
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia()
-
-      // One coordinated entrance. Nothing waits for it: the actions work from the first frame.
-      mm.add(MOTION_OK, () => {
-        const tl = gsap.timeline({ defaults: { ease: MOTION.ease } })
-
-        tl.from('[data-hero="line"]', { yPercent: 105, duration: MOTION.hero, stagger: 0.09 })
-          .fromTo(
-            '[data-hero="flourish"] [data-flourish]',
-            { strokeDasharray: 1, strokeDashoffset: 1 },
-            { strokeDashoffset: 0, duration: MOTION.duration, ease: MOTION.easeInOut },
-            '-=0.5',
-          )
-          .from('[data-hero="fade"]', { y: MOTION.offset, autoAlpha: 0, duration: MOTION.duration, stagger: MOTION.stagger }, 0.35)
-
-          // The panel opens from the right while the heading rises, and the photo settles inside it.
-          .fromTo(
-            '[data-hero="panel"]',
-            { clipPath: 'inset(0% 0% 0% 100%)' },
-            { clipPath: 'inset(0% 0% 0% 0%)', duration: MOTION.hero, ease: MOTION.easeInOut, clearProps: 'clipPath' },
-            0,
-          )
-          .from('[data-hero="photo"]', { scale: 1.06, duration: 1.1, clearProps: 'transform' }, 0)
-          .from('[data-hero="art"]', { autoAlpha: 0, duration: MOTION.duration }, 0.8)
-          .from('[data-hero="note"]', { autoAlpha: 0, y: 8, duration: MOTION.base }, 1.1)
-          .fromTo(
-            '[data-hero="note"] [data-arrow]',
-            { strokeDasharray: 1, strokeDashoffset: 1 },
-            { strokeDashoffset: 0, duration: MOTION.base },
-            1.3,
-          )
-      })
-
-      return () => mm.revert()
-    },
-    { scope: root },
-  )
-
   return (
     <section
-      ref={root}
       id="home"
       tabIndex={-1}
       aria-labelledby="hero-heading"
@@ -96,6 +57,7 @@ export default function Hero() {
         <div className="lg:w-[calc(50vw-max(0px,(100vw-80rem)/2)-3rem)]">
           <p
             data-hero="fade"
+            style={order(0)}
             className="flex items-center gap-3 text-label font-semibold uppercase text-copper-700"
           >
             Hyderabad specials
@@ -104,17 +66,17 @@ export default function Hero() {
 
           <h1 id="hero-heading" className="mt-4 font-display text-display-xl font-bold text-ink-900">
             <span className={lineMask}>
-              <span data-hero="line" className="block">
+              <span data-hero="line" style={order(0)} className="block">
                 Savour Hyderabad&apos;s
               </span>
             </span>
             <span className={lineMask}>
-              <span data-hero="line" className="block">
+              <span data-hero="line" style={order(1)} className="block">
                 finest biryanis.
               </span>
             </span>
             <span className={lineMask}>
-              <span data-hero="line" className="relative inline-block pb-[0.18em]">
+              <span data-hero="line" style={order(2)} className="relative inline-block pb-[0.18em]">
                 <em className="accent">Delivered.</em>
                 <span data-hero="flourish" className="absolute inset-x-0 bottom-0 block">
                   <Flourish className="block h-[0.24em] w-full" />
@@ -123,12 +85,12 @@ export default function Hero() {
             </span>
           </h1>
 
-          <p data-hero="fade" className="mt-5 max-w-[34rem] text-body-lg text-ink-600">
+          <p data-hero="fade" style={order(1)} className="mt-5 max-w-[34rem] text-body-lg text-ink-600">
             From iconic biryanis to local favourites, cooked fresh in Hyderabadi style and brought
             to your door.
           </p>
 
-          <div data-hero="fade" className="mt-8 flex flex-wrap items-center gap-3">
+          <div data-hero="fade" style={order(2)} className="mt-8 flex flex-wrap items-center gap-3">
             <Button
               href="#menu"
               size="lg"
@@ -148,18 +110,27 @@ export default function Hero() {
           <div data-hero="panel" className="h-full">
             <TornEdge side="top" lgSide="left" className="aspect-[4/3] overflow-hidden bg-forest-950 lg:aspect-auto lg:h-full">
               <div className="hero-parallax-photo absolute inset-x-0 -top-[8%] h-[116%]">
-                <img
-                  data-hero="photo"
-                  src="/images/hero-handi-1200.jpg"
-                  srcSet="/images/hero-handi-800.jpg 800w, /images/hero-handi-1200.jpg 1200w"
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                  alt="Chicken biryani in a copper handi, with raita and salan on the side"
-                  width={1200}
-                  height={900}
-                  fetchPriority="high"
-                  decoding="async"
-                  className="h-full w-full object-cover"
-                />
+                {/* The largest thing on the first screen (the LCP). AVIF is less than half the
+                    JPEG's weight at the same look; the JPEG stays for browsers without AVIF. */}
+                <picture className="contents">
+                  <source
+                    type="image/avif"
+                    srcSet="/images/hero-handi-800.avif 800w, /images/hero-handi-1200.avif 1200w"
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                  />
+                  <img
+                    data-hero="photo"
+                    src="/images/hero-handi-1200.jpg"
+                    srcSet="/images/hero-handi-800.jpg 800w, /images/hero-handi-1200.jpg 1200w"
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    alt="Chicken biryani in a copper handi, with raita and salan on the side"
+                    width={1200}
+                    height={900}
+                    fetchPriority="high"
+                    decoding="async"
+                    className="h-full w-full object-cover"
+                  />
+                </picture>
                 {/* Steam over the handi: a few soft rises after load, then still (index.css) */}
                 <svg
                   aria-hidden="true"
@@ -201,11 +172,12 @@ export default function Hero() {
         </div>
 
         <dl className="mt-8 grid grid-cols-3 gap-3 sm:gap-0 lg:mt-12 lg:w-[calc(50vw-max(0px,(100vw-80rem)/2)-3rem)]">
-          {stats.map(({ Icon, value, label }) => (
+          {stats.map(({ Icon, value, label }, i) => (
             // The label (dt) comes first for screen readers; the grid shows the value above it.
             <div
               key={label}
               data-hero="fade"
+              style={order(3 + i)}
               className="grid content-start items-center gap-x-3 gap-y-1 leading-tight sm:grid-cols-[auto_1fr] sm:px-4 sm:first:pl-0 xl:px-5 sm:[&+&]:border-l sm:[&+&]:border-line-200"
             >
               <dt className="contents">

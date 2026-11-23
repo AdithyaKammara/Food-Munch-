@@ -1,5 +1,55 @@
 @import "tailwindcss";
 
+/* Fallback faces sized to match the web fonts. The page is prerendered, so its text paints in a
+   fallback before Fraunces and Inter arrive; unadjusted, the hero heading's first line wrapped in Georgia
+   and the hero moved 39px when Fraunces swapped in (CLS 0.023). size-adjust is the width ratio
+   of a sample sentence measured in the page (Fraunces 700 at the 26px wordmark and 38px heading,
+   Inter at 400, and the two short strings, the wordmark and the hero note, matched on their own); the overrides keep the web fonts' ascent and descent, divided by
+   size-adjust because they scale with it. Where a local font is missing, its face is skipped. */
+@font-face {
+  font-family: "Fraunces Fallback";
+  src: local("Georgia");
+  size-adjust: 94.5%;
+  ascent-override: 103.7%;
+  descent-override: 27.51%;
+  line-gap-override: 0%;
+}
+@font-face {
+  /* "Food Munch" alone sets wider in Fraunces than a sentence does, so the wordmark has its own */
+  font-family: "Fraunces Fallback Wordmark";
+  src: local("Georgia");
+  size-adjust: 107.7%;
+  ascent-override: 91%;
+  descent-override: 24.14%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial"), local("ArialMT");
+  size-adjust: 107.22%;
+  ascent-override: 90.47%;
+  descent-override: 22.38%;
+  line-gap-override: 0%;
+}
+@font-face {
+  /* The hero's handwritten note; Caveat is much narrower than Comic Sans */
+  font-family: "Caveat Fallback";
+  src: local("Comic Sans MS");
+  size-adjust: 73.4%;
+  ascent-override: 130.79%;
+  descent-override: 40.87%;
+  line-gap-override: 0%;
+}
+@font-face {
+  /* Android has no Arial */
+  font-family: "Inter Fallback Roboto";
+  src: local("Roboto");
+  size-adjust: 117.3%;
+  ascent-override: 82.69%;
+  descent-override: 20.46%;
+  line-gap-override: 0%;
+}
+
 @theme {
   /* Colour tokens: design.md §3. No raw hex values outside this block. */
   --color-forest-950: #082014;
@@ -30,9 +80,10 @@
   --color-focus: #b45c00;
 
   /* Type: design.md §4 */
-  --font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-note: "Caveat Variable", cursive;
+  --font-display: "Fraunces Variable", "Fraunces Fallback", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter Variable", "Inter Fallback", "Inter Fallback Roboto", ui-sans-serif, system-ui, sans-serif;
+  --font-wordmark: "Fraunces Variable", "Fraunces Fallback Wordmark", Georgia, serif;
+  --font-note: "Caveat Variable", "Caveat Fallback", cursive;
 
   /* Type scale: design.md §4. Each size carries its line height and tracking. */
   --text-display-xl: clamp(2.375rem, 4.2vw, 3.375rem);
@@ -345,6 +396,51 @@
   100% { opacity: 0; transform: translateY(-26px) scaleY(1.08) }
 }
 
+/* Entrance (§3–4). CSS keyframes, not a GSAP timeline: the hero is prerendered into
+   index.html, so it starts with the first paint instead of hiding the prerendered words and
+   photo until the scripts have loaded and run. `both` holds each element at its start until its
+   delay is over. Each `--i` is set in Hero.tsx. Opt-in, so under reduced motion nothing moves. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-hero='line'] {
+    /* Each line rises inside its mask, 90ms apart */
+    animation: fm-hero-rise 0.9s var(--ease-out) calc(var(--i, 0) * 90ms) both;
+  }
+  [data-hero='flourish'] [data-flourish] {
+    /* Draws in under "Delivered." as its line lands */
+    stroke-dasharray: 1;
+    animation: fm-hero-draw 0.6s var(--ease-in-out) 0.58s both;
+  }
+  [data-hero='fade'] {
+    /* Label, sentence, actions and stats fade up 20px, 70ms apart, from 350ms */
+    animation: fm-hero-fade 0.6s var(--ease-out) calc(350ms + var(--i, 0) * 70ms) both;
+  }
+  [data-hero='panel'] {
+    animation: fm-hero-panel 0.9s var(--ease-in-out) both;
+  }
+  [data-hero='photo'] {
+    animation: fm-hero-settle 1.1s var(--ease-out) both;
+  }
+  /* The art's own element carries the parallax animation, so the fade goes on what is inside */
+  [data-hero='art'] > * {
+    animation: fm-hero-appear 0.6s var(--ease-out) 0.8s both;
+  }
+  [data-hero='note'] {
+    animation: fm-hero-note 0.4s var(--ease-out) 1.1s both;
+  }
+  [data-hero='note'] [data-arrow] {
+    stroke-dasharray: 1;
+    animation: fm-hero-draw 0.4s var(--ease-out) 1.3s both;
+  }
+}
+
+@keyframes fm-hero-rise { from { translate: 0 105% } }
+@keyframes fm-hero-draw { from { stroke-dashoffset: 1 } to { stroke-dashoffset: 0 } }
+@keyframes fm-hero-fade { from { opacity: 0; translate: 0 20px } }
+@keyframes fm-hero-panel { from { clip-path: inset(0% 0% 0% 100%) } to { clip-path: inset(0% 0% 0% 0%) } }
+@keyframes fm-hero-settle { from { scale: 1.06 } }
+@keyframes fm-hero-appear { from { opacity: 0 } }
+@keyframes fm-hero-note { from { opacity: 0; translate: 0 8px } }
+
 @supports (animation-timeline: scroll()) {
   @media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
     .hero-parallax-photo,
@@ -357,6 +453,30 @@
     .hero-parallax-photo { animation-name: fm-drift-photo }
     .hero-parallax-art { animation-name: fm-drift-art }
   }
+}
+
+/* ---------------------------------------------------------------
+   Everything below the hero is laid out and painted only as it nears the screen. The page is
+   prerendered, and laying out all of it before the first paint took about 3s on the slow-phone
+   profile (4x CPU), against well under 1s for the hero alone.
+   The sizes are each section's measured height (412px and 1280px wide); `auto` then remembers
+   the real one. Containment makes each section the containing block for anything `position:
+   fixed` inside it, so fixed things (the menu's toast) live outside these sections.
+---------------------------------------------------------------- */
+#menu, #offers, #about, #delivery, #contact {
+  content-visibility: auto;
+  contain-intrinsic-size: auto var(--later-height);
+}
+#menu { --later-height: 1055px }
+#offers { --later-height: 420px }
+#about { --later-height: 1058px } /* 1154px tall, less its padding: the size is for the content box */
+#delivery { --later-height: 1540px }
+#contact { --later-height: 1150px }
+@media (min-width: 1024px) {
+  #offers { --later-height: 380px }
+  #about { --later-height: 760px }
+  #delivery { --later-height: 2215px }
+  #contact { --later-height: 515px }
 }
 
 /* The arrow in the hero's "Order now" nudges right on hover */

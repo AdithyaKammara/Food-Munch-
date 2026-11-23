@@ -64,7 +64,7 @@ Vite prints the local development URL in the terminal, usually `http://localhost
 
 ```bash
 npm run dev        # Start the development server
-npm run build      # Type-check and create a production build
+npm run build      # Type-check, build, and prerender the page into dist/index.html
 npm run preview    # Preview the production build locally
 npm run lint       # Run ESLint
 npm run test       # Run the test suite once
@@ -113,7 +113,7 @@ Do not enter sensitive personal or payment information into the demo. A producti
 
 The live demo is hosted on Vercel: **[foodmunch-app.vercel.app](https://foodmunch-app.vercel.app/)**.
 
-The project uses Vite's standard production build. Recommended Vercel settings:
+The production build is Vite's, followed by `scripts/prerender.mjs`, which renders the page into `dist/index.html` so it paints before the JavaScript loads; React then hydrates it. No server is needed. Recommended Vercel settings:
 
 - **Framework preset:** Vite
 - **Build command:** `npm run build`

@@ -169,7 +169,9 @@ export default function Footer() {
       </div>
 
       <div className="mx-auto max-w-[77.5rem] border-t border-cream-50/15 px-4 py-5 sm:px-6 lg:px-8">
-        <p className="text-center text-[0.8125rem] text-cream-50/70 sm:text-left">
+        {/* The page is prerendered at build time, so across New Year the build's year can differ
+            from the visitor's until the next deploy; that one difference is allowed. */}
+        <p suppressHydrationWarning className="text-center text-[0.8125rem] text-cream-50/70 sm:text-left">
           © {year} Food Munch. Portfolio project by Adithya Kammara.
         </p>
       </div>

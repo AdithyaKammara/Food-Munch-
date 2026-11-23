@@ -55,6 +55,8 @@ The navbar and actions are clickable from the first frame. There is no preloader
 | Handwritten note | Fades in last, with its arrow drawing in | 400ms + 400ms |
 | Parallax | Over the first 900px of scroll, the photo drifts down 6% of its height and the Charminar 4%, desktop only | CSS scroll-driven animation (`animation-timeline: scroll(root)`), inside `@supports`; no script |
 
+**Since the prerender follow-up** the entrance (heading lines, flourish, fades, panel, photo, art, note) is CSS keyframes in `src/index.css` (`[data-hero=…]`, staggered by `--i` from `Hero.tsx`), with the same durations, delays and order as the GSAP timeline it replaced. The hero is in the prerendered HTML, so a script timeline would have hidden painted content until the scripts ran; CSS starts with the first paint. Under reduced motion nothing moves.
+
 Steam is not a loop (changed in Phase 3): anything that moves for more than five seconds alongside other content needs a pause control (WCAG 2.2.2), so the wisps play a few times on load and stop. They never run under reduced motion.
 
 ## 5. Scroll reveals
@@ -157,4 +159,4 @@ Code that waits for `animationend` must not depend on it: the cart's line remova
 
 - **GSAP 3** (installed) with ScrollTrigger, through `@gsap/react`'s `useGSAP`. This is the only animation library. The Flip plugin turned out not to be needed (see §10).
 - `motion` (Framer Motion) was installed but unused; it was uninstalled in Phase 9.
-- CSS keyframes for dialogs, toasts and steam, and CSS scroll-driven animations for the hero parallax, where a timeline adds nothing.
+- CSS keyframes for dialogs, toasts, steam and the hero entrance, and CSS scroll-driven animations for the hero parallax, where a timeline adds nothing.

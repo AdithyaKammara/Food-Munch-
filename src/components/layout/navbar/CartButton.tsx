@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { ShoppingCart } from 'lucide-react'
 import { gsap, MOTION_OK, useGSAP } from '../../../lib/gsap'
 import { MOTION } from '../../../lib/motion'
+import { useHydrated } from '../../../lib/useHydrated'
 import { selectCartCount, useCartStore } from '../../../store/cartStore'
 import { useUiStore } from '../../../store/uiStore'
 import IconButton from './IconButton'
@@ -10,13 +11,17 @@ export default function CartButton() {
   const count = useCartStore(selectCartCount)
   const openPanel = useUiStore((s) => s.openPanel)
 
-  // "Bump" the cart when something is added (not on page load, not when removing).
+  // "Bump" the cart when something is added (not on page load, not when removing). On the
+  // prerendered page the count starts at 0 and a saved cart arrives right after hydration,
+  // so counting starts from the first hydrated render.
+  const hydrated = useHydrated()
   const ref = useRef<HTMLButtonElement>(null)
-  const previousCount = useRef(count)
+  const previousCount = useRef<number | null>(null)
 
   useGSAP(
     () => {
-      const added = count > previousCount.current
+      if (!hydrated) return
+      const added = previousCount.current !== null && count > previousCount.current
       previousCount.current = count
       const button = ref.current
       if (!added || !button) return
@@ -31,7 +36,7 @@ export default function CartButton() {
       })
       return () => mm.revert()
     },
-    { dependencies: [count], revertOnUpdate: true },
+    { dependencies: [count, hydrated], revertOnUpdate: true },
   )
 
   return (

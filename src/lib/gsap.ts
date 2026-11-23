@@ -15,9 +15,16 @@ if (typeof window !== 'undefined') {
   // biggest cost of the first seconds on a slow phone).
   let refreshTimer = 0
   let measuredHeight = -1
+  // A refresh scrolls the page by itself to measure, which stops a smooth scroll in flight (an
+  // anchor link to #delivery stopped after 400px). Sections below the hero settle their real
+  // height as they near the screen (content-visibility, index.css), so the page height changes
+  // during such scrolls; the refresh waits until scrolling has paused.
+  let lastScroll = 0
+  window.addEventListener('scroll', () => (lastScroll = performance.now()), { passive: true })
   const scheduleRefresh = () => {
     window.clearTimeout(refreshTimer)
     refreshTimer = window.setTimeout(() => {
+      if (performance.now() - lastScroll < 150) return scheduleRefresh()
       const height = document.body.scrollHeight
       if (Math.abs(height - measuredHeight) < 2) return
       measuredHeight = height

@@ -24,7 +24,7 @@ export default function Wordmark({ tone = 'dark', showTagline = true, href = '#h
       <span className="flex flex-col leading-none">
         <span
           className={clsx(
-            'font-display text-[1.625rem] font-bold tracking-[-0.01em] max-[374px]:text-[1.1875rem]',
+            'font-wordmark text-[1.625rem] font-bold tracking-[-0.01em] max-[374px]:text-[1.1875rem]',
             light ? 'text-cream-50' : 'text-ink-900',
           )}
         >

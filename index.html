@@ -16,16 +16,14 @@
     <meta name="twitter:description" content="A responsive food-ordering portfolio project built with React, TypeScript, Tailwind CSS, and GSAP." />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <!-- The two fonts on the first screen, fetched in parallel with the scripts instead of after
-         the CSS and text are ready. Vite rewrites these paths to the hashed build files. -->
-    <link rel="preload" as="font" type="font/woff2" crossorigin href="/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" />
-    <link rel="preload" as="font" type="font/woff2" crossorigin href="/node_modules/@fontsource-variable/fraunces/files/fraunces-latin-standard-normal.woff2" />
-    <!-- The hero photo is the largest thing on the first screen, but React renders it, so the
-         browser would only find it after the scripts run. Start it now (modern-web-guidance: performance). -->
-    <link rel="preload" as="image" href="/images/hero-handi-1200.jpg" imagesrcset="/images/hero-handi-800.jpg 800w, /images/hero-handi-1200.jpg 1200w" imagesizes="(min-width: 1024px) 50vw, 100vw" fetchpriority="high" />
+    <!-- No font preloads: the page is prerendered and paints first in size-matched fallback fonts
+         (index.css), and preloading Inter and Fraunces took bandwidth from the hero photo, the
+         page's LCP, on a slow connection (LCP median 4.4s with them, 2.5s without). -->
     <title>Food Munch — Authentic Hyderabad Flavours</title>
   </head>
   <body>
+    <!-- Filled at build time with the prerendered page (scripts/prerender.mjs), so the hero and its
+         photo are in the HTML and paint before the scripts run. Empty on the dev server. -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
