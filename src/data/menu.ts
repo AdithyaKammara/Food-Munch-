@@ -1,5 +1,11 @@
 export type Category = 'starters' | 'mains' | 'desserts' | 'drinks'
 
+/**
+ * What the menu can be narrowed to: a course, or Biryani. Biryani is not a course in the data
+ * (the biryanis are Mains); it is worked out from the dish name (implementation-plan.md C7).
+ */
+export type MenuCategory = Category | 'biryani'
+
 export interface MenuItem {
   id: number
   title: string
@@ -212,3 +218,6 @@ export const MENU_ITEMS: MenuItem[] = [
     customizable: false,
   },
 ]
+
+/** The dishes in the "Chef's recommendations" rail when nothing is filtered, in order. */
+export const RECOMMENDED_IDS = [4, 1, 2, 6, 8, 11]

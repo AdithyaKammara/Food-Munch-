@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#fffaf1" />
+    <meta name="theme-color" content="#f8ece0" />
     <meta name="description" content="Explore authentic Hyderabad-inspired favourites, customize your meal, and experience a polished demo food-ordering flow with Food Munch." />
     <meta name="color-scheme" content="light" />
 
@@ -16,6 +16,13 @@
     <meta name="twitter:description" content="A responsive food-ordering portfolio project built with React, TypeScript, Tailwind CSS, and GSAP." />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- The two fonts on the first screen, fetched in parallel with the scripts instead of after
+         the CSS and text are ready. Vite rewrites these paths to the hashed build files. -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/node_modules/@fontsource-variable/fraunces/files/fraunces-latin-standard-normal.woff2" />
+    <!-- The hero photo is the largest thing on the first screen, but React renders it, so the
+         browser would only find it after the scripts run. Start it now (modern-web-guidance: performance). -->
+    <link rel="preload" as="image" href="/images/hero-handi-1200.jpg" imagesrcset="/images/hero-handi-800.jpg 800w, /images/hero-handi-1200.jpg 1200w" imagesizes="(min-width: 1024px) 50vw, 100vw" fetchpriority="high" />
     <title>Food Munch — Authentic Hyderabad Flavours</title>
   </head>
   <body>

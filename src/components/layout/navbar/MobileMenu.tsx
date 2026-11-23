@@ -4,9 +4,9 @@ import { ReceiptText, Truck, User, X } from 'lucide-react'
 import { useOrdersStore } from '../../../store/ordersStore'
 import { useUiStore, type Panel } from '../../../store/uiStore'
 import { useUserStore } from '../../../store/userStore'
-import BrandLogo from './BrandLogo'
+import Wordmark from '../../brand/Wordmark'
+import Button from '../../ui/Button'
 import NavbarSearch from './NavbarSearch'
-import OrderNowButton from './OrderNowButton'
 import { NAV_LINKS } from './links'
 
 interface Props {
@@ -29,21 +29,21 @@ export default function MobileMenu({ open, onOpenChange, active }: Props) {
   }
 
   const row =
-    'flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-[17px] font-semibold transition-colors hover:bg-cream-deep'
+    'flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-[17px] font-semibold transition-colors hover:bg-cream-300'
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="motion-overlay fixed inset-0 z-50 bg-black/40" />
+        <Dialog.Overlay className="motion-overlay fixed inset-0 z-50 bg-forest-950/40" />
         <Dialog.Content
           id="mobile-menu"
-          className="motion-drawer fixed right-0 top-0 z-50 flex h-full w-full max-w-sm flex-col overflow-y-auto bg-cream p-5 shadow-card-hover"
+          className="motion-drawer fixed right-0 top-0 z-50 flex h-full w-full max-w-sm flex-col overflow-y-auto bg-cream-200 p-5 shadow-lift"
         >
           <div className="flex items-center justify-between">
-            <BrandLogo onClick={close} />
+            <Wordmark onClick={close} />
             <Dialog.Close
               aria-label="Close menu"
-              className="grid h-11 w-11 place-items-center rounded-full border border-line bg-white hover:border-gold"
+              className="grid h-11 w-11 place-items-center rounded-full border border-line-200 bg-cream-50 hover:border-copper-600"
             >
               <X size={20} aria-hidden="true" />
             </Dialog.Close>
@@ -63,7 +63,7 @@ export default function MobileMenu({ open, onOpenChange, active }: Props) {
                     href={`#${id}`}
                     onClick={close}
                     aria-current={active === id ? 'true' : undefined}
-                    className={`${row} ${active === id ? 'bg-gold-soft' : ''}`}
+                    className={`${row} ${active === id ? 'bg-cream-300' : ''}`}
                   >
                     <Icon size={20} aria-hidden="true" />
                     {label}
@@ -73,10 +73,10 @@ export default function MobileMenu({ open, onOpenChange, active }: Props) {
             </ul>
           </nav>
 
-          <div className="mt-4 space-y-1 border-t border-line pt-4">
+          <div className="mt-4 space-y-1 border-t border-line-200 pt-4">
             {activeOrderId && (
               <button type="button" onClick={() => go('tracking')} className={row}>
-                <Truck size={20} aria-hidden="true" className="text-green-700" />
+                <Truck size={20} aria-hidden="true" className="text-veg" />
                 Track your order
               </button>
             )}
@@ -90,7 +90,9 @@ export default function MobileMenu({ open, onOpenChange, active }: Props) {
             </button>
           </div>
 
-          <OrderNowButton onClick={close} className="mt-auto w-full" />
+          <Button href="#menu" onClick={close} className="mt-auto w-full">
+            Order now
+          </Button>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

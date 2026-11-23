@@ -1,62 +1,30 @@
 import { useState } from 'react'
-import * as Dialog from '@radix-ui/react-dialog'
-import { CircleCheck, Clock, ReceiptText, RefreshCw, Sprout, Star, Truck, Utensils, X } from 'lucide-react'
+import { CircleCheck, Clock, RefreshCw, Star, Truck, Utensils } from 'lucide-react'
 import { MENU_ITEMS } from '../../data/menu'
 import { paymentLabel, trackingStep, type Order } from '../../lib/orders'
 import { useCartStore } from '../../store/cartStore'
 import { useOrdersStore } from '../../store/ordersStore'
 import { useUiStore } from '../../store/uiStore'
+import { buttonClasses } from '../ui/buttonClasses'
+import Modal from '../ui/Modal'
+import Price from '../ui/Price'
 
+/** Orders placed in this browser, newest first, with Track and Reorder. Behaviour unchanged. */
 export default function HistoryDialog() {
   const open = useUiStore((s) => s.panel === 'history')
   const closePanel = useUiStore((s) => s.closePanel)
 
   return (
-    <Dialog.Root
+    <Modal
       open={open}
-      onOpenChange={(next) => {
-        if (!next) closePanel()
-      }}
+      onClose={closePanel}
+      size="xl"
+      title="Order history"
+      description="Orders placed in this browser."
+      closeLabel="Close order history"
     >
-      <Dialog.Portal>
-        <Dialog.Overlay className="motion-overlay fixed inset-0 z-50 bg-black/45" />
-        <Dialog.Content className="motion-dialog fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-[calc(100%-1.5rem)] max-w-[40rem] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-[1.75rem] bg-cream shadow-dialog">
-          {/* ---------- Header ---------- */}
-          <div className="relative flex items-center gap-4 px-5 pb-5 pt-6 sm:gap-5 sm:px-8 sm:pt-7">
-            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gold-soft text-ink sm:h-[4.5rem] sm:w-[4.5rem]">
-              <ReceiptText size={30} aria-hidden="true" />
-            </span>
-            <div className="min-w-0 pr-12">
-              <Dialog.Title className="font-display text-2xl font-extrabold tracking-[-0.03em] sm:text-[2rem]">
-                Order history
-              </Dialog.Title>
-              <Dialog.Description className="mt-0.5 text-[15px] text-muted sm:text-base">
-                Orders placed in this browser.
-              </Dialog.Description>
-            </div>
-
-            {/* Faint leaf drawing, like the reference */}
-            <Sprout
-              aria-hidden="true"
-              strokeWidth={1.2}
-              className="pointer-events-none absolute right-24 top-10 hidden h-16 w-16 text-gold-dark/25 sm:block"
-            />
-
-            <Dialog.Close
-              aria-label="Close order history"
-              className="absolute right-5 top-5 grid h-12 w-12 place-items-center rounded-full border border-line bg-white shadow-sm transition-transform hover:scale-105 active:scale-95 sm:right-6 sm:top-6"
-            >
-              <X size={22} aria-hidden="true" />
-            </Dialog.Close>
-          </div>
-
-          {/* ---------- Orders (scrolls when there are many) ---------- */}
-          <div className="overflow-y-auto px-4 pb-5 sm:px-8 sm:pb-8">
-            <HistoryBody />
-          </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+      <HistoryBody />
+    </Modal>
   )
 }
 
@@ -83,16 +51,16 @@ function HistoryBody() {
 
   if (orders.length === 0) {
     return (
-      <div className="rounded-3xl border border-line bg-white px-6 py-12 text-center">
-        <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-cream-deep text-gold-dark">
+      <div className="rounded-md border border-dashed border-line-200 px-6 py-10 text-center">
+        <span className="mx-auto grid size-14 place-items-center rounded-full bg-cream-300 text-copper-600">
           <Utensils size={28} aria-hidden="true" />
         </span>
-        <p className="mt-4 font-display text-xl font-bold">No orders yet</p>
-        <p className="mt-1 text-muted">Your orders will appear here after checkout.</p>
+        <p className="mt-4 font-display text-title font-semibold">No orders yet</p>
+        <p className="mt-1 text-ink-600">Your orders will appear here after checkout.</p>
         <a
           href="#menu"
           onClick={closePanel}
-          className="mt-6 inline-flex rounded-full bg-gold px-6 py-3 font-bold text-on-gold transition-transform hover:-translate-y-0.5"
+          className={buttonClasses('primary', 'md', 'mt-6')}
         >
           Browse the menu
         </a>
@@ -129,22 +97,22 @@ function OrderCard({ order, delivered, onReorder, onTrack }: CardProps) {
   })
 
   return (
-    <li className="rounded-3xl border border-line bg-white p-5 sm:p-7">
+    <li className="rounded-md border border-line-200 bg-cream-50 p-5 sm:p-6">
       {/* Top row: id, date, status */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="font-display text-xl font-extrabold sm:text-2xl">#{order.id}</p>
-          <p className="mt-1 text-sm text-muted sm:text-[15px]">
+          <p className="font-display text-title font-semibold sm:text-display-md">#{order.id}</p>
+          <p className="mt-1 text-sm text-ink-600">
             {placed} · {paymentLabel(order)}
           </p>
         </div>
         {delivered ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3.5 py-1.5 text-sm font-bold text-green-800 ring-1 ring-green-100">
-            <CircleCheck size={18} aria-hidden="true" className="fill-green-700 text-white" />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-cream-200 px-3 py-1.5 text-sm font-semibold text-success">
+            <CircleCheck size={18} aria-hidden="true" className="fill-veg text-cream-50" />
             Delivered
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-cream-deep px-3.5 py-1.5 text-sm font-bold text-gold-text">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-cream-200 px-3 py-1.5 text-sm font-semibold text-copper-700">
             <Clock size={17} aria-hidden="true" />
             In progress
           </span>
@@ -152,7 +120,7 @@ function OrderCard({ order, delivered, onReorder, onTrack }: CardProps) {
       </div>
 
       {/* Items with their photos */}
-      <ul className="mt-5 space-y-4">
+      <ul className="mt-5 space-y-3">
         {order.items.map((item, index) => {
           const image = MENU_ITEMS.find((m) => m.id === item.itemId)?.image
           return (
@@ -164,18 +132,18 @@ function OrderCard({ order, delivered, onReorder, onTrack }: CardProps) {
                   width={80}
                   height={80}
                   loading="lazy"
-                  className="h-16 w-16 shrink-0 rounded-2xl object-cover sm:h-20 sm:w-20"
+                  className="size-14 shrink-0 rounded-sm object-cover"
                 />
               ) : (
-                <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-cream-deep text-gold-dark sm:h-20 sm:w-20">
+                <span className="grid size-14 shrink-0 place-items-center rounded-sm bg-cream-300 text-copper-500">
                   <Utensils size={24} aria-hidden="true" />
                 </span>
               )}
               <div className="min-w-0">
-                <p className="text-[17px] font-semibold leading-snug sm:text-lg">
+                <p className="font-semibold leading-snug">
                   {item.title} × {item.qty}
                 </p>
-                {item.options && <p className="mt-0.5 text-sm text-muted sm:text-[15px]">{item.options}</p>}
+                {item.options && <p className="mt-0.5 text-sm text-ink-600">{item.options}</p>}
               </div>
             </li>
           )
@@ -183,19 +151,19 @@ function OrderCard({ order, delivered, onReorder, onTrack }: CardProps) {
       </ul>
 
       {/* Total and actions */}
-      <div className="mt-5 flex flex-wrap items-end justify-between gap-4 border-t border-line pt-5">
+      <div className="mt-5 flex flex-wrap items-end justify-between gap-4 border-t border-line-200 pt-5">
         <div>
-          <p className="text-sm text-muted">Total</p>
-          <p className="font-display text-3xl font-extrabold">₹{order.totals.total}</p>
+          <p className="text-sm text-ink-600">Total</p>
+          <Price amount={order.totals.total} className="block text-[1.625rem] leading-tight" />
           {order.totals.discount > 0 && (
-            <p className="mt-0.5 text-sm font-semibold text-green-800">
-              Saved ₹{order.totals.discount}
+            <p className="mt-0.5 text-sm font-semibold text-success">
+              Saved <Price amount={order.totals.discount} plain className="font-semibold" />
               {order.promoCode ? ` with ${order.promoCode}` : ''}
             </p>
           )}
           {order.rating !== null && (
-            <p className="mt-0.5 inline-flex items-center gap-1 text-sm text-muted">
-              <Star size={14} aria-hidden="true" className="fill-gold text-gold-dark" />
+            <p className="mt-0.5 inline-flex items-center gap-1 text-sm text-ink-600">
+              <Star size={14} aria-hidden="true" className="fill-star text-star" />
               You rated this {order.rating} out of 5
             </p>
           )}
@@ -206,9 +174,9 @@ function OrderCard({ order, delivered, onReorder, onTrack }: CardProps) {
             <button
               type="button"
               onClick={onTrack}
-              className="inline-flex items-center gap-2 rounded-full border-2 border-line bg-white px-5 py-3 font-bold transition-colors hover:border-gold"
+              className={buttonClasses('secondary', 'md')}
             >
-              <Truck size={19} aria-hidden="true" />
+              <Truck size={18} aria-hidden="true" />
               Track
             </button>
           )}
@@ -216,9 +184,9 @@ function OrderCard({ order, delivered, onReorder, onTrack }: CardProps) {
             type="button"
             onClick={onReorder}
             aria-label={`Reorder #${order.id}`}
-            className="group inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3 text-lg font-bold text-on-gold shadow-gold transition-transform hover:-translate-y-0.5 active:translate-y-0"
+            className={buttonClasses('primary', 'md', 'group')}
           >
-            <RefreshCw size={20} aria-hidden="true" className="transition-transform duration-500 group-hover:rotate-180" />
+            <RefreshCw size={18} aria-hidden="true" className="motion-safe:transition-[rotate] motion-safe:duration-500 motion-safe:group-hover:rotate-180" />
             Reorder
           </button>
         </div>

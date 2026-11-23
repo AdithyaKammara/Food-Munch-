@@ -39,7 +39,7 @@ Food Munch is a frontend portfolio project built to demonstrate a polished resta
 | Animation | GSAP 3.15, ScrollTrigger, `@gsap/react` |
 | State management | Zustand 5 with browser persistence |
 | UI primitives and icons | Radix UI, lucide-react |
-| Forms and validation | React Hook Form, Zod |
+| Forms and validation | Hand-written checks in `src/lib/validation.ts` (unit tested) |
 | Tests | Vitest, Testing Library |
 
 ## Run locally

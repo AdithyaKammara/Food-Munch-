@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { ChevronDown } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { buildDeliverySlots, buildOrder, type PaymentMethod } from '../../lib/orders'
 import { calcTotals } from '../../lib/pricing'
@@ -7,8 +8,16 @@ import { useCartStore } from '../../store/cartStore'
 import { useOrdersStore } from '../../store/ordersStore'
 import { useUiStore } from '../../store/uiStore'
 import { useUserStore } from '../../store/userStore'
+import Button from '../ui/Button'
+import { buttonClasses } from '../ui/buttonClasses'
 import { TextAreaField, TextField } from '../ui/Field'
+import { fieldClasses } from '../ui/fieldClasses'
 import Modal from '../ui/Modal'
+import Price from '../ui/Price'
+
+// A whole row is the label for its radio; the chosen one gets a copper border.
+const optionRow =
+  'flex min-h-12 cursor-pointer items-start gap-3 rounded-sm border border-line-200 px-3.5 py-3 transition-colors hover:border-copper-600 has-[:checked]:border-copper-600 has-[:checked]:bg-cream-100'
 
 export default function CheckoutDialog() {
   const open = useUiStore((s) => s.panel === 'checkout')
@@ -20,7 +29,7 @@ export default function CheckoutDialog() {
       onClose={closePanel}
       title="Checkout"
       description="Demo checkout: no real payment is taken."
-      wide
+      size="lg"
     >
       <CheckoutBody />
     </Modal>
@@ -57,8 +66,13 @@ function CheckoutBody() {
   const [slot, setSlot] = useState(slots[0])
   const [method, setMethod] = useState<PaymentMethod>('UPI')
   const [errors, setErrors] = useState<FieldErrors>({ name: null, phone: null, address: null })
+  // The demo UPI confirmation shows a spinner for 900ms, like a provider replying (animation-guidelines.md §12).
+  const [confirming, setConfirming] = useState(false)
 
   const totals = calcTotals({ lines, promoCode, tip, isFirstOrder })
+
+  // Typing in a field clears its error; the check itself still runs on submit (modern-web-guidance: forms).
+  const clearError = (field: keyof FieldErrors) => setErrors((e) => (e[field] ? { ...e, [field]: null } : e))
 
   const placeOrder = (paymentMethod: PaymentMethod) => {
     const order = buildOrder({
@@ -77,6 +91,14 @@ function CheckoutBody() {
     openPanel('tracking')
   }
 
+  useEffect(() => {
+    if (!confirming) return
+    const timer = setTimeout(() => placeOrder('UPI'), 900)
+    return () => clearTimeout(timer)
+    // placeOrder reads the latest state when the timer fires; it is not a trigger.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [confirming])
+
   const submit = () => {
     const next: FieldErrors = {
       name: user ? null : validateName(name),
@@ -93,16 +115,12 @@ function CheckoutBody() {
     else placeOrder('COD')
   }
 
-  // ---------- Empty bag ----------
+  // ---------- Empty cart ----------
   if (lines.length === 0) {
     return (
       <div className="text-center">
-        <p className="font-semibold">Your bag is empty.</p>
-        <button
-          type="button"
-          onClick={closePanel}
-          className="mt-4 rounded-full bg-gold px-5 py-2 text-sm font-bold text-on-gold"
-        >
+        <p className="font-semibold">Your cart is empty.</p>
+        <button type="button" onClick={closePanel} className={buttonClasses('primary', 'md', 'mt-4')}>
           Back to the menu
         </button>
       </div>
@@ -113,14 +131,14 @@ function CheckoutBody() {
   if (step === 'upi') {
     return (
       <div className="text-center">
-        <p className="rounded-xl bg-cream-deep p-3 text-sm font-semibold">
+        <p className="rounded-sm bg-cream-200 p-3 text-sm font-semibold">
           Demo payment: scanning this code does nothing and no money moves.
         </p>
 
         <div
           role="img"
           aria-label="Demo QR code, not a real payment"
-          className="mx-auto mt-4 inline-block rounded-xl border border-line bg-white p-4"
+          className="mx-auto mt-5 inline-block rounded-md border border-line-200 bg-white p-4"
         >
           <QRCodeSVG
             value={`FOOD MUNCH DEMO ONLY - NOT A REAL PAYMENT - INR ${totals.total}`}
@@ -128,23 +146,21 @@ function CheckoutBody() {
           />
         </div>
 
-        <p className="mt-3 font-display text-2xl font-extrabold">₹{totals.total}</p>
-        <p className="mx-auto mt-1 max-w-sm text-xs text-muted">
+        <p className="mt-3">
+          <Price amount={totals.total} className="text-[1.75rem]" />
+        </p>
+        <p className="mx-auto mt-1 max-w-sm text-xs text-ink-600">
           A real UPI payment must be confirmed by a payment provider on a server. This button only
           simulates that confirmation.
         </p>
 
-        <button
-          type="button"
-          onClick={() => placeOrder('UPI')}
-          className="mt-5 w-full rounded-full bg-gold px-6 py-3.5 font-bold text-on-gold shadow-card hover:shadow-card-hover"
-        >
-          Simulate successful payment
-        </button>
+        <Button size="lg" loading={confirming} onClick={() => setConfirming(true)} className="mt-5 w-full">
+          {confirming ? 'Confirming…' : 'Simulate successful payment'}
+        </Button>
         <button
           type="button"
           onClick={() => setStep('details')}
-          className="mt-2 w-full rounded-full px-6 py-2.5 text-sm font-semibold text-muted hover:text-ink"
+          className="mt-2 min-h-11 w-full rounded-full px-6 text-[0.9375rem] font-semibold text-ink-600 hover:text-ink-900"
         >
           Back
         </button>
@@ -163,7 +179,7 @@ function CheckoutBody() {
       }}
     >
       {user ? (
-        <p className="rounded-xl bg-cream-deep p-3 text-sm">
+        <p className="rounded-sm bg-cream-200 p-3 text-sm">
           Ordering as <strong>{user.name}</strong> · {user.phone}
         </p>
       ) : (
@@ -171,7 +187,10 @@ function CheckoutBody() {
           <TextField
             label="Full name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value)
+              clearError('name')
+            }}
             error={errors.name}
             autoComplete="name"
           />
@@ -180,7 +199,10 @@ function CheckoutBody() {
             type="tel"
             inputMode="numeric"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => {
+              setPhone(e.target.value)
+              clearError('phone')
+            }}
             error={errors.phone}
             autoComplete="tel"
             maxLength={16}
@@ -192,13 +214,16 @@ function CheckoutBody() {
         label="Delivery address"
         rows={3}
         value={address}
-        onChange={(e) => setAddressText(e.target.value)}
+        onChange={(e) => {
+          setAddressText(e.target.value)
+          clearError('address')
+        }}
         error={errors.address}
         hint="House or flat number, street, landmark."
         autoComplete="street-address"
       />
 
-      <div>
+      <div className="relative">
         <label htmlFor="checkout-slot" className="text-sm font-semibold">
           Delivery time
         </label>
@@ -206,7 +231,7 @@ function CheckoutBody() {
           id="checkout-slot"
           value={slot}
           onChange={(e) => setSlot(e.target.value)}
-          className="mt-1 w-full rounded-xl border border-field bg-surface px-4 py-2.5 text-sm"
+          className={fieldClasses(null, 'appearance-none pr-10')}
         >
           {slots.map((s) => (
             <option key={s} value={s}>
@@ -214,68 +239,72 @@ function CheckoutBody() {
             </option>
           ))}
         </select>
+        <ChevronDown size={16} aria-hidden="true" className="pointer-events-none absolute bottom-3.5 right-3.5" />
       </div>
 
       <fieldset>
         <legend className="text-sm font-semibold">Payment method</legend>
+        <div className="mt-1.5 space-y-2">
 
-        <label className="mt-2 flex cursor-pointer items-start gap-3 rounded-xl border border-line p-3">
+        <label className={optionRow}>
           <input
             type="radio"
             name="payment"
             checked={method === 'UPI'}
             onChange={() => setMethod('UPI')}
-            className="mt-1 accent-gold-dark"
+            className="mt-1 size-4 accent-copper-600"
           />
           <span>
             <span className="font-semibold">UPI QR (demo)</span>
-            <span className="block text-xs text-muted">Simulated: no money moves.</span>
+            <span className="block text-[0.8125rem] text-ink-600">Simulated: no money moves.</span>
           </span>
         </label>
 
-        <label className="mt-2 flex cursor-pointer items-start gap-3 rounded-xl border border-line p-3">
+        <label className={optionRow}>
           <input
             type="radio"
             name="payment"
             checked={method === 'COD'}
             onChange={() => setMethod('COD')}
-            className="mt-1 accent-gold-dark"
+            className="mt-1 size-4 accent-copper-600"
           />
           <span>
             <span className="font-semibold">Cash on Delivery</span>
-            <span className="block text-xs text-muted">Pay at the door.</span>
+            <span className="block text-[0.8125rem] text-ink-600">Pay at the door.</span>
           </span>
         </label>
+        </div>
       </fieldset>
 
-      <dl className="space-y-1 rounded-xl bg-cream p-4 text-sm">
-        <SummaryRow label="Subtotal" value={`₹${totals.subtotal}`} />
-        <SummaryRow label="Discount" value={totals.discount > 0 ? `-₹${totals.discount}` : '₹0'} />
-        <SummaryRow label="GST (5% after discount)" value={`₹${totals.tax}`} />
-        <SummaryRow label="Rider tip" value={`₹${totals.tip}`} />
-        <div className="flex justify-between border-t border-line pt-2 text-base font-extrabold">
-          <dt>Grand total</dt>
-          <dd>₹{totals.total}</dd>
+      <dl className="space-y-1.5 rounded-sm bg-cream-200 p-4 text-[0.9375rem]">
+        <SummaryRow label="Subtotal" amount={totals.subtotal} />
+        <SummaryRow label="Discount" amount={totals.discount} minus={totals.discount > 0} />
+        <SummaryRow label="GST (5% after discount)" amount={totals.tax} />
+        <SummaryRow label="Rider tip" amount={totals.tip} />
+        <div className="flex items-baseline justify-between border-t border-line-200 pt-2.5">
+          <dt className="font-display text-title font-semibold">Grand total</dt>
+          <dd>
+            <Price amount={totals.total} className="text-price" />
+          </dd>
         </div>
       </dl>
 
-      <button
-        type="submit"
-        className="w-full rounded-full bg-gold px-6 py-3.5 font-bold text-on-gold shadow-card hover:shadow-card-hover"
-      >
-        {method === 'UPI'
-          ? `Continue to demo payment · ₹${totals.total}`
-          : `Place order · ₹${totals.total}`}
+      <button type="submit" className={buttonClasses('primary', 'lg', 'w-full')}>
+        {method === 'UPI' ? 'Continue to demo payment' : 'Place order'} ·{' '}
+        <Price amount={totals.total} plain className="font-semibold" />
       </button>
     </form>
   )
 }
 
-function SummaryRow({ label, value }: { label: string; value: string }) {
+function SummaryRow({ label, amount, minus = false }: { label: string; amount: number; minus?: boolean }) {
   return (
     <div className="flex justify-between">
-      <dt className="text-muted">{label}</dt>
-      <dd>{value}</dd>
+      <dt className="text-ink-600">{label}</dt>
+      <dd className={minus ? 'font-semibold text-success' : undefined}>
+        {minus && '−'}
+        <Price amount={amount} plain />
+      </dd>
     </div>
   )
 }

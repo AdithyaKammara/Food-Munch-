@@ -1,7 +1,9 @@
 import { useRef } from 'react'
 import { Bike, CreditCard, MapPin, Truck } from 'lucide-react'
+import { DELIVERY_FACTS } from '../../data/facts'
 import { gsap, useGSAP } from '../../lib/gsap'
 import { useReveal } from '../../lib/useReveal'
+import { buttonClasses } from '../ui/buttonClasses'
 
 /** The pinned scroll needs a wide, tall screen. Everything else gets the plain layout. */
 const CINEMATIC = '(prefers-reduced-motion: no-preference) and (min-width: 1024px) and (min-height: 640px)'
@@ -14,25 +16,14 @@ const PIN_DISTANCE = 1300
 /** Keeps the badges in front of the phone when it tilts toward the pointer (px). */
 const BADGE_DEPTH = 60
 
+// Same titles and words as the story's feature row (src/data/facts.ts).
 const features = [
-  {
-    icon: Bike,
-    title: 'Quick Delivery',
-    text: 'Hot meals in about 22 min (demo estimate).',
-  },
-  {
-    icon: CreditCard,
-    title: 'Flexible Payment',
-    text: 'UPI (QR demo) or Cash on Delivery.',
-  },
-  {
-    icon: MapPin,
-    title: 'Order Tracking',
-    text: 'Kitchen to doorstep, simulated.',
-  },
+  { icon: Bike, title: 'Quick delivery', text: DELIVERY_FACTS.time },
+  { icon: CreditCard, title: 'Easy payment', text: DELIVERY_FACTS.payment },
+  { icon: MapPin, title: 'Order tracking', text: DELIVERY_FACTS.tracking },
 ]
 
-const badge = 'absolute z-20 hidden items-center gap-3 rounded-2xl bg-surface p-3 text-ink shadow-dialog sm:flex'
+const badge = 'absolute z-20 hidden items-center gap-3 rounded-md bg-cream-50 p-3 text-ink-900 shadow-dialog sm:flex'
 
 export default function DeliveryBanner() {
   const sectionRef = useReveal<HTMLElement>(PLAIN_WITH_MOTION)
@@ -53,6 +44,11 @@ export default function DeliveryBanner() {
       mm.add(
         CINEMATIC,
         () => {
+          // Pinned with CSS `position: sticky` inside a track one screen plus PIN_DISTANCE tall.
+          // GSAP's own pin switches to `position: fixed`, which Chrome counts as a full-screen
+          // layout shift (measured CLS 2 in Phase 9); sticky looks the same and is not counted.
+          const track = sectionRef.current
+          track?.style.setProperty('--pin-distance', `${PIN_DISTANCE}px`)
           stage.classList.add('is-cinematic')
 
           // Text fades with opacity, not visibility, so screen readers can always reach it.
@@ -73,12 +69,10 @@ export default function DeliveryBanner() {
           const timeline = gsap.timeline({
             defaults: { ease: 'power2.out' },
             scrollTrigger: {
-              trigger: stage,
+              trigger: track,
               start: 'top top',
               end: `+=${PIN_DISTANCE}`,
-              pin: true,
               scrub: 0.6,
-              anticipatePin: 1,
               invalidateOnRefresh: true,
             },
           })
@@ -128,6 +122,7 @@ export default function DeliveryBanner() {
             stage.removeEventListener('pointermove', onPointerMove)
             cta.removeEventListener('focus', showCta)
             stage.classList.remove('is-cinematic')
+            track?.style.removeProperty('--pin-distance')
           }
         },
         stage,
@@ -138,26 +133,32 @@ export default function DeliveryBanner() {
   )
 
   return (
-    <section ref={sectionRef} id="delivery">
-      <div ref={stageRef} className="dl-stage bg-cream px-4 py-16 sm:px-6 md:py-20">
+    <section ref={sectionRef} id="delivery" tabIndex={-1} className="outline-none">
+      <div ref={stageRef} className="dl-stage bg-cream-200 px-4 py-16 sm:px-6 md:py-20">
         {/* ---------- Headline ---------- */}
         <div data-dl="intro" className="dl-intro text-center">
-          <h2 data-reveal className="mx-auto max-w-5xl font-display text-[2rem] font-extrabold leading-[1.08] tracking-[-0.03em] sm:text-5xl lg:text-7xl">
+          {/* Section label (owner decision D4: one of the four labelled sections) */}
+          <p data-reveal className="flex items-center justify-center gap-3 text-label font-semibold uppercase text-copper-700">
+            <span data-rule aria-hidden="true" className="h-px w-8 bg-copper-500" />
+            Delivery
+            <span data-rule aria-hidden="true" className="h-px w-8 bg-copper-500" />
+          </p>
+          <h2 data-reveal className="mx-auto mt-4 max-w-5xl font-display text-[2.125rem] font-bold leading-[1.06] tracking-[-0.02em] text-ink-900 sm:text-5xl lg:text-7xl">
             <span data-dl="line-1" className="block">Your favourite food,</span>
             <span data-dl="line-2" className="block">now closer than ever.</span>
           </h2>
         </div>
 
         {/* ---------- The card ---------- */}
-        <div ref={cardRef} className="dl-card relative mx-auto mt-10 max-w-7xl overflow-hidden rounded-[2rem] text-cream">
+        <div ref={cardRef} className="dl-card on-forest relative mx-auto mt-10 max-w-[77.5rem] overflow-hidden rounded-lg text-cream-200">
           <div aria-hidden="true" className="dl-sheen" />
 
           <div className="dl-grid relative mx-auto grid max-w-7xl items-center gap-10 px-6 py-12 sm:px-10 lg:grid-cols-[minmax(0,1fr)_22rem_minmax(0,1fr)] lg:gap-8 lg:px-12">
             <div data-dl="copy" data-reveal>
-              <h3 className="font-display text-3xl font-extrabold leading-tight tracking-[-0.03em] [text-wrap:balance] lg:text-4xl">
+              <h3 className="font-display text-3xl font-bold leading-tight tracking-[-0.015em] text-cream-50 [text-wrap:balance] lg:text-4xl">
                 From our kitchen to your door.
               </h3>
-              <p className="mt-4 max-w-md text-lg leading-relaxed text-on-roast-muted">
+              <p className="mt-4 max-w-md text-lg leading-relaxed text-cream-200/80">
                 Pick a dish, pay by UPI or cash, and follow your order from the kitchen to your door.
               </p>
             </div>
@@ -165,8 +166,8 @@ export default function DeliveryBanner() {
             {/* The phone is decoration: everything it shows is also in the text around it. */}
             <div className="[perspective:1000px]" aria-hidden="true">
               <div data-dl="phone-wrap" data-reveal className="dl-phone-fit relative mx-auto h-[500px] w-[250px] [transform-style:preserve-3d]">
-                <div ref={phoneRef} className="h-full w-full rounded-[2.6rem] bg-ink p-2 shadow-dialog ring-1 ring-white/15">
-                  <div className="relative h-full overflow-hidden rounded-[2.1rem] bg-surface">
+                <div ref={phoneRef} className="h-full w-full rounded-[2.6rem] bg-forest-800 p-2 shadow-dialog ring-1 ring-cream-50/15">
+                  <div className="relative h-full overflow-hidden rounded-[2.1rem] bg-cream-50">
                     <img
                       src="/images/tracking-screen.jpg"
                       alt=""
@@ -179,7 +180,7 @@ export default function DeliveryBanner() {
                 </div>
 
                 <div data-dl="badge" className={`${badge} -left-28 top-24`}>
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gold text-on-gold">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-copper-600 text-white">
                     <CreditCard size={18} />
                   </span>
                   <span className="text-xs font-bold leading-snug">
@@ -190,12 +191,12 @@ export default function DeliveryBanner() {
                 </div>
 
                 <div data-dl="badge" className={`${badge} -right-28 bottom-4`}>
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gold text-on-gold">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-copper-600 text-white">
                     <Truck size={18} />
                   </span>
                   <span className="text-xs font-bold leading-snug">
                     Order tracking
-                    <span className="block font-medium text-muted">Simulated timeline</span>
+                    <span className="block font-medium text-ink-600">Simulated timeline</span>
                   </span>
                 </div>
               </div>
@@ -204,10 +205,10 @@ export default function DeliveryBanner() {
             <ul className="space-y-6 lg:justify-self-end">
               {features.map(({ icon: Icon, title, text }) => (
                 <li key={title} data-dl="feature" data-reveal className="flex items-start gap-3">
-                  <Icon size={22} aria-hidden="true" className="mt-0.5 shrink-0 text-gold" />
+                  <Icon size={22} aria-hidden="true" className="mt-0.5 shrink-0 text-gold-300" />
                   <div>
-                    <h4 className="font-bold leading-snug">{title}</h4>
-                    <p className="mt-1 text-sm leading-relaxed text-on-roast-muted">{text}</p>
+                    <h4 className="font-display text-title font-semibold text-cream-50">{title}</h4>
+                    <p className="mt-1 text-sm leading-relaxed text-cream-200/80">{text}</p>
                   </div>
                 </li>
               ))}
@@ -218,14 +219,14 @@ export default function DeliveryBanner() {
         {/* ---------- Call to action ---------- */}
         <div data-dl="outro" className="dl-outro mt-12 text-center">
           <div data-reveal>
-            <h3 className="font-display text-3xl font-extrabold tracking-[-0.03em] sm:text-5xl">Hungry yet?</h3>
-            <p className="mx-auto mt-4 max-w-md text-lg leading-relaxed text-muted">
+            <h3 className="font-display text-3xl font-bold tracking-[-0.015em] text-ink-900 sm:text-5xl">Hungry yet?</h3>
+            <p className="mx-auto mt-4 max-w-md text-lg leading-relaxed text-ink-600">
               Pick a dish and the rest is taken care of.
             </p>
             <a
               ref={ctaRef}
               href="#menu"
-              className="mt-8 inline-flex items-center rounded-full bg-gold px-8 py-4 font-bold text-on-gold shadow-gold transition-[translate] hover:-translate-y-0.5 focus-visible:outline-ink active:translate-y-0"
+              className={buttonClasses('primary', 'lg', 'mt-8')}
             >
               Start your order
             </a>

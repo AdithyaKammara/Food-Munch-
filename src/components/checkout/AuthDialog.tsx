@@ -1,72 +1,36 @@
 import { useId, useState, type FormEvent, type InputHTMLAttributes, type ReactNode } from 'react'
-import * as Dialog from '@radix-ui/react-dialog'
-import { Info, Leaf, Phone, User, X } from 'lucide-react'
+import { Info, Phone, ReceiptText, Truck, User } from 'lucide-react'
+import { clsx } from 'clsx'
 import { normalizePhone, validateName, validatePhone } from '../../lib/validation'
+import { useOrdersStore } from '../../store/ordersStore'
 import { useUiStore } from '../../store/uiStore'
 import { useUserStore } from '../../store/userStore'
+import Button from '../ui/Button'
+import { buttonClasses } from '../ui/buttonClasses'
+import Modal from '../ui/Modal'
 
+/** The demo account, opened from the profile circle in the navbar. Behaviour unchanged. */
 export default function AuthDialog() {
   const open = useUiStore((s) => s.panel === 'auth')
   const closePanel = useUiStore((s) => s.closePanel)
   const user = useUserStore((s) => s.user)
 
   return (
-    <Dialog.Root
+    <Modal
       open={open}
-      onOpenChange={(next) => {
-        if (!next) closePanel()
-      }}
+      onClose={closePanel}
+      size="lg"
+      title={user ? 'Your account' : 'Log in'}
+      description={
+        user
+          ? 'Update your details for a quicker checkout.'
+          : 'Add your name and number so checkout is quicker next time.'
+      }
     >
-      <Dialog.Portal>
-        <Dialog.Overlay className="motion-overlay fixed inset-0 z-50 bg-black/45" />
-        <Dialog.Content className="motion-dialog fixed left-1/2 top-1/2 z-50 max-h-[92vh] w-[calc(100%-1.5rem)] max-w-[44rem] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overflow-x-hidden rounded-[1.75rem] bg-white shadow-dialog">
-          {/* ---------- Header strip ---------- */}
-          <div className="relative isolate overflow-hidden bg-cream px-6 pb-6 pt-7 sm:px-8">
-            {/* Faint gold spice shapes in the background */}
-            <span aria-hidden="true" className="absolute -right-10 -top-16 -z-10 h-48 w-48 rounded-full bg-gold-soft/70" />
-            <span aria-hidden="true" className="absolute left-[46%] top-5 -z-10 h-2 w-2 rounded-full bg-gold-dark/50" />
-            <span aria-hidden="true" className="absolute left-[56%] top-12 -z-10 h-1.5 w-1.5 rounded-full bg-gold-dark/40" />
-
-            <Dialog.Title className="pr-16 font-display text-[1.9rem] font-extrabold leading-tight tracking-[-0.03em] sm:text-4xl">
-              {user ? (
-                <>
-                  Your account
-                </>
-              ) : (
-                <>
-                  Log in
-                </>
-              )}
-            </Dialog.Title>
-            <Dialog.Description className="mt-2 max-w-xs text-[15px] leading-relaxed text-muted sm:max-w-sm">
-              {user
-                ? 'Update your details for a personalised Food Munch experience.'
-                : 'Add your name and number so checkout is quicker next time.'}
-            </Dialog.Description>
-
-            {/* Small spice bowl, top right */}
-            <img
-              src="/images/footer-spices.jpg"
-              alt=""
-              width={560}
-              height={560}
-              className="absolute right-[6rem] top-4 hidden h-[4.5rem] w-[4.5rem] rounded-full object-cover shadow-md ring-4 ring-white sm:block"
-            />
-            <Leaf aria-hidden="true" className="absolute right-[11.5rem] top-12 hidden h-7 w-7 rotate-[-20deg] fill-green-600 text-green-800 sm:block" />
-
-            <Dialog.Close
-              aria-label="Close"
-              className="absolute right-5 top-5 grid h-12 w-12 place-items-center rounded-full border-2 border-gold bg-white text-ink transition-transform hover:scale-105 active:scale-95"
-            >
-              <X size={22} aria-hidden="true" />
-            </Dialog.Close>
-          </div>
-
-          {/* key: fresh form state each time the dialog opens or the user changes */}
-          <AccountForm key={user ? `${user.name}-${user.phone}` : 'guest'} />
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+      {/* key: fresh form state each time the dialog opens or the user changes */}
+      <AccountForm key={user ? `${user.name}-${user.phone}` : 'guest'} />
+      <OrderShortcuts />
+    </Modal>
   )
 }
 
@@ -93,22 +57,11 @@ function AccountForm() {
   }
 
   return (
-    <div className="relative">
-      {/* Big biryani plate, cut off by the right edge (larger screens) */}
-      <div aria-hidden="true" className="pointer-events-none absolute -right-28 -top-12 hidden h-[23rem] w-[23rem] sm:block">
-        <img
-          src="/images/why-biryani.jpg"
-          alt=""
-          width={1400}
-          height={1050}
-          className="h-full w-full rounded-full object-cover shadow-lift ring-[10px] ring-white"
-        />
-      </div>
-
-      <form onSubmit={submit} noValidate className="relative space-y-5 px-6 pb-7 pt-6 sm:pr-[15rem] sm:pl-8">
+    <form onSubmit={submit} noValidate className="space-y-5">
+      <div className="grid gap-5 sm:grid-cols-2">
         <IconField
           label="Full name"
-          icon={<User size={20} aria-hidden="true" />}
+          icon={<User size={18} aria-hidden="true" />}
           value={name}
           onChange={(e) => setName(e.target.value)}
           error={errors.name}
@@ -117,7 +70,7 @@ function AccountForm() {
         />
         <IconField
           label="Phone number"
-          icon={<Phone size={19} aria-hidden="true" />}
+          icon={<Phone size={18} aria-hidden="true" />}
           type="tel"
           inputMode="numeric"
           value={phone}
@@ -127,34 +80,31 @@ function AccountForm() {
           maxLength={16}
           placeholder="10-digit mobile number"
         />
+      </div>
 
-        <p className="flex items-start gap-3 rounded-2xl bg-cream-deep p-4 text-sm leading-relaxed text-ink/80">
-          <Info size={26} aria-hidden="true" className="shrink-0 fill-gold text-ink" />
-          Demo account: details are saved in this browser only. There is no password and no server.
-        </p>
+      <p className="flex items-start gap-3 rounded-sm bg-cream-200 p-3.5 text-sm leading-relaxed text-ink-900">
+        <Info size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-copper-700" />
+        Demo account: details are saved in this browser only. There is no password and no server.
+      </p>
 
-        <div className={`grid gap-3 ${user ? 'sm:grid-cols-2' : ''}`}>
+      <div className={clsx('grid gap-3', user && 'sm:grid-cols-2')}>
+        <button type="submit" className={buttonClasses('primary', 'lg', 'w-full')}>
+          {user ? 'Save changes' : 'Save and continue'}
+        </button>
+        {user && (
           <button
-            type="submit"
-            className="rounded-full bg-gold px-6 py-4 text-[17px] font-bold text-on-gold shadow-gold transition-transform hover:-translate-y-0.5 active:translate-y-0"
+            type="button"
+            onClick={() => {
+              logout()
+              closePanel()
+            }}
+            className={buttonClasses('secondary', 'lg', 'w-full')}
           >
-            {user ? 'Save changes' : 'Save and continue'}
+            Log out
           </button>
-          {user && (
-            <button
-              type="button"
-              onClick={() => {
-                logout()
-                closePanel()
-              }}
-              className="rounded-full border-2 border-line bg-white px-6 py-4 text-[17px] font-bold transition-colors hover:border-red-600 hover:text-red-700"
-            >
-              Log out
-            </button>
-          )}
-        </div>
-      </form>
-    </div>
+        )}
+      </div>
+    </form>
   )
 }
 
@@ -164,33 +114,57 @@ interface IconFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   error: string | null
 }
 
-/** Label above a rounded input with an icon inside it. */
+/** Label above an input with an icon inside it, in the dialogs' field style. */
 function IconField({ label, icon, error, ...props }: IconFieldProps) {
   const id = useId()
   const errorId = `${id}-error`
   return (
     <div>
-      <label htmlFor={id} className="text-[15px] font-semibold">
+      <label htmlFor={id} className="text-sm font-semibold">
         {label}
       </label>
       <div
-        className={`mt-2 flex items-center gap-3 rounded-2xl border bg-white px-4 transition-colors focus-within:border-gold-text ${
-          error ? 'border-red-600' : 'border-field'
-        }`}
+        className={clsx(
+          'mt-1.5 flex min-h-11 items-center gap-2.5 rounded-sm border bg-cream-50 px-3.5 transition-colors focus-within:border-copper-600 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus',
+          error ? 'border-nonveg' : 'border-field-500',
+        )}
       >
-        <span className="shrink-0 text-ink">{icon}</span>
+        <span className="shrink-0 text-ink-600">{icon}</span>
         <input
           id={id}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
-          className="w-full min-w-0 bg-transparent py-3.5 text-[16px] outline-none placeholder:text-muted"
+          className="w-full min-w-0 bg-transparent py-2.5 text-base outline-none placeholder:text-ink-600"
           {...props}
         />
       </div>
       {error && (
-        <p id={errorId} role="alert" className="mt-1.5 text-sm text-red-700">
+        <p id={errorId} role="alert" className="mt-1.5 text-sm font-medium text-nonveg">
           {error}
         </p>
+      )}
+    </div>
+  )
+}
+
+/** Order tracking and history, reached from the account circle in the navbar. */
+function OrderShortcuts() {
+  const orderCount = useOrdersStore((s) => s.orders.length)
+  const hasActiveOrder = useOrdersStore((s) => s.activeOrderId !== null)
+  const openPanel = useUiStore((s) => s.openPanel)
+  if (!orderCount && !hasActiveOrder) return null
+
+  return (
+    <div className="mt-6 flex flex-wrap gap-3 border-t border-line-200 pt-5">
+      {hasActiveOrder && (
+        <Button variant="secondary" onClick={() => openPanel('tracking')} icon={<Truck size={18} aria-hidden="true" />}>
+          Track your order
+        </Button>
+      )}
+      {orderCount > 0 && (
+        <Button variant="secondary" onClick={() => openPanel('history')} icon={<ReceiptText size={18} aria-hidden="true" />}>
+          Order history ({orderCount})
+        </Button>
       )}
     </div>
   )

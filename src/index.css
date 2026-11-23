@@ -1,65 +1,108 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cream: #fffaf1;
-  --color-cream-deep: #fff2d6;
-  --color-surface: #ffffff;
-  --color-line: #eee5d4;
-  --color-line-strong: #ead9b6;
-  /* Edges of form fields: 3:1 against white, so a field can be seen as a field */
-  --color-field: #94897a;
-  --color-ink: #171717;
-  --color-muted: #68645c;
-  --color-gold: #ffbf00;
-  --color-gold-soft: #ffe7a3;
-  --color-gold-dark: #d99500;
-  /* Gold that is dark enough to read as large text on white */
-  --color-gold-deep: #b47500;
-  --color-gold-text: #8a5a00;
-  --color-on-gold: #251a00;
-  --color-leaf: #2f7d4f;
-  --color-leaf-deep: #1f5c39;
-  --color-leaf-soft: #e8f4ec;
-  /* Keyboard focus ring. Dark surfaces override this below. */
-  --color-focus: #8a5a00;
-  --color-roast: #2a1c06;
-  --color-roast-deep: #140d02;
-  --color-on-roast-muted: #dccfb6;
+  /* Colour tokens: design.md §3. No raw hex values outside this block. */
+  --color-forest-950: #082014;
+  --color-forest-900: #0b2418;
+  --color-forest-800: #143424;
+  --color-forest-700: #1e4a34;
+  --color-copper-500: #bc6000;
+  --color-copper-600: #b45c00;
+  --color-copper-700: #a35200;
+  --color-copper-800: #8f4700;
+  --color-gold-300: #f0c27a;
+  --color-gold-400: #e0a55a;
+  --color-cream-50: #fffaf3;
+  --color-cream-100: #fcf4ec;
+  --color-cream-200: #f8ece0;
+  --color-cream-300: #fce4c4;
+  --color-ink-900: #1a120b;
+  --color-ink-600: #5f5246;
+  --color-line-200: #e6d6c2;
+  --color-field-500: #8f7a63;
+  --color-veg: #1f7a3d;
+  --color-nonveg: #b3261e;
+  --color-star: #c96d04;
+  --color-success: #1f7a3d;
+  --color-veg-300: #9fdcb2;
+  --color-nonveg-300: #f6b1a8;
+  /* Keyboard focus ring: copper on cream; dark surfaces switch it to gold below. */
+  --color-focus: #b45c00;
 
+  /* Type: design.md §4 */
+  --font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-note: "Caveat Variable", cursive;
 
-  --shadow-card: 0 8px 24px rgba(79, 54, 10, 0.06), 0 2px 8px rgba(79, 54, 10, 0.03);
-  --shadow-card-hover: 0 16px 32px rgba(79, 54, 10, 0.12);
-  --shadow-lift: 0 24px 48px rgba(79, 54, 10, 0.2);
-  --shadow-gold: 0 10px 22px rgba(255, 191, 0, 0.38);
-  --shadow-dialog: 0 30px 80px rgba(0, 0, 0, 0.3);
+  /* Type scale: design.md §4. Each size carries its line height and tracking. */
+  --text-display-xl: clamp(2.375rem, 4.2vw, 3.375rem);
+  --text-display-xl--line-height: 1.02;
+  --text-display-xl--letter-spacing: -0.02em;
+  --text-display-lg: clamp(2rem, 3.4vw, 2.875rem);
+  --text-display-lg--line-height: 1.08;
+  --text-display-lg--letter-spacing: -0.015em;
+  --text-display-md: 1.5rem;
+  --text-display-md--line-height: 1.2;
+  --text-display-md--letter-spacing: -0.01em;
+  --text-title: 1.125rem;
+  --text-title--line-height: 1.3;
+  --text-price: 1.375rem;
+  --text-price--line-height: 1;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.6;
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.2;
+  --text-label--letter-spacing: 0.12em;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.4;
+  --text-note: 1.375rem;
+  --text-note--line-height: 1.15;
+
+  /* Shape: design.md §6 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --shadow-card: 0 1px 2px rgb(26 18 11 / 0.06), 0 8px 24px -12px rgb(26 18 11 / 0.18);
+  --shadow-lift: 0 2px 4px rgb(26 18 11 / 0.08), 0 18px 36px -14px rgb(26 18 11 / 0.28);
+  --shadow-dialog: 0 24px 64px -20px rgb(8 32 20 / 0.45);
+
+  /* Motion: animation-guidelines.md §2, mirrored in src/lib/motion.ts */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 @layer base {
   html {
+    /* `font-size-adjust: from-font` was removed in Phase 9: on a slow phone it doubled the cost
+       of every style recalculation (about 1.4s to 0.75s at 4x CPU), and the measured layout
+       shift from the font swap stays near zero without it. */
     overflow-x: clip;
-    scroll-behavior: smooth;
+    /* Smooth jumps only for people who have not asked for less motion */
+    @media (prefers-reduced-motion: no-preference) {
+      scroll-behavior: smooth;
+    }
     /* Room for the floating navbar when jumping to a section */
     scroll-padding-top: 6.5rem;
   }
 
   body {
-    background-color: var(--color-cream);
-    color: var(--color-ink);
+    background-color: var(--color-cream-200);
+    color: var(--color-ink-900);
     font-family: var(--font-sans);
     overflow-x: clip;
-    caret-color: var(--color-gold-text);
+    caret-color: var(--color-copper-700);
   }
 
   ::selection {
-    background-color: var(--color-gold-soft);
-    color: var(--color-ink);
+    background-color: var(--color-cream-300);
+    color: var(--color-ink-900);
   }
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.025em;
+    letter-spacing: -0.015em;
     min-width: 0;
     overflow-wrap: break-word;
     text-wrap: balance;
@@ -70,13 +113,59 @@
     outline-offset: 2px;
   }
 
-  footer, .dl-card {
-    --color-focus: var(--color-gold);
+  /* Dark surfaces: a gold ring reads on forest green (6.27:1) */
+  footer, .dl-card, .on-forest {
+    --color-focus: var(--color-gold-300);
+  }
+
+  /* Prices and figures line up in columns */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The one italic copper word a heading may carry: design.md §4 */
+  .accent {
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--color-copper-500);
+  }
+
+  p {
+    text-wrap: pretty;
   }
 
   button:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Navbar: the bar lifts its shadow once the header is stuck to the top.
+   Browsers without scroll-state queries keep the resting shadow, which is the guide's
+   recommended fallback for a non-essential visual change.
+---------------------------------------------------------------- */
+.site-header {
+  container-type: scroll-state;
+  container-name: site-header;
+}
+
+/* One gentle entrance for the whole bar, opt-in (animation-guidelines.md §3) */
+.site-bar {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: fm-nav-in 0.4s var(--ease-out) both;
+  }
+}
+@keyframes fm-nav-in {
+  from {
+    opacity: 0;
+    translate: 0 -8px;
+  }
+}
+
+@container site-header scroll-state(stuck: top) {
+  .site-bar {
+    box-shadow: var(--shadow-lift);
   }
 }
 
@@ -97,19 +186,270 @@
   to { opacity: 0; transform: translateX(24px); max-height: 0; padding-top: 0; padding-bottom: 0; margin-top: 0 }
 }
 
+/*
+  Reduced motion is handled case by case (modern-web-guidance: motion), not with a global
+  0.01ms override. Fades are not spatial movement, so overlays keep them for everyone and
+  dialogs and drawers fall back to a plain fade. Movement, scaling and pops are opt-in.
+  Radix waits for a closing animation only when one runs, so nothing is left on screen.
+*/
 .motion-overlay[data-state='open'] { animation: fm-fade-in 0.25s ease-out }
 .motion-overlay[data-state='closed'] { animation: fm-fade-out 0.2s ease-in forwards }
-.motion-dialog[data-state='open'] { animation: fm-dialog-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) }
-.motion-dialog[data-state='closed'] { animation: fm-dialog-out 0.18s ease-in forwards }
-.motion-drawer[data-state='open'] { animation: fm-drawer-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) }
-.motion-drawer[data-state='closed'] { animation: fm-drawer-out 0.26s cubic-bezier(0.4, 0, 1, 1) forwards }
+.motion-dialog[data-state='open'],
+.motion-drawer[data-state='open'] { animation: fm-fade-in 0.2s ease-out }
+.motion-dialog[data-state='closed'],
+.motion-drawer[data-state='closed'] { animation: fm-fade-out 0.15s ease-in forwards }
 
-/* Items that appear inside an opened panel; delay comes from --i (their position). */
-.motion-rise { animation: fm-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 60ms + 120ms) }
-/* A value that just changed (quantity, total, badge) */
-.motion-pop { animation: fm-pop 0.3s ease-out } /* add inline-block on inline elements */
-/* A list item being removed */
-.motion-collapse { overflow: hidden; max-height: 12rem; animation: fm-collapse 0.24s ease-in forwards }
+@media (prefers-reduced-motion: no-preference) {
+  .motion-dialog[data-state='open'] { animation: fm-dialog-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) }
+  .motion-dialog[data-state='closed'] { animation: fm-dialog-out 0.18s ease-in forwards }
+  .motion-drawer[data-state='open'] { animation: fm-drawer-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) }
+  .motion-drawer[data-state='closed'] { animation: fm-drawer-out 0.26s cubic-bezier(0.4, 0, 1, 1) forwards }
+
+  /* Items that appear inside an opened panel; delay comes from --i (their position). */
+  .motion-rise { animation: fm-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 60ms + 120ms) }
+  /* A value that just changed (quantity, total, badge) */
+  .motion-pop { animation: fm-pop 0.3s ease-out } /* add inline-block on inline elements */
+}
+
+/* A list item being removed. Without motion it simply goes; CartDrawer removes it on a
+   300ms timer as well as on animationend, so it never waits for an animation that is off. */
+.motion-collapse {
+  overflow: hidden;
+  max-height: 12rem;
+  @media (prefers-reduced-motion: no-preference) {
+    animation: fm-collapse 0.24s ease-in forwards;
+  }
+}
+
+/* Torn paper edge (src/components/brand/TornEdge.tsx) */
+.torn-edge {
+  -webkit-mask: var(--tear) 0 0 / 100% 100% no-repeat;
+  mask: var(--tear) 0 0 / 100% 100% no-repeat;
+  @media (min-width: 1024px) {
+    -webkit-mask-image: var(--tear-lg);
+    mask-image: var(--tear-lg);
+  }
+}
+
+/* ---------------------------------------------------------------
+   Menu filter panel: a native popover anchored under the Filter button with CSS anchor
+   positioning (FilterPanel.tsx places it by script where this is unsupported). It flips
+   above the button when there is no room below. Fades in; the small rise is opt-in.
+---------------------------------------------------------------- */
+.filter-trigger {
+  anchor-name: --menu-filter;
+}
+
+.filter-panel {
+  inset: auto;
+  margin: 0;
+  position-anchor: --menu-filter;
+  position-area: block-end span-inline-start;
+  position-try-fallbacks: flip-block;
+  margin-block-start: 8px;
+  opacity: 0;
+  transition:
+    opacity 0.24s var(--ease-out),
+    display 0.24s allow-discrete,
+    overlay 0.24s allow-discrete;
+
+  &:popover-open {
+    opacity: 1;
+    @starting-style {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    translate: 0 -8px;
+    transition-property: opacity, translate, display, overlay;
+    &:popover-open {
+      translate: 0 0;
+      @starting-style {
+        translate: 0 -8px;
+      }
+    }
+  }
+}
+
+/* Browsers without popovers: the panel is a plain block under the toolbar, always shown */
+@supports not selector(:popover-open) {
+  .filter-panel {
+    opacity: 1;
+    translate: none;
+    margin-top: 12px;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Dish rail: native horizontal scrolling with snap (modern-web-guidance: carousel).
+   --cards is how many cards fit across; phones show 1.2 so the next card peeks.
+---------------------------------------------------------------- */
+.dish-rail {
+  --cards: 1.2;
+  --gap: 16px;
+  display: flex;
+  gap: var(--gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  touch-action: manipulation;
+  scrollbar-width: none;
+  scroll-padding-inline: 2px;
+  @media (prefers-reduced-motion: no-preference) {
+    scroll-behavior: smooth;
+  }
+  @media (min-width: 640px) { --cards: 2; --gap: 20px }
+  @media (min-width: 1024px) { --cards: 3; --gap: 24px }
+  @media (min-width: 1280px) { --cards: 4 }
+
+  & > li {
+    flex: 0 0 calc((100% - (var(--cards) - 1) * var(--gap)) / var(--cards));
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+}
+
+/* The rail's focus ring goes on its frame: the track clips its own outline */
+.dish-rail-frame:has(.dish-rail:focus-visible) {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 4px;
+  border-radius: var(--radius-md);
+}
+.dish-rail:focus-visible {
+  outline: none;
+}
+
+/* ---------------------------------------------------------------
+   Hero (animation-guidelines.md §4).
+   Steam: three wisps rise and fade over the handi a few times after load, then rest
+   (opacity 0), so nothing moves for longer than five seconds without a control
+   (WCAG 2.2.2). Opt-in only.
+   Parallax: the dish and the Charminar drift slightly slower than the page with a
+   scroll-driven animation, no scroll listener. Desktop, opt-in, and only where supported.
+---------------------------------------------------------------- */
+.hero-steam path {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  @media (prefers-reduced-motion: no-preference) {
+    animation: fm-steam 2.2s ease-out 1.2s 2 backwards;
+    &:nth-child(2) { animation-delay: 1.7s }
+    &:nth-child(3) { animation-delay: 2.1s }
+  }
+}
+
+@keyframes fm-steam {
+  0% { opacity: 0; transform: translateY(14px) scaleY(0.9) }
+  35% { opacity: 0.35 }
+  100% { opacity: 0; transform: translateY(-26px) scaleY(1.08) }
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
+    .hero-parallax-photo,
+    .hero-parallax-art {
+      animation: linear both;
+      /* Over the first 900px of page scroll, the hero's own height and a little more */
+      animation-timeline: scroll(root block);
+      animation-range: 0px 900px;
+    }
+    .hero-parallax-photo { animation-name: fm-drift-photo }
+    .hero-parallax-art { animation-name: fm-drift-art }
+  }
+}
+
+/* The arrow in the hero's "Order now" nudges right on hover */
+.hero-arrow {
+  @media (prefers-reduced-motion: no-preference) {
+    transition: translate 0.12s ease-out;
+    a:hover > & { translate: 3px 0 }
+  }
+}
+
+@keyframes fm-drift-photo { to { translate: 0 6% } }
+@keyframes fm-drift-art { to { translate: 0 4% } }
+
+/* ---------------------------------------------------------------
+   Phase 8 motion helpers (animation-guidelines.md §10–12)
+---------------------------------------------------------------- */
+/* Scroll reveals (src/lib/useReveal.ts). Only ever added with motion allowed, and removed again
+   once the element has arrived. --reveal-i staggers siblings by 70ms. */
+.reveal-hide {
+  opacity: 0;
+  visibility: hidden;
+  translate: 0 20px;
+  & [data-rule] {
+    scale: 0 1;
+    transform-origin: left center;
+  }
+}
+.reveal-hide.reveal-in {
+  opacity: 1;
+  visibility: visible;
+  translate: 0 0;
+  transition:
+    opacity 0.6s var(--ease-out),
+    translate 0.6s var(--ease-out),
+    visibility 0s;
+  transition-delay: calc(var(--reveal-i, 0) * 70ms);
+  & [data-rule] {
+    scale: 1 1;
+    transition: scale 0.3s var(--ease-out);
+    transition-delay: calc(var(--reveal-i, 0) * 70ms);
+  }
+}
+.reveal-clip {
+  clip-path: inset(100% 0% 0% 0%);
+  & img {
+    scale: 1.04;
+  }
+}
+.reveal-clip.reveal-in {
+  clip-path: inset(0% 0% 0% 0%);
+  transition: clip-path 0.8s var(--ease-in-out);
+  transition-delay: calc(var(--reveal-i, 0) * 70ms);
+  & img {
+    scale: 1;
+    transition: scale 0.8s var(--ease-out);
+    transition-delay: calc(var(--reveal-i, 0) * 70ms);
+  }
+}
+
+/* The dot that flies from "+ Add" to the cart (flyToCart in src/lib/motion.ts) */
+.fly-dot {
+  position: fixed;
+  z-index: 60;
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: var(--color-copper-600);
+  box-shadow: 0 0 0 2px var(--color-cream-50);
+  pointer-events: none;
+}
+
+/* Photos fade in over their cream placeholder once loaded (a fade, so it stays for everyone) */
+.img-fade {
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+  &[data-loaded] {
+    opacity: 1;
+  }
+}
+@media (scripting: none) {
+  .img-fade { opacity: 1 }
+}
+
+/* A changed value crossfades (the menu's result count) */
+.motion-fade { animation: fm-fade-in 0.24s ease-out }
+
+/* The "added to cart" toast fades in; with motion allowed it also rises 10px */
+.motion-toast {
+  animation: fm-fade-in 0.24s ease-out;
+  @media (prefers-reduced-motion: no-preference) {
+    animation: fm-rise 0.24s var(--ease-out);
+  }
+}
 
 /* ---------------------------------------------------------------
    Delivery & payment. The plain layout is the default, so the section
@@ -117,7 +457,7 @@
    DeliveryBanner adds .is-cinematic only when the pinned scroll runs.
 ---------------------------------------------------------------- */
 .dl-card {
-  background: linear-gradient(145deg, var(--color-roast) 0%, var(--color-roast-deep) 100%);
+  background: var(--color-forest-950);
 }
 
 .dl-sheen {
@@ -126,7 +466,7 @@
   pointer-events: none;
   background: radial-gradient(
     700px circle at var(--mouse-x, 50%) var(--mouse-y, 40%),
-    color-mix(in srgb, var(--color-gold) 14%, transparent) 0%,
+    color-mix(in srgb, var(--color-copper-500) 12%, transparent) 0%,
     transparent 45%
   );
 }
@@ -134,8 +474,14 @@
 /* Land exactly where the pin starts, not a navbar's height above it */
 #delivery:has(.is-cinematic) { scroll-margin-top: -6.5rem }
 
+/* The pin track: one screen plus the scroll distance, so the sticky stage holds while the card plays */
+#delivery:has(.is-cinematic) {
+  height: calc(100svh + var(--pin-distance, 0px));
+}
+
 .dl-stage.is-cinematic {
-  position: relative;
+  position: sticky;
+  top: 0;
   height: 100svh;
   padding: 0;
   overflow: hidden;
@@ -171,13 +517,4 @@
 
 @media (max-height: 760px) {
   .is-cinematic .dl-phone-fit { scale: 0.82 }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-delay: 0s !important;
-    transition-duration: 0.01ms !important;
-  }
 }

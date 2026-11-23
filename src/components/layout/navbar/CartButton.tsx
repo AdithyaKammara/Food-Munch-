@@ -35,13 +35,19 @@ export default function CartButton() {
   )
 
   return (
-    <IconButton ref={ref} label={`Open cart, ${count} ${count === 1 ? 'item' : 'items'}`} onClick={() => openPanel('cart')}>
+    <IconButton
+      ref={ref}
+      tone="dark"
+      label={`Open cart, ${count} ${count === 1 ? 'item' : 'items'}`}
+      onClick={() => openPanel('cart')}
+      className="cart-target"
+    >
       <ShoppingCart size={20} aria-hidden="true" />
       {count > 0 && (
         <span
           key={count}
           data-cart-badge
-          className="motion-pop absolute -right-1 -top-1 grid h-6 min-w-6 place-items-center rounded-full bg-ink px-1 text-xs font-bold text-white ring-2 ring-white"
+          className="motion-pop absolute -right-1 -top-1 grid h-6 min-w-6 place-items-center rounded-full bg-copper-600 px-1 text-xs font-bold text-white ring-2 ring-forest-800"
         >
           {count}
         </span>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { MENU_ITEMS } from '../data/menu'
-import { filterMenu, type MenuFilters } from './menuFilters'
+import { filterMenu, isFiltered, type MenuFilters } from './menuFilters'
 
 const base: MenuFilters = {
   category: 'all',
@@ -36,6 +36,18 @@ describe('filterMenu', () => {
   })
   it('shows only favourites when asked', () => {
     expect(run({ favouritesOnly: true, favouriteIds: [1, 8] }).map((i) => i.id)).toEqual([1, 8])
+  })
+  it('derives Biryani from the dish name, across courses', () => {
+    expect(run({ category: 'biryani' }).map((i) => i.id)).toEqual([4, 5])
+    expect(run({ category: 'biryani', vegOnly: true }).map((i) => i.id)).toEqual([5])
+    expect(MENU_ITEMS.find((i) => i.id === 4)?.category).toBe('mains')
+  })
+  it('knows when the menu is filtered', () => {
+    expect(isFiltered(base)).toBe(false)
+    expect(isFiltered({ ...base, query: '   ' })).toBe(false)
+    expect(isFiltered({ ...base, query: 'dal' })).toBe(true)
+    expect(isFiltered({ ...base, category: 'biryani' })).toBe(true)
+    expect(isFiltered({ ...base, sort: 'price-asc' })).toBe(true)
   })
   it('combines filters', () => {
     expect(run({ category: 'mains', vegOnly: true }).map((i) => i.id)).toEqual([5, 7])
