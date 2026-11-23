@@ -22,7 +22,7 @@ export default function NavbarSearch({ id, onSubmit }: { id: string; onSubmit?: 
       <Search
         size={19}
         aria-hidden="true"
-        className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink"
+        className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-900"
       />
       <input
         id={id}
@@ -30,14 +30,14 @@ export default function NavbarSearch({ id, onSubmit }: { id: string; onSubmit?: 
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search dishes..."
-        className="w-full rounded-full border border-field bg-white py-3 pl-11 pr-10 text-sm placeholder:text-muted focus:border-gold [&::-webkit-search-cancel-button]:hidden"
+        className="w-full rounded-full border border-field-500 bg-cream-50 py-3 pl-11 pr-10 text-sm placeholder:text-ink-600 focus:border-copper-600 [&::-webkit-search-cancel-button]:hidden"
       />
       {query && (
         <button
           type="button"
           aria-label="Clear search"
           onClick={() => setQuery('')}
-          className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-muted hover:bg-cream-deep hover:text-ink"
+          className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-ink-600 hover:bg-cream-300 hover:text-ink-900"
         >
           <X size={15} aria-hidden="true" />
         </button>

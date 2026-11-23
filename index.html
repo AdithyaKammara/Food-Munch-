@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#fffaf1" />
+    <meta name="theme-color" content="#f8ece0" />
     <meta name="description" content="Explore authentic Hyderabad-inspired favourites, customize your meal, and experience a polished demo food-ordering flow with Food Munch." />
     <meta name="color-scheme" content="light" />
 
@@ -16,9 +16,14 @@
     <meta name="twitter:description" content="A responsive food-ordering portfolio project built with React, TypeScript, Tailwind CSS, and GSAP." />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- No font preloads: the page is prerendered and paints first in size-matched fallback fonts
+         (index.css), and preloading Inter and Fraunces took bandwidth from the hero photo, the
+         page's LCP, on a slow connection (LCP median 4.4s with them, 2.5s without). -->
     <title>Food Munch — Authentic Hyderabad Flavours</title>
   </head>
   <body>
+    <!-- Filled at build time with the prerendered page (scripts/prerender.mjs), so the hero and its
+         photo are in the HTML and paint before the scripts run. Empty on the dev server. -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

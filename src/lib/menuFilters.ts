@@ -1,4 +1,4 @@
-import type { Category, MenuItem } from '../data/menu'
+import type { MenuCategory, MenuItem } from '../data/menu'
 
 export type SortKey =
   | 'default'
@@ -9,7 +9,7 @@ export type SortKey =
   | 'prep-asc'
 
 export interface MenuFilters {
-  category: Category | 'all'
+  category: MenuCategory | 'all'
   query: string
   vegOnly: boolean
   highProtein: boolean
@@ -20,12 +20,26 @@ export interface MenuFilters {
 
 export const HIGH_PROTEIN_GRAMS = 20
 
+/** True when a dish belongs to the chosen category. Biryani comes from the dish name. */
+export function inCategory(item: MenuItem, category: MenuCategory | 'all'): boolean {
+  if (category === 'all') return true
+  if (category === 'biryani') return /biryani/i.test(item.title)
+  return item.category === category
+}
+
+/** True when anything narrows or reorders the menu, so the plain recommendations no longer apply. */
+export function isFiltered(f: Omit<MenuFilters, 'favouriteIds'>): boolean {
+  return (
+    f.category !== 'all' || f.query.trim() !== '' || f.vegOnly || f.highProtein || f.favouritesOnly || f.sort !== 'default'
+  )
+}
+
 export function filterMenu(items: MenuItem[], f: MenuFilters): MenuItem[] {
   const q = f.query.trim().toLowerCase()
 
   const result = items.filter(
     (item) =>
-      (f.category === 'all' || item.category === f.category) &&
+      inCategory(item, f.category) &&
       (!f.vegOnly || item.veg) &&
       (!f.highProtein || item.protein >= HIGH_PROTEIN_GRAMS) &&
       (!f.favouritesOnly || f.favouriteIds.includes(item.id)) &&

@@ -1,139 +1,200 @@
-import { useRef } from 'react'
-import { ArrowRight, Crown, MapPin } from 'lucide-react'
+import type { CSSProperties } from 'react'
+import { ArrowRight, Clock, Star, UtensilsCrossed } from 'lucide-react'
 import { MENU_ITEMS } from '../../data/menu'
-import { gsap, MOTION_OK, useGSAP } from '../../lib/gsap'
-import { MOTION } from '../../lib/motion'
+import CharminarMark from '../brand/CharminarMark'
+import Flourish from '../brand/Flourish'
+import TornEdge from '../brand/TornEdge'
+import Button from '../ui/Button'
 
-// Every number here comes from the real menu data, not made-up review counts.
+// Every number comes from the real menu data or is labelled as a demo value (owner decision D2).
 const averageRating = (
   MENU_ITEMS.reduce((sum, item) => sum + item.rating, 0) / MENU_ITEMS.length
 ).toFixed(1)
 
 const stats = [
-  { value: String(MENU_ITEMS.length), label: 'Signature dishes', note: 'Authentic & delicious' },
-  { value: averageRating, label: 'Average rating', note: 'Demo ratings' },
-  { value: '~22 min', label: 'Delivery time', note: 'Demo estimate' },
+  { Icon: UtensilsCrossed, value: String(MENU_ITEMS.length), label: 'Signature dishes' },
+  { Icon: Star, value: averageRating, label: 'Demo rating' },
+  { Icon: Clock, value: '~22 min', label: 'Demo delivery time' },
 ]
 
-// The "Chef's pick" card is a real dish from the menu.
-const featured = MENU_ITEMS.find((m) => m.id === 4) ?? MENU_ITEMS[0]
+// Each heading line sits in its own mask so it can rise into view (animation-guidelines.md §4).
+// The bottom padding keeps descenders (y, g) inside the mask.
+const lineMask = 'block overflow-hidden pb-[0.1em] -mb-[0.1em] lg:whitespace-nowrap'
 
+/** Stagger position for the hero entrance, which is CSS in index.css (`--i`). */
+const order = (i: number) => ({ '--i': i }) as CSSProperties
+
+/**
+ * The opening screen (component-guidelines.md §6): words on the left, the dish on a torn
+ * forest panel that runs to the right edge of the screen, behind the navbar.
+ * Phones and tablets get the words, then the panel at full width, then the stats.
+ *
+ * The entrance (animation-guidelines.md §4) is CSS keyframes, not GSAP: this section is
+ * prerendered into index.html, and CSS starts it with the first paint, before any script runs.
+ */
 export default function Hero() {
-  const root = useRef<HTMLElement>(null)
-
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia()
-
-      // One coordinated entrance (about 1.4 s). Nothing waits for it: links and buttons work at once.
-      mm.add(MOTION_OK, () => {
-        const tl = gsap.timeline({ defaults: { ease: MOTION.ease, duration: MOTION.duration } })
-
-        // Words, top to bottom
-        tl.from('[data-hero="badge"]', { y: 16, autoAlpha: 0, duration: 0.5 })
-          .from('[data-hero="line"]', { y: 32, autoAlpha: 0, stagger: 0.1 }, '-=0.3')
-          .from('[data-hero="text"]', { y: 20, autoAlpha: 0 }, '-=0.3')
-          .from('[data-hero="cta"] > *', { y: 16, autoAlpha: 0, stagger: MOTION.stagger }, '-=0.35')
-          .from('[data-hero="stat"]', { y: 16, autoAlpha: 0, stagger: 0.08 }, '-=0.3')
-
-        // Picture: the photo comes in from the right and settles, then the Chef's Pick card
-        tl.from('[data-hero="photo"]', { x: 60, scale: 0.96, autoAlpha: 0, duration: 0.9 }, 0.2)
-          .from('[data-hero="float"]', { y: MOTION.offset * 0.7, autoAlpha: 0, stagger: 0.12, duration: 0.5 }, 0.9)
-      })
-
-      return () => mm.revert()
-    },
-    { scope: root },
-  )
-
   return (
-    <section ref={root} id="home" className="relative overflow-hidden">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="pb-8 pt-6 sm:pb-12 sm:pt-10 lg:flex lg:min-h-[min(calc(100svh-7.5rem),720px)] lg:items-center lg:py-12">
-          <div className="text-center lg:max-w-[min(35rem,42vw)] lg:text-left">
-            <p data-hero="badge" className="inline-flex items-center gap-1.5 text-sm font-semibold text-gold-text">
-              <MapPin size={16} aria-hidden="true" />
-              Now delivering in Hyderabad (demo)
-            </p>
-
-            <h1 className="mt-4 font-display text-[2.1rem] font-extrabold leading-[1.05] tracking-[-0.035em] min-[380px]:text-[2.6rem] sm:text-6xl lg:text-[min(4.6vw,4.25rem)]">
-              <span data-hero="line" className="block">
-                Delicious food.
-              </span>
-              <span data-hero="line" className="block">
-                Made for your kind of day.
-              </span>
-            </h1>
-
-            <p data-hero="text" className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-muted sm:text-xl lg:mx-0">
-              Hyderabadi biryanis, snacks and meals, made fresh and brought to your door.
-            </p>
-
-            <div data-hero="cta" className="mt-8 flex justify-center lg:justify-start">
-              <a
-                href="#menu"
-                className="inline-flex items-center rounded-2xl bg-gold px-8 py-4 text-lg font-bold text-on-gold shadow-gold transition-[translate] hover:-translate-y-0.5 active:translate-y-0"
-              >
-                Explore Menu
-              </a>
-            </div>
-
-            <dl className="mx-auto mt-10 hidden max-w-xl grid-cols-3 gap-6 text-left sm:grid lg:mx-0">
-              {stats.map(({ value, label, note }) => (
-                <div key={label} data-hero="stat" className="flex flex-col-reverse leading-tight">
-                  <dt>
-                    <span className="mt-1 block text-sm font-medium text-ink">{label}</span>
-                    <span className="block text-xs text-muted">{note}</span>
-                  </dt>
-                  <dd className="font-display text-2xl font-extrabold tabular-nums">{value}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </div>
+    <section
+      id="home"
+      tabIndex={-1}
+      aria-labelledby="hero-heading"
+      className="relative isolate overflow-hidden outline-none lg:-mt-20"
+    >
+      {/* The Charminar, faint on the cream, just behind the panel's torn edge (desktop only) */}
+      <div
+        aria-hidden="true"
+        data-hero="art"
+        className="hero-parallax-art pointer-events-none absolute right-[calc(50vw-4rem)] top-[18%] -z-10 hidden w-56 lg:block xl:w-64"
+      >
+        <CharminarMark
+          variant="art"
+          strokeWidth={1.25}
+          className="block w-full text-forest-800 opacity-[0.18]"
+        />
       </div>
 
-      {/* The photo carries the screen: it runs off the right edge on large screens */}
-      <div className="relative px-4 pb-6 sm:px-6 lg:absolute lg:inset-y-4 lg:right-0 lg:w-[50vw] lg:p-0">
-        <img
-          data-hero="photo"
-          src="/images/hero-biryani.jpg"
-          alt="A bowl of Hyderabadi chicken biryani with a drumstick, raita and salan on the side"
-          width={1200}
-          height={1200}
-          fetchPriority="high"
-          className="aspect-[4/3] w-full rounded-2xl object-cover lg:aspect-auto lg:h-full lg:rounded-l-[2.5rem] lg:rounded-r-none"
-        />
-
-        {/* Card: chef's pick (a real dish from the menu) */}
-        <div
-          data-hero="float"
-          className="absolute bottom-10 left-10 hidden w-[min(25rem,calc(100%-5rem))] items-center gap-3 rounded-2xl bg-surface p-3 shadow-lift sm:flex lg:bottom-5 lg:left-5"
-        >
-          <img
-            src={featured.image}
-            alt=""
-            width={64}
-            height={64}
-            className="h-14 w-14 shrink-0 rounded-full object-cover"
-          />
-          <span className="min-w-0 flex-1 leading-tight">
-            <span className="flex items-center gap-1.5 text-xs font-bold text-gold-text">
-              <Crown size={14} aria-hidden="true" fill="currentColor" />
-              Chef&apos;s Pick
-            </span>
-            <span className="mt-0.5 block text-[15px] font-bold">{featured.title}</span>
-            <span className="mt-0.5 block text-sm text-muted">A royal blend of spices</span>
-          </span>
-          <span className="font-display text-lg font-extrabold">₹{featured.price}</span>
-          <a
-            href={`#dish-${featured.id}`}
-            aria-label={`See ${featured.title} on the menu`}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gold text-on-gold transition-transform hover:scale-110"
+      <div className="mx-auto flex max-w-7xl flex-col px-4 pb-10 pt-8 sm:px-6 sm:pb-14 sm:pt-12 lg:min-h-[min(100svh,46rem)] lg:justify-center lg:pb-16 lg:pt-[calc(5rem+2.5rem)]">
+        <div className="lg:w-[calc(50vw-max(0px,(100vw-80rem)/2)-3rem)]">
+          <p
+            data-hero="fade"
+            style={order(0)}
+            className="flex items-center gap-3 text-label font-semibold uppercase text-copper-700"
           >
-            <ArrowRight size={18} aria-hidden="true" />
-          </a>
+            Hyderabad specials
+            <span aria-hidden="true" className="h-px w-8 bg-copper-500" />
+          </p>
+
+          <h1 id="hero-heading" className="mt-4 font-display text-display-xl font-bold text-ink-900">
+            <span className={lineMask}>
+              <span data-hero="line" style={order(0)} className="block">
+                Savour Hyderabad&apos;s
+              </span>
+            </span>
+            <span className={lineMask}>
+              <span data-hero="line" style={order(1)} className="block">
+                finest biryanis.
+              </span>
+            </span>
+            <span className={lineMask}>
+              <span data-hero="line" style={order(2)} className="relative inline-block pb-[0.18em]">
+                <em className="accent">Delivered.</em>
+                <span data-hero="flourish" className="absolute inset-x-0 bottom-0 block">
+                  <Flourish className="block h-[0.24em] w-full" />
+                </span>
+              </span>
+            </span>
+          </h1>
+
+          <p data-hero="fade" style={order(1)} className="mt-5 max-w-[34rem] text-body-lg text-ink-600">
+            From iconic biryanis to local favourites, cooked fresh in Hyderabadi style and brought
+            to your door.
+          </p>
+
+          <div data-hero="fade" style={order(2)} className="mt-8 flex flex-wrap items-center gap-3">
+            <Button
+              href="#menu"
+              size="lg"
+              icon={<ArrowRight size={20} aria-hidden="true" className="hero-arrow" />}
+              iconPosition="end"
+            >
+              Order now
+            </Button>
+            <Button href="#delivery" variant="secondary" size="lg">
+              See how ordering works
+            </Button>
+          </div>
         </div>
+
+        {/* The dish. On large screens it leaves the flow and fills the right side of the hero. */}
+        <div className="-mx-4 mt-10 sm:-mx-6 lg:absolute lg:inset-y-0 lg:right-0 lg:mx-0 lg:mt-0 lg:w-[50vw]">
+          <div data-hero="panel" className="h-full">
+            <TornEdge side="top" lgSide="left" className="aspect-[4/3] overflow-hidden bg-forest-950 lg:aspect-auto lg:h-full">
+              <div className="hero-parallax-photo absolute inset-x-0 -top-[8%] h-[116%]">
+                {/* The largest thing on the first screen (the LCP). AVIF is less than half the
+                    JPEG's weight at the same look; the JPEG stays for browsers without AVIF. */}
+                <picture className="contents">
+                  <source
+                    type="image/avif"
+                    srcSet="/images/hero-handi-800.avif 800w, /images/hero-handi-1200.avif 1200w"
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                  />
+                  <img
+                    data-hero="photo"
+                    src="/images/hero-handi-1200.jpg"
+                    srcSet="/images/hero-handi-800.jpg 800w, /images/hero-handi-1200.jpg 1200w"
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    alt="Chicken biryani in a copper handi, with raita and salan on the side"
+                    width={1200}
+                    height={900}
+                    fetchPriority="high"
+                    decoding="async"
+                    className="h-full w-full object-cover"
+                  />
+                </picture>
+                {/* Steam over the handi: a few soft rises after load, then still (index.css) */}
+                <svg
+                  aria-hidden="true"
+                  focusable="false"
+                  viewBox="0 0 120 90"
+                  className="hero-steam absolute left-[52%] top-[13%] w-[20%] -translate-x-1/2 text-cream-50"
+                >
+                  <g fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round">
+                    <path d="M38 86c-8-12 8-20 0-34s6-22 2-40" />
+                    <path d="M62 88c-9-14 9-22 0-38s7-24 2-44" />
+                    <path d="M86 86c-8-12 8-20 0-34s6-22 2-38" />
+                  </g>
+                </svg>
+              </div>
+
+              {/* Shade along the top so the handwritten note stays legible on the photo */}
+              <div aria-hidden="true" className="absolute inset-x-0 top-0 h-2/5 bg-linear-to-b from-forest-950/75 to-transparent" />
+
+              <p
+                data-hero="note"
+                className="absolute right-5 top-6 flex max-w-[10ch] flex-col items-end text-right font-note text-[1.5rem] leading-[1.05] text-cream-50 sm:right-8 sm:top-8 sm:text-[1.75rem] lg:right-10 lg:top-[calc(5rem+1.5rem)]"
+              >
+                Authentic Hyderabadi biryani
+                <svg aria-hidden="true" focusable="false" viewBox="0 0 40 48" className="mr-6 mt-1 h-10 w-8 text-gold-300">
+                  <path
+                    data-arrow
+                    pathLength={1}
+                    d="M34 3C38 18 30 34 8 42M8 32l0 10 10 1"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.25}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </p>
+            </TornEdge>
+          </div>
+        </div>
+
+        <dl className="mt-8 grid grid-cols-3 gap-3 sm:gap-0 lg:mt-12 lg:w-[calc(50vw-max(0px,(100vw-80rem)/2)-3rem)]">
+          {stats.map(({ Icon, value, label }, i) => (
+            // The label (dt) comes first for screen readers; the grid shows the value above it.
+            <div
+              key={label}
+              data-hero="fade"
+              style={order(3 + i)}
+              className="grid content-start items-center gap-x-3 gap-y-1 leading-tight sm:grid-cols-[auto_1fr] sm:px-4 sm:first:pl-0 xl:px-5 sm:[&+&]:border-l sm:[&+&]:border-line-200"
+            >
+              <dt className="contents">
+                <Icon
+                  size={24}
+                  aria-hidden="true"
+                  strokeWidth={1.75}
+                  className="row-start-1 mb-1 text-copper-600 sm:col-start-1 sm:row-span-2 sm:mb-0"
+                />
+                <span className="row-start-3 text-caption text-ink-600 sm:col-start-2 sm:row-start-2">{label}</span>
+              </dt>
+              <dd className="tabular row-start-2 whitespace-nowrap font-display text-[1.375rem] font-bold text-ink-900 sm:col-start-2 sm:row-start-1">
+                {value}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </div>
     </section>
   )

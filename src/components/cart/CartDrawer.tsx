@@ -1,28 +1,25 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import {
-  BadgePercent,
-  HandHeart,
-  Info,
-  Minus,
-  Plus,
-  Receipt,
-  ShoppingBag,
-  TicketPercent,
-  Trash2,
-  Utensils,
-  Wallet,
-  X,
-} from 'lucide-react'
+import { Info, Minus, Plus, ShoppingBag, Trash2, Utensils, X } from 'lucide-react'
+import { clsx } from 'clsx'
 import { MENU_ITEMS } from '../../data/menu'
 import { describeLine } from '../../lib/orders'
 import { PROMOS, calcTotals, lineKey, parsePromoCode, unitPrice, type CartLine } from '../../lib/pricing'
 import { useCartStore } from '../../store/cartStore'
 import { useOrdersStore } from '../../store/ordersStore'
 import { useUiStore } from '../../store/uiStore'
+import { buttonClasses } from '../ui/buttonClasses'
+import Price from '../ui/Price'
 
 const TIP_OPTIONS = [20, 50, 100]
 
+// Small round steppers and chips share the toolbar's pill style (component-guidelines.md §11).
+const chip = 'h-11 rounded-full border px-4 text-[0.9375rem] font-semibold transition-colors duration-150'
+
+/**
+ * The cart drawer (component-guidelines.md §11). Behaviour is unchanged: quantities, removal,
+ * promo codes, the rider tip and the bill all work as before. Only the look is new.
+ */
 export default function CartDrawer() {
   const open = useUiStore((s) => s.panel === 'cart')
   const openPanel = useUiStore((s) => s.openPanel)
@@ -67,38 +64,32 @@ export default function CartDrawer() {
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="motion-overlay fixed inset-0 z-50 bg-black/45" />
-        <Dialog.Content className="motion-drawer fixed right-0 top-0 z-50 flex h-full w-full max-w-[34rem] flex-col bg-cream shadow-dialog">
+        <Dialog.Overlay className="motion-overlay fixed inset-0 z-50 bg-forest-950/50" />
+        <Dialog.Content className="motion-drawer fixed right-0 top-0 z-50 flex h-full w-full max-w-[30rem] flex-col bg-cream-50 text-ink-900 shadow-dialog">
           {/* ---------- Header ---------- */}
-          <div className="flex items-center gap-4 px-5 pb-4 pt-5 sm:px-6">
-            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gold-soft text-ink sm:h-16 sm:w-16">
-              <ShoppingBag size={28} aria-hidden="true" />
-            </span>
+          <div className="flex items-start gap-4 border-b border-line-200 px-5 pb-4 pt-5 sm:px-6">
             <div className="min-w-0 flex-1">
-              <Dialog.Title className="font-display text-2xl font-extrabold tracking-[-0.03em]">Your Bag</Dialog.Title>
-              <Dialog.Description className="mt-0.5 text-[15px] text-muted">
+              <Dialog.Title className="font-display text-display-md font-semibold">Your cart</Dialog.Title>
+              <Dialog.Description className="mt-1 text-sm text-ink-600">
                 {lines.length > 0
                   ? `${totals.calories} kcal · ${totals.protein}g protein in total`
                   : 'Nothing here yet.'}
               </Dialog.Description>
             </div>
-            <Dialog.Close
-              aria-label="Close cart"
-              className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-line bg-white transition-transform hover:scale-105 active:scale-95"
-            >
-              <X size={22} aria-hidden="true" />
+            <Dialog.Close aria-label="Close cart" className={buttonClasses('quiet', 'md', '-mr-1')}>
+              <X size={20} aria-hidden="true" />
             </Dialog.Close>
           </div>
 
           {lines.length === 0 ? (
-            <EmptyBag onBrowse={closePanel} />
+            <EmptyCart onBrowse={closePanel} />
           ) : (
             <>
               {/* ---------- Scrolling middle ---------- */}
-              <div className="flex-1 space-y-3.5 overflow-y-auto px-4 pb-4 sm:px-6">
-                <ul className="space-y-2.5">
+              <div className="flex-1 overflow-y-auto overscroll-contain px-5 sm:px-6">
+                <ul className="divide-y divide-line-200">
                   {lines.map((line, i) => (
-                    <BagItem
+                    <CartItem
                       key={lineKey(line)}
                       index={i}
                       line={line}
@@ -108,118 +99,113 @@ export default function CartDrawer() {
                 </ul>
 
                 {/* Promo code */}
-                <section className="rounded-2xl border-2 border-dashed border-line-strong bg-white/70 px-4 py-3.5">
-                  <div className="flex items-start gap-3 sm:gap-4">
-                    <TicketPercent size={34} aria-hidden="true" className="mt-4 hidden shrink-0 text-gold-dark sm:block" />
-                    <div className="min-w-0 flex-1">
-                      <label htmlFor="promo-input" className="font-semibold">
-                        Promo code
-                      </label>
-                      <div className="mt-2 flex gap-2">
-                        <input
-                          id="promo-input"
-                          value={promoInput}
-                          onChange={(e) => setPromoInput(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && applyPromo()}
-                          placeholder="FIRST50, MUNCH10, FEAST75"
-                          aria-describedby="promo-status"
-                          className="min-w-0 flex-1 rounded-full border border-field bg-white px-4 py-3 text-sm uppercase placeholder:normal-case placeholder:text-muted focus:border-gold"
-                        />
-                        <button
-                          type="button"
-                          onClick={applyPromo}
-                          className="rounded-full bg-ink px-6 py-3 text-sm font-bold text-white transition-transform active:scale-95"
-                        >
-                          Apply
+                <section className="border-t border-line-200 py-5">
+                  <label htmlFor="promo-input" className="font-display text-title font-semibold">
+                    Promo code
+                  </label>
+                  <div className="mt-2.5 flex gap-2">
+                    <input
+                      id="promo-input"
+                      value={promoInput}
+                      onChange={(e) => setPromoInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && applyPromo()}
+                      placeholder="FIRST50, MUNCH10, FEAST75"
+                      aria-describedby="promo-status"
+                      autoCapitalize="characters"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      className="h-11 min-w-0 flex-1 rounded-full border border-field-500 bg-cream-50 px-4 text-base uppercase placeholder:normal-case placeholder:text-ink-600 focus:border-copper-600"
+                    />
+                    <button type="button" onClick={applyPromo} className={buttonClasses('secondary', 'md')}>
+                      Apply
+                    </button>
+                  </div>
+                  <div id="promo-status" role="status" className="mt-2 text-sm empty:hidden">
+                    {promoError && <span className="font-medium text-nonveg">{promoError}</span>}
+                    {!promoError && promoCode && totals.promo?.applicable && (
+                      <span className="font-semibold text-success">
+                        {promoCode} applied: {PROMOS[promoCode].title}.{' '}
+                        <button type="button" onClick={removePromo} className="underline underline-offset-2">
+                          Remove
                         </button>
-                      </div>
-                      <div id="promo-status" role="status" className="mt-2 text-sm empty:hidden">
-                        {promoError && <span className="text-red-700">{promoError}</span>}
-                        {!promoError && promoCode && totals.promo?.applicable && (
-                          <span className="font-semibold text-green-800">
-                            {promoCode} applied: {PROMOS[promoCode].title}.{' '}
-                            <button type="button" onClick={removePromo} className="underline">
-                              Remove
-                            </button>
-                          </span>
-                        )}
-                        {!promoError && promoCode && totals.promo && !totals.promo.applicable && (
-                          <span className="text-red-700">
-                            {totals.promo.reason}.{' '}
-                            <button type="button" onClick={removePromo} className="underline">
-                              Remove
-                            </button>
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                      </span>
+                    )}
+                    {!promoError && promoCode && totals.promo && !totals.promo.applicable && (
+                      <span className="text-nonveg">
+                        {totals.promo.reason}.{' '}
+                        <button type="button" onClick={removePromo} className="underline underline-offset-2">
+                          Remove
+                        </button>
+                      </span>
+                    )}
                   </div>
                 </section>
 
                 {/* Rider tip */}
-                <section className="flex flex-wrap items-center gap-x-3 gap-y-3 rounded-2xl bg-white/70 px-4 py-3 ring-1 ring-line">
-                  <HandHeart size={30} aria-hidden="true" className="shrink-0 text-gold-dark" />
-                  <div className="min-w-0 flex-1">
-                    <p id="tip-label" className="font-semibold">
-                      Rider tip
-                    </p>
-                    <p className="text-xs text-muted">Optional. Tap again to remove.</p>
-                  </div>
-                  <div role="group" aria-labelledby="tip-label" className="flex gap-2">
+                <section className="border-t border-line-200 py-5">
+                  <p id="tip-label" className="font-display text-title font-semibold">
+                    Rider tip
+                  </p>
+                  <p className="text-sm text-ink-600">Optional. Tap again to remove.</p>
+                  <div role="group" aria-labelledby="tip-label" className="mt-3 flex flex-wrap gap-2">
                     {TIP_OPTIONS.map((amount) => (
                       <button
                         key={amount}
                         type="button"
                         aria-pressed={tip === amount}
                         onClick={() => setTip(amount)}
-                        className={`rounded-full border px-4 py-2 text-sm font-bold transition-colors ${
+                        className={clsx(
+                          chip,
                           tip === amount
-                            ? 'border-gold bg-gold text-on-gold'
-                            : 'border-line bg-white hover:border-gold'
-                        }`}
+                            ? 'border-copper-600 bg-copper-600 text-white'
+                            : 'border-line-200 bg-cream-50 hover:border-copper-600',
+                        )}
                       >
-                        ₹{amount}
+                        <Price amount={amount} plain className="font-semibold" />
                       </button>
                     ))}
                   </div>
                 </section>
 
                 {/* Bill details */}
-                <dl className="space-y-2 px-1 text-[15px]">
-                  <Row icon={<Receipt size={18} />} label="Subtotal" value={`₹${totals.subtotal}`} />
+                <dl className="space-y-2 border-t border-line-200 py-5 text-[0.9375rem]">
+                  <Row label="Subtotal" value={<Price amount={totals.subtotal} plain className="font-medium" />} />
                   <Row
-                    icon={<BadgePercent size={18} />}
                     label="Discount"
-                    value={totals.discount > 0 ? `-₹${totals.discount}` : '₹0'}
-                    valueClass={totals.discount > 0 ? 'font-semibold text-green-800' : undefined}
+                    value={
+                      totals.discount > 0 ? (
+                        <span className="font-semibold text-success">
+                          −<Price amount={totals.discount} plain className="font-semibold" />
+                        </span>
+                      ) : (
+                        <Price amount={0} plain className="font-medium" />
+                      )
+                    }
                   />
-                  <Row icon={<Receipt size={18} />} label="GST (5% after discount)" value={`₹${totals.tax}`} />
-                  <Row icon={<HandHeart size={18} />} label="Rider tip" value={`₹${totals.tip}`} />
+                  <Row label="GST (5% after discount)" value={<Price amount={totals.tax} plain className="font-medium" />} />
+                  <Row label="Rider tip" value={<Price amount={totals.tip} plain className="font-medium" />} />
                 </dl>
               </div>
 
-              {/* ---------- Fixed bottom ---------- */}
-              <div className="border-t border-line bg-cream px-4 pb-5 pt-4 sm:px-6">
-                <dl className="flex items-center justify-between px-1">
-                  <dt className="flex items-center gap-3 font-display text-xl font-extrabold">
-                    <Wallet size={22} aria-hidden="true" />
-                    Grand total
-                  </dt>
-                  <dd className="font-display text-2xl font-extrabold">
+              {/* ---------- Pinned bottom ---------- */}
+              <div className="border-t border-line-200 bg-cream-100 px-5 pb-5 pt-4 sm:px-6">
+                <dl className="flex items-baseline justify-between">
+                  <dt className="font-display text-title font-semibold">Grand total</dt>
+                  <dd>
                     {/* key: a fresh element (and a small pop) whenever the total changes */}
                     <span key={totals.total} className="motion-pop inline-block">
-                      ₹{totals.total}
+                      <Price amount={totals.total} className="text-[1.625rem] leading-none" />
                     </span>
                   </dd>
                 </dl>
                 <button
                   type="button"
                   onClick={() => openPanel('checkout')}
-                  className="group mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-gold px-6 py-4 text-lg font-bold text-on-gold shadow-gold transition-transform hover:-translate-y-0.5 active:translate-y-0"
+                  className={buttonClasses('primary', 'lg', 'mt-4 w-full')}
                 >
-                  Place Order
+                  Place order
                 </button>
-                <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-muted">
+                <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[0.8125rem] text-ink-600">
                   <Info size={14} aria-hidden="true" />
                   Demo checkout: no real payment is taken.
                 </p>
@@ -232,7 +218,7 @@ export default function CartDrawer() {
   )
 }
 
-function BagItem({
+function CartItem({
   line,
   index,
   onChange,
@@ -244,8 +230,8 @@ function BagItem({
   const item = MENU_ITEMS.find((m) => m.id === line.itemId)
   const title = item?.title ?? 'Unknown dish'
 
-  // Removing: the card collapses first, then the line leaves the bag.
-  // The timer is a safety net in case the animation event never fires.
+  // Removing: the line collapses first, then leaves the cart.
+  // The timer is a safety net in case the animation event never fires (reduced motion has none).
   const [removing, setRemoving] = useState(false)
   useEffect(() => {
     if (!removing) return
@@ -259,37 +245,46 @@ function BagItem({
       onAnimationEnd={(e) => {
         if (removing && e.target === e.currentTarget) onChange(-line.qty)
       }}
-      className={`${removing ? 'motion-collapse' : 'motion-rise'} relative flex gap-3 rounded-2xl bg-white p-3 pr-4 shadow-card ring-1 ring-line sm:gap-4`}
+      className={clsx(removing ? 'motion-collapse' : 'motion-rise', 'flex gap-4 py-4')}
     >
       {item ? (
-        <img
-          src={item.image}
-          alt=""
-          width={96}
-          height={96}
-          className="h-20 w-20 shrink-0 rounded-xl object-cover"
-        />
+        <img src={item.image} alt="" width={80} height={80} className="size-16 shrink-0 rounded-sm object-cover sm:size-[4.5rem]" />
       ) : (
-        <span className="grid h-20 w-20 shrink-0 place-items-center rounded-xl bg-cream-deep text-gold-dark">
+        <span className="grid size-16 shrink-0 place-items-center rounded-sm bg-cream-300 text-copper-500 sm:size-[4.5rem]">
           <Utensils size={24} aria-hidden="true" />
         </span>
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col justify-center pr-7">
-        <p className="font-bold leading-snug">{title}</p>
-        <p className="mt-0.5 text-sm text-muted">{describeLine(line)}</p>
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-          <p className="font-bold text-gold-text">₹{unitPrice(line)} each</p>
-          <div className="flex items-center gap-2">
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="font-display text-title font-semibold leading-snug">{title}</p>
+            <p className="mt-0.5 text-sm text-ink-600">{describeLine(line)}</p>
+          </div>
+          <button
+            type="button"
+            aria-label={`Remove ${title} from cart`}
+            disabled={removing}
+            onClick={() => setRemoving(true)}
+            className="-mr-2 -mt-1.5 grid size-11 shrink-0 place-items-center rounded-full text-ink-600 transition-colors hover:bg-cream-300 hover:text-nonveg"
+          >
+            <Trash2 size={18} aria-hidden="true" />
+          </button>
+        </div>
+        <div className="mt-2 flex items-center justify-between gap-2">
+          <p className="text-sm text-ink-600">
+            <Price amount={unitPrice(line)} plain className="font-semibold text-ink-900" /> each
+          </p>
+          <div className="flex items-center gap-1 rounded-full border border-line-200 p-0.5">
             <button
               type="button"
               aria-label={`Decrease quantity of ${title}`}
               onClick={() => onChange(-1)}
-              className="grid h-9 w-9 place-items-center rounded-full border border-line bg-white text-gold-dark transition-colors hover:border-gold active:scale-90"
+              className="grid size-10 place-items-center rounded-full text-copper-700 transition-colors hover:bg-cream-300 motion-safe:active:scale-94"
             >
               <Minus size={16} aria-hidden="true" />
             </button>
-            <span className="w-5 text-center font-bold" aria-live="polite">
+            <span className="tabular w-6 text-center font-semibold" aria-live="polite">
               <span className="sr-only">Quantity </span>
               <span key={line.qty} className="motion-pop inline-block">
                 {line.qty}
@@ -299,41 +294,27 @@ function BagItem({
               type="button"
               aria-label={`Increase quantity of ${title}`}
               onClick={() => onChange(1)}
-              className="grid h-9 w-9 place-items-center rounded-full border border-line bg-white text-gold-dark transition-colors hover:border-gold active:scale-90"
+              className="grid size-10 place-items-center rounded-full text-copper-700 transition-colors hover:bg-cream-300 motion-safe:active:scale-94"
             >
               <Plus size={16} aria-hidden="true" />
             </button>
           </div>
         </div>
       </div>
-
-      <button
-        type="button"
-        aria-label={`Remove ${title} from bag`}
-        disabled={removing}
-        onClick={() => setRemoving(true)}
-        className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full text-gold-dark transition-colors hover:bg-red-50 hover:text-red-700"
-      >
-        <Trash2 size={17} aria-hidden="true" />
-      </button>
     </li>
   )
 }
 
-function EmptyBag({ onBrowse }: { onBrowse: () => void }) {
+function EmptyCart({ onBrowse }: { onBrowse: () => void }) {
   return (
     <div className="grid flex-1 place-items-center px-6 pb-16 text-center">
       <div className="motion-rise">
-        <span className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-gold-soft text-gold-dark">
-          <ShoppingBag size={36} aria-hidden="true" />
+        <span className="mx-auto grid size-16 place-items-center rounded-full bg-cream-300 text-copper-600">
+          <ShoppingBag size={28} aria-hidden="true" />
         </span>
-        <p className="mt-5 font-display text-2xl font-extrabold">Your bag is empty</p>
-        <p className="mt-1 text-muted">Add a dish or two and it will show up here.</p>
-        <a
-          href="#menu"
-          onClick={onBrowse}
-          className="mt-6 inline-flex items-center gap-2 rounded-full bg-gold px-7 py-3.5 font-bold text-on-gold transition-transform hover:-translate-y-0.5"
-        >
+        <p className="mt-5 font-display text-display-md font-semibold">Your cart is empty</p>
+        <p className="mt-1 text-ink-600">Add a dish or two and it will show up here.</p>
+        <a href="#menu" onClick={onBrowse} className={buttonClasses('primary', 'md', 'mt-6')}>
           Browse the menu
         </a>
       </div>
@@ -341,26 +322,11 @@ function EmptyBag({ onBrowse }: { onBrowse: () => void }) {
   )
 }
 
-function Row({
-  icon,
-  label,
-  value,
-  valueClass,
-}: {
-  icon: ReactNode
-  label: string
-  value: string
-  valueClass?: string
-}) {
+function Row({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <dt className="flex items-center gap-3 text-ink/80">
-        <span aria-hidden="true" className="text-gold-text">
-          {icon}
-        </span>
-        {label}
-      </dt>
-      <dd className={valueClass ?? 'font-medium'}>{value}</dd>
+      <dt className="text-ink-600">{label}</dt>
+      <dd>{value}</dd>
     </div>
   )
 }

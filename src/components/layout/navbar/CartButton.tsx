@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { ShoppingCart } from 'lucide-react'
 import { gsap, MOTION_OK, useGSAP } from '../../../lib/gsap'
 import { MOTION } from '../../../lib/motion'
+import { useHydrated } from '../../../lib/useHydrated'
 import { selectCartCount, useCartStore } from '../../../store/cartStore'
 import { useUiStore } from '../../../store/uiStore'
 import IconButton from './IconButton'
@@ -10,13 +11,17 @@ export default function CartButton() {
   const count = useCartStore(selectCartCount)
   const openPanel = useUiStore((s) => s.openPanel)
 
-  // "Bump" the cart when something is added (not on page load, not when removing).
+  // "Bump" the cart when something is added (not on page load, not when removing). On the
+  // prerendered page the count starts at 0 and a saved cart arrives right after hydration,
+  // so counting starts from the first hydrated render.
+  const hydrated = useHydrated()
   const ref = useRef<HTMLButtonElement>(null)
-  const previousCount = useRef(count)
+  const previousCount = useRef<number | null>(null)
 
   useGSAP(
     () => {
-      const added = count > previousCount.current
+      if (!hydrated) return
+      const added = previousCount.current !== null && count > previousCount.current
       previousCount.current = count
       const button = ref.current
       if (!added || !button) return
@@ -31,17 +36,23 @@ export default function CartButton() {
       })
       return () => mm.revert()
     },
-    { dependencies: [count], revertOnUpdate: true },
+    { dependencies: [count, hydrated], revertOnUpdate: true },
   )
 
   return (
-    <IconButton ref={ref} label={`Open cart, ${count} ${count === 1 ? 'item' : 'items'}`} onClick={() => openPanel('cart')}>
+    <IconButton
+      ref={ref}
+      tone="dark"
+      label={`Open cart, ${count} ${count === 1 ? 'item' : 'items'}`}
+      onClick={() => openPanel('cart')}
+      className="cart-target"
+    >
       <ShoppingCart size={20} aria-hidden="true" />
       {count > 0 && (
         <span
           key={count}
           data-cart-badge
-          className="motion-pop absolute -right-1 -top-1 grid h-6 min-w-6 place-items-center rounded-full bg-ink px-1 text-xs font-bold text-white ring-2 ring-white"
+          className="motion-pop absolute -right-1 -top-1 grid h-6 min-w-6 place-items-center rounded-full bg-copper-600 px-1 text-xs font-bold text-white ring-2 ring-forest-800"
         >
           {count}
         </span>

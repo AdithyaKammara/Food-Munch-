@@ -1,4 +1,5 @@
 import { useId, type InputHTMLAttributes, type TextareaHTMLAttributes } from 'react'
+import { fieldClasses } from './fieldClasses'
 
 interface FieldProps {
   label: string
@@ -14,21 +15,17 @@ function useFieldIds(error?: string | null, hint?: string) {
   return { id, hintId, errorId, describedBy: describedBy || undefined }
 }
 
-const controlClass = (error?: string | null) =>
-  `mt-1 w-full rounded-xl border bg-surface px-4 py-2.5 text-sm ${
-    error ? 'border-red-600' : 'border-field'
-  }`
 
 function Messages({ error, hint, ids }: { error?: string | null; hint?: string; ids: { hintId: string; errorId: string } }) {
   return (
     <>
       {hint && (
-        <p id={ids.hintId} className="mt-1 text-xs text-muted">
+        <p id={ids.hintId} className="mt-1.5 text-[0.8125rem] text-ink-600">
           {hint}
         </p>
       )}
       {error && (
-        <p id={ids.errorId} role="alert" className="mt-1 text-sm text-red-700">
+        <p id={ids.errorId} role="alert" className="mt-1.5 text-sm font-medium text-nonveg">
           {error}
         </p>
       )}
@@ -47,7 +44,7 @@ export function TextField({ label, error, hint, ...props }: FieldProps & InputHT
         id={ids.id}
         aria-invalid={error ? true : undefined}
         aria-describedby={ids.describedBy}
-        className={controlClass(error)}
+        className={fieldClasses(error)}
         {...props}
       />
       <Messages error={error} hint={hint} ids={ids} />
@@ -71,7 +68,7 @@ export function TextAreaField({
         id={ids.id}
         aria-invalid={error ? true : undefined}
         aria-describedby={ids.describedBy}
-        className={controlClass(error)}
+        className={fieldClasses(error)}
         {...props}
       />
       <Messages error={error} hint={hint} ids={ids} />

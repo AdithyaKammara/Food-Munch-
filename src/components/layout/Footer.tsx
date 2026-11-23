@@ -1,14 +1,14 @@
-import { useState } from 'react'
-import { ChefHat, Mail, MapPin, Phone, Utensils } from 'lucide-react'
+import { useRef, useState, type ReactNode } from 'react'
+import { Mail } from 'lucide-react'
+import type { MenuCategory } from '../../data/menu'
 import { useReveal } from '../../lib/useReveal'
+import { useUiStore } from '../../store/uiStore'
+import CharminarMark from '../brand/CharminarMark'
+import OrnamentBorder from '../brand/OrnamentBorder'
+import Wordmark from '../brand/Wordmark'
+import { CATEGORIES } from '../menu/categories'
+import { buttonClasses } from '../ui/buttonClasses'
 import Modal from '../ui/Modal'
-
-const quickLinks = [
-  { href: '#home', label: 'Home' },
-  { href: '#menu', label: 'Menu' },
-  { href: '#why-us', label: 'Why Us' },
-  { href: '#delivery', label: 'Delivery' },
-]
 
 // Creative Commons photos need their author, source and licence shown.
 const photoCredits = [
@@ -27,6 +27,13 @@ const photoCredits = [
     licenceUrl: 'https://creativecommons.org/licenses/by/2.0/',
   },
   {
+    dish: 'Our story photo (the Charminar, resized)',
+    author: 'Theanjalivarma',
+    source: 'https://commons.wikimedia.org/wiki/File:Charminar-Hyderabad-Telangana-001.jpg',
+    licence: 'CC BY-SA 4.0',
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
+  },
+  {
     dish: 'Alphonso Mango Lassi',
     author: 'Nithyasrm',
     source: 'https://commons.wikimedia.org/wiki/File:Tasty_Mango_lassi_picture.JPG',
@@ -43,37 +50,50 @@ const socials = [
   { href: 'https://www.linkedin.com/in/adithyakammara', label: 'Adithya Kammara on LinkedIn', icon: LinkedInMark },
 ]
 
-function Heading({ children }: { children: string }) {
+// Links and link-like buttons: 15px cream at 85%, a 44px tap height on touch screens.
+const linkClass =
+  'inline-flex items-center py-1 text-[0.9375rem] text-cream-50/85 transition-colors hover:text-gold-300 hover:underline underline-offset-4 pointer-coarse:min-h-11'
+
+function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <h2 className="whitespace-nowrap font-display text-xl font-bold text-gold">
-      {children}
-    </h2>
+    <div data-reveal>
+      <h2 className="font-display text-lg font-semibold text-gold-300">{title}</h2>
+      <ul className="mt-4 space-y-1.5 pointer-coarse:space-y-0">{children}</ul>
+    </div>
   )
 }
 
+/**
+ * The footer (component-guidelines.md §14): a forest band under the Charminar skyline, with the
+ * brand, three groups of real links only (implementation-plan.md C5), the demo newsletter, and the
+ * ornamental border along the bottom edge.
+ */
 export default function Footer() {
   const ref = useReveal<HTMLElement>()
   const year = new Date().getFullYear()
   const [policy, setPolicy] = useState<'privacy' | 'terms' | 'credits' | null>(null)
+  const setMenuCategory = useUiStore((s) => s.setMenuCategory)
+  const openPanel = useUiStore((s) => s.openPanel)
+
+  const showCategory = (id: MenuCategory) => setMenuCategory(id)
 
   return (
-    <footer ref={ref} id="contact" className="bg-ink text-white">
-      {/* ---------- Columns ---------- */}
-      <div className="mx-auto grid max-w-7xl gap-12 px-4 pb-12 pt-16 sm:grid-cols-2 sm:px-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1.5fr)_minmax(0,0.7fr)_minmax(0,1.4fr)] xl:gap-10">
+    <footer ref={ref} id="contact" tabIndex={-1} className="on-forest relative bg-forest-900 text-cream-50 outline-none">
+      {/* The skyline along the top edge: the Charminar's third and last appearance (design.md §2) */}
+      <CharminarMark
+        variant="skyline"
+        strokeWidth={1.25}
+        className="pointer-events-none mx-auto block h-16 w-full max-w-[77.5rem] px-4 pt-4 text-gold-400/60 sm:h-20 sm:px-6 lg:h-24 lg:px-8"
+      />
+
+      <div className="mx-auto grid max-w-[77.5rem] gap-x-10 gap-y-10 px-4 pb-12 pt-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,2.3fr)_minmax(0,1.4fr)] lg:px-8">
         {/* Brand */}
-        <div data-reveal>
-          <a href="#home" className="inline-flex items-center gap-3 font-display text-[1.75rem] font-extrabold tracking-tight xl:text-[1.6rem] 2xl:text-[1.85rem]">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gold text-on-gold">
-              <ChefHat size={26} aria-hidden="true" />
-            </span>
-            <span className="whitespace-nowrap">
-              Food <span className="text-gold">Munch</span>
-            </span>
-          </a>
-          <p className="mt-5 max-w-xs text-[15px] leading-relaxed text-white/80 xl:text-sm 2xl:text-[15px]">
-            Authentic Hyderabadi flavours, made with fresh ingredients. A portfolio demo project.
+        <div data-reveal className="sm:col-span-2 lg:col-span-1">
+          <Wordmark tone="light" />
+          <p className="mt-4 max-w-xs text-[0.9375rem] leading-relaxed text-cream-50/80">
+            Hyderabadi biryanis and favourites, on a demo ordering site built as a portfolio project.
           </p>
-          <ul className="mt-6 flex gap-3">
+          <ul className="mt-5 flex gap-3">
             {socials.map(({ href, label, icon: Icon }) => (
               <li key={href}>
                 <a
@@ -81,7 +101,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label={label}
-                  className="grid h-11 w-11 place-items-center rounded-full border border-white/30 text-white transition-colors hover:border-gold hover:bg-gold hover:text-on-gold"
+                  className="grid size-11 place-items-center rounded-full border border-cream-50/30 text-cream-50 transition-colors hover:border-gold-300 hover:text-gold-300"
                 >
                   <Icon />
                 </a>
@@ -90,86 +110,73 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Subscribe */}
-        <div data-reveal>
-          <Heading>Get Offers</Heading>
-          <p className="mt-5 text-[15px] leading-relaxed text-white/85 xl:text-sm 2xl:text-[15px]">
-            Be the first to know about new dishes, promo codes and special offers.
-          </p>
-          <SubscribeForm />
-        </div>
-
-        {/* Quick links */}
-        <nav data-reveal aria-label="Footer">
-          <Heading>Quick Links</Heading>
-          <ul className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 sm:block sm:space-y-3">
-            {quickLinks.map((link) => (
-              <li key={link.href}>
-                <a href={link.href} className="text-[15px] text-white/85 transition-colors hover:text-gold xl:text-sm 2xl:text-[15px]">
-                  {link.label}
+        <nav aria-label="Footer" className="grid grid-cols-2 gap-x-6 gap-y-8 sm:col-span-2 min-[560px]:grid-cols-3 lg:col-span-1">
+          <Group title="Menu">
+            {CATEGORIES.map((c) => (
+              <li key={c.id}>
+                <a href="#menu" onClick={() => showCategory(c.id)} className={linkClass}>
+                  {c.label}
                 </a>
               </li>
             ))}
-          </ul>
+          </Group>
+
+          <Group title="Help">
+            <li>
+              <button type="button" onClick={() => openPanel('tracking')} className={linkClass}>
+                Track order
+              </button>
+            </li>
+            <li>
+              <button type="button" onClick={() => openPanel('history')} className={linkClass}>
+                Order history
+              </button>
+            </li>
+            <li>
+              <a href={`mailto:${DEVELOPER_EMAIL}`} className={linkClass}>
+                Contact
+              </a>
+            </li>
+          </Group>
+
+          <Group title="Legal">
+            <li>
+              <button type="button" onClick={() => setPolicy('privacy')} className={linkClass}>
+                Privacy
+              </button>
+            </li>
+            <li>
+              <button type="button" onClick={() => setPolicy('terms')} className={linkClass}>
+                Terms
+              </button>
+            </li>
+            <li>
+              <button type="button" onClick={() => setPolicy('credits')} className={linkClass}>
+                Photo credits
+              </button>
+            </li>
+          </Group>
         </nav>
 
-        {/* Contact */}
-        <div data-reveal>
-          <Heading>Contact</Heading>
-          <ul className="mt-5 space-y-4 text-[15px] text-white/85 xl:text-sm 2xl:text-[15px]">
-            <li className="flex items-start gap-3">
-              <span className="mt-0.5 shrink-0 text-gold">
-                <MapPin size={17} aria-hidden="true" />
-              </span>
-              <span>Sample Street, Hyderabad, Telangana</span>
-            </li>
-            <li className="flex items-center gap-3">
-              <span className="mt-0.5 shrink-0 text-gold">
-                <Phone size={17} aria-hidden="true" />
-              </span>
-              +91 00000 00000 (sample)
-            </li>
-          </ul>
-
-          <div className="mt-5 border-t border-white/10 pt-4">
-            <h3 className="text-[15px] font-bold text-gold">Project Contact</h3>
-            <a
-              href={`mailto:${DEVELOPER_EMAIL}`}
-              className="mt-2.5 inline-flex items-center gap-2.5 break-all text-[15px] font-semibold text-gold hover:underline sm:whitespace-nowrap sm:break-normal xl:text-[13px] 2xl:text-sm"
-            >
-              <Mail size={18} aria-hidden="true" className="shrink-0" />
-              {DEVELOPER_EMAIL}
-            </a>
-          </div>
-        </div>
-
-      </div>
-
-      {/* ---------- Bottom bar ---------- */}
-      <div className="border-t border-white/15">
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 py-5 sm:px-6 text-center text-[13px] text-white/70 lg:flex-row lg:justify-between lg:gap-6 lg:text-left">
-          <p className="inline-flex items-center gap-2 whitespace-nowrap font-display text-base font-bold text-gold">
-            <Utensils size={18} aria-hidden="true" />
-            Good food brings good people together.
+        {/* Newsletter */}
+        <div data-reveal className="sm:col-span-2 lg:col-span-1">
+          <h2 className="font-display text-lg font-semibold text-gold-300">Stay in the loop</h2>
+          <p className="mt-4 text-[0.9375rem] leading-relaxed text-cream-50/85">
+            New dishes and promo codes, now and then.
           </p>
-          <p className="2xl:whitespace-nowrap">
-            © {year} Food Munch. Portfolio project by Adithya Kammara.
-          </p>
-          <p className="flex items-center gap-3 whitespace-nowrap text-white/85">
-            <button type="button" onClick={() => setPolicy('privacy')} className="hover:text-gold hover:underline">
-              Privacy Policy
-            </button>
-            <span aria-hidden="true" className="h-3.5 w-px bg-white/40" />
-            <button type="button" onClick={() => setPolicy('terms')} className="hover:text-gold hover:underline">
-              Terms of Service
-            </button>
-            <span aria-hidden="true" className="h-3.5 w-px bg-white/40" />
-            <button type="button" onClick={() => setPolicy('credits')} className="hover:text-gold hover:underline">
-              Photo Credits
-            </button>
-          </p>
+          <SubscribeForm />
         </div>
       </div>
+
+      <div className="mx-auto max-w-[77.5rem] border-t border-cream-50/15 px-4 py-5 sm:px-6 lg:px-8">
+        {/* The page is prerendered at build time, so across New Year the build's year can differ
+            from the visitor's until the next deploy; that one difference is allowed. */}
+        <p suppressHydrationWarning className="text-center text-[0.8125rem] text-cream-50/70 sm:text-left">
+          © {year} Food Munch. Portfolio project by Adithya Kammara.
+        </p>
+      </div>
+
+      <OrnamentBorder />
 
       <Modal
         open={policy === 'privacy'}
@@ -177,8 +184,8 @@ export default function Footer() {
         title="Privacy Policy"
         description="Food Munch is a portfolio demo. Here is exactly what it stores."
       >
-        <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-ink">
-          <li>Your bag, favourites, demo login (name, phone, address) and past demo orders are saved only in this browser (localStorage).</li>
+        <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-ink-900">
+          <li>Your cart, favourites, demo login (name, phone, address) and past demo orders are saved only in this browser (localStorage).</li>
           <li>Nothing is sent to a server, and there is no tracking or analytics.</li>
           <li>The subscribe form does not save or send your email.</li>
           <li>To delete everything, clear this site&apos;s data in your browser settings.</li>
@@ -190,7 +197,7 @@ export default function Footer() {
         title="Terms of Service"
         description="Please read before using this demo."
       >
-        <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-ink">
+        <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-ink-900">
           <li>Food Munch is not a real restaurant. Orders are not cooked or delivered.</li>
           <li>Payments are simulated: the UPI QR moves no money, and no card details are ever asked for.</li>
           <li>Order tracking is a timed demo, not live location.</li>
@@ -201,9 +208,9 @@ export default function Footer() {
         open={policy === 'credits'}
         onClose={() => setPolicy(null)}
         title="Photo Credits"
-        description="These photos were resized and cropped to fit the menu."
+        description="These photos were resized and cropped to fit the site."
       >
-        <ul className="space-y-3 text-sm leading-relaxed text-ink">
+        <ul className="space-y-3 text-sm leading-relaxed text-ink-900">
           {photoCredits.map(({ dish, author, source, licence, licenceUrl }) => (
             <li key={dish}>
               <span className="font-semibold">{dish}</span>: photo by{' '}
@@ -223,14 +230,20 @@ export default function Footer() {
   )
 }
 
+/**
+ * Demo newsletter. Validation is unchanged (checked on submit); per modern-web-guidance: forms,
+ * a failed submit moves focus back to the field, typing clears the error, and autocorrect is off.
+ */
 function SubscribeForm() {
   const [email, setEmail] = useState('')
   const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null)
+  const input = useRef<HTMLInputElement>(null)
 
   const submit = () => {
     const value = email.trim()
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
       setResult({ ok: false, text: 'Enter a valid email address, like name@example.com.' })
+      input.current?.focus()
       return
     }
     // Demo only: the address is not saved or sent anywhere.
@@ -243,7 +256,7 @@ function SubscribeForm() {
   return (
     <form
       noValidate
-      className="mt-5"
+      className="mt-4"
       onSubmit={(e) => {
         e.preventDefault()
         submit()
@@ -254,37 +267,38 @@ function SubscribeForm() {
       </label>
       {/* One pill with the button inside when there is room; otherwise the button sits below. */}
       <div className="@container">
-        <div className="flex flex-col gap-2.5 @[18.5rem]:flex-row @[18.5rem]:items-center @[18.5rem]:gap-2 @[18.5rem]:rounded-full @[18.5rem]:border @[18.5rem]:border-white/50 @[18.5rem]:bg-white/[0.06] @[18.5rem]:p-1.5 @[18.5rem]:focus-within:border-gold">
-          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-white/50 bg-white/[0.06] px-4 focus-within:border-gold @[18.5rem]:border-0 @[18.5rem]:bg-transparent @[18.5rem]:pl-3 @[18.5rem]:pr-0">
-            <Mail size={18} aria-hidden="true" className="shrink-0 text-white/70" />
+        <div className="flex flex-col gap-2.5 @[18.5rem]:flex-row @[18.5rem]:items-center @[18.5rem]:gap-2 @[18.5rem]:rounded-full @[18.5rem]:border @[18.5rem]:border-cream-50/50 @[18.5rem]:bg-cream-50/[0.06] @[18.5rem]:p-1.5 @[18.5rem]:focus-within:border-gold-300">
+          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-cream-50/50 bg-cream-50/[0.06] px-4 focus-within:border-gold-300 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-gold-300 @[18.5rem]:border-0 @[18.5rem]:bg-transparent @[18.5rem]:pl-3 @[18.5rem]:pr-0">
+            <Mail size={18} aria-hidden="true" className="shrink-0 text-cream-50/70" />
             <input
+              ref={input}
               id="subscribe-email"
               type="email"
               autoComplete="email"
+              autoCorrect="off"
+              autoCapitalize="none"
+              spellCheck={false}
+              enterKeyHint="send"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                if (hasError) setResult(null)
+              }}
               aria-invalid={hasError}
               aria-describedby="subscribe-note subscribe-result"
               placeholder="name@example.com"
-              className="w-0 min-w-0 flex-1 bg-transparent py-3 text-[15px] text-white outline-none placeholder:text-white/50 @[18.5rem]:py-2"
+              className="min-h-11 w-0 min-w-0 flex-1 bg-transparent py-2 text-[0.9375rem] text-cream-50 outline-none placeholder:text-cream-50/50"
             />
           </div>
-          <button
-            type="submit"
-            className="inline-flex shrink-0 items-center justify-center rounded-full bg-gold px-5 py-3 text-sm font-bold text-on-gold transition-transform hover:-translate-y-0.5 active:translate-y-0 @[18.5rem]:py-2.5"
-          >
+          <button type="submit" className={buttonClasses('primary', 'md', 'h-11 px-5 text-[0.9375rem]')}>
             Subscribe
           </button>
         </div>
       </div>
-      <p id="subscribe-note" className="mt-3 text-[13px] text-white/60">
+      <p id="subscribe-note" className="mt-3 text-[0.8125rem] text-cream-50/65">
         Demo only: no emails are sent.
       </p>
-      <p
-        id="subscribe-result"
-        role="status"
-        className={`mt-1 text-sm ${hasError ? 'text-red-300' : 'text-green-300'}`}
-      >
+      <p id="subscribe-result" role="status" className={`mt-1 text-sm ${hasError ? 'text-nonveg-300' : 'text-veg-300'}`}>
         {result?.text}
       </p>
     </form>

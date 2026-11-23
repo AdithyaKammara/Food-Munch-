@@ -8,7 +8,9 @@ import {
 } from '../../lib/orders'
 import { useOrdersStore } from '../../store/ordersStore'
 import { useUiStore } from '../../store/uiStore'
+import { buttonClasses } from '../ui/buttonClasses'
 import Modal from '../ui/Modal'
+import Price from '../ui/Price'
 
 export default function TrackingDialog() {
   const open = useUiStore((s) => s.panel === 'tracking')
@@ -28,7 +30,7 @@ export default function TrackingDialog() {
       onClose={close}
       title="Order status"
       description="Demo timeline: it is simulated, not real GPS tracking."
-      wide
+      size="lg"
     >
       <TrackingBody onClose={close} />
     </Modal>
@@ -51,7 +53,7 @@ function TrackingBody({ onClose }: { onClose: () => void }) {
   }, [])
 
   if (!order) {
-    return <p className="text-muted">There is no active order to track.</p>
+    return <p className="text-ink-600">There is no active order to track.</p>
   }
 
   const step = trackingStep(order.placedAt, now)
@@ -60,30 +62,32 @@ function TrackingBody({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="space-y-5">
-      <p className="rounded-xl bg-cream-deep p-3 text-sm">
+      <p className="rounded-sm bg-cream-200 p-3 text-sm">
         This timeline is a demo that speeds through in about 30 seconds. A real service would need a
         server and rider location updates.
       </p>
 
       <dl className="grid gap-x-4 gap-y-1 text-sm sm:grid-cols-2">
         <div>
-          <dt className="inline text-muted">Order: </dt>
+          <dt className="inline text-ink-600">Order: </dt>
           <dd className="inline font-semibold">#{order.id}</dd>
         </div>
         <div>
-          <dt className="inline text-muted">Total: </dt>
-          <dd className="inline font-semibold">₹{order.totals.total}</dd>
+          <dt className="inline text-ink-600">Total: </dt>
+          <dd className="inline font-semibold">
+            <Price amount={order.totals.total} plain />
+          </dd>
         </div>
         <div>
-          <dt className="inline text-muted">Delivery: </dt>
+          <dt className="inline text-ink-600">Delivery: </dt>
           <dd className="inline font-semibold">{order.slot}</dd>
         </div>
         <div>
-          <dt className="inline text-muted">Payment: </dt>
+          <dt className="inline text-ink-600">Payment: </dt>
           <dd className="inline font-semibold">{paymentLabel(order)}</dd>
         </div>
         <div className="sm:col-span-2">
-          <dt className="inline text-muted">Address: </dt>
+          <dt className="inline text-ink-600">Address: </dt>
           <dd className="inline font-semibold">{order.address}</dd>
         </div>
       </dl>
@@ -94,9 +98,9 @@ function TrackingBody({ onClose }: { onClose: () => void }) {
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={percent}
-        className="h-2 overflow-hidden rounded-full bg-line"
+        className="h-2 overflow-hidden rounded-full bg-line-200"
       >
-        <div className="h-full origin-left rounded-full bg-gold transition-transform" style={{ transform: `scaleX(${percent / 100})` }} />
+        <div className="h-full origin-left rounded-full bg-copper-600 transition-transform" style={{ transform: `scaleX(${percent / 100})` }} />
       </div>
 
       <p role="status" className="sr-only">
@@ -110,22 +114,22 @@ function TrackingBody({ onClose }: { onClose: () => void }) {
           return (
             <li key={s.step} aria-current={current ? 'step' : undefined} className="flex gap-3">
               <span
-                className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-bold ${
+                className={`grid size-8 shrink-0 place-items-center rounded-full text-sm font-bold ${
                   done
-                    ? 'bg-green-700 text-white'
+                    ? 'bg-veg text-cream-50'
                     : current
-                      ? 'bg-gold text-on-gold'
-                      : 'bg-line text-muted'
+                      ? 'bg-copper-600 text-white'
+                      : 'bg-line-200 text-ink-600'
                 }`}
               >
                 {done ? <Check size={14} aria-hidden="true" /> : s.step}
               </span>
               <div className={done || current ? '' : 'opacity-60'}>
-                <p className="font-bold">
+                <p className="font-display text-title font-semibold">
                   {s.title}
                   {done && <span className="sr-only"> (done)</span>}
                 </p>
-                <p className="text-sm text-muted">{s.text}</p>
+                <p className="text-sm text-ink-600">{s.text}</p>
               </div>
             </li>
           )
@@ -133,8 +137,8 @@ function TrackingBody({ onClose }: { onClose: () => void }) {
       </ol>
 
       {delivered && (
-        <div className="rounded-xl border border-line p-4 text-center">
-          <p className="font-bold">Rate your order</p>
+        <div className="rounded-md border border-line-200 p-4 text-center">
+          <p className="font-display text-title font-semibold">Rate your order</p>
           <div className="mt-2 flex justify-center gap-1">
             {[1, 2, 3, 4, 5].map((n) => (
               <button
@@ -143,24 +147,24 @@ function TrackingBody({ onClose }: { onClose: () => void }) {
                 aria-label={`Rate ${n} out of 5`}
                 aria-pressed={order.rating === n}
                 onClick={() => rateOrder(order.id, n)}
-                className="p-1"
+                className="grid size-11 place-items-center rounded-full hover:bg-cream-200"
               >
                 <Star
                   size={26}
                   aria-hidden="true"
-                  className={(order.rating ?? 0) >= n ? 'fill-gold text-gold-dark' : 'text-muted'}
+                  className={(order.rating ?? 0) >= n ? 'fill-star text-star' : 'text-ink-600'}
                 />
               </button>
             ))}
           </div>
-          <p className="mt-1 text-xs text-muted">Saved on this device only.</p>
+          <p className="mt-1 text-xs text-ink-600">Saved on this device only.</p>
         </div>
       )}
 
       <button
         type="button"
         onClick={onClose}
-        className="w-full rounded-full bg-gold px-6 py-3 font-bold text-on-gold shadow-card hover:shadow-card-hover"
+        className={buttonClasses(delivered ? 'primary' : 'secondary', 'lg', 'w-full')}
       >
         {delivered ? 'Done' : 'Close (reopen from Track order)'}
       </button>

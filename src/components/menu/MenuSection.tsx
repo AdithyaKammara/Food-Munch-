@@ -1,48 +1,43 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import * as Switch from '@radix-ui/react-switch'
-import { BicepsFlexed, ChevronDown, Heart, Leaf, Search, X } from 'lucide-react'
-import { MENU_ITEMS, type Category, type MenuItem } from '../../data/menu'
-import { gsap, MOTION_OK, useGSAP } from '../../lib/gsap'
-import { filterMenu, type SortKey } from '../../lib/menuFilters'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { MENU_ITEMS, RECOMMENDED_IDS, type MenuItem } from '../../data/menu'
+import { filterMenu, isFiltered } from '../../lib/menuFilters'
+import { flyToCart } from '../../lib/motion'
 import type { CartLine } from '../../lib/pricing'
-import { MOTION } from '../../lib/motion'
 import { useReveal } from '../../lib/useReveal'
 import { useCartStore } from '../../store/cartStore'
 import { useFavoritesStore } from '../../store/favoritesStore'
 import { useUiStore } from '../../store/uiStore'
+import Button from '../ui/Button'
+import CategoryTiles from './CategoryTiles'
 import CustomizeDialog from './CustomizeDialog'
-import DishCard from './DishCard'
+import DishRail from './DishRail'
+import MenuToolbar from './MenuToolbar'
+import { labelFor, NO_FILTERS, type FilterValues } from './categories'
 
-const CATEGORIES: { id: Category | 'all'; label: string }[] = [
-  { id: 'all', label: 'All' },
-  { id: 'starters', label: 'Starters' },
-  { id: 'mains', label: 'Mains' },
-  { id: 'desserts', label: 'Desserts' },
-  { id: 'drinks', label: 'Drinks' },
-]
+const RECOMMENDED = RECOMMENDED_IDS.map((id) => MENU_ITEMS.find((m) => m.id === id)).filter(
+  (m): m is MenuItem => m !== undefined,
+)
 
-// The dish that leads the Mains: Hyderabadi Chicken Biryani.
-const FEATURED_DISH_ID = 4
-
-const GRID = 'grid gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:gap-6'
-
+/**
+ * The menu (component-guidelines.md §7–9): the toolbar, "What's on your plate?" tiles, and the
+ * dish rail. With nothing filtered the rail shows the chef's recommendations, and one button opens
+ * every dish; any search, category or filter shows every matching dish instead.
+ */
 export default function MenuSection() {
-  const [category, setCategory] = useState<Category | 'all'>('all')
+  // Shared with the footer's Menu links (uiStore), like the search text below.
+  const category = useUiStore((s) => s.menuCategory)
+  const setCategory = useUiStore((s) => s.setMenuCategory)
   // Shared with the navbar search, so typing in either place filters the menu.
   const query = useUiStore((s) => s.menuQuery)
   const setQuery = useUiStore((s) => s.setMenuQuery)
-  const [vegOnly, setVegOnly] = useState(false)
-  const [highProtein, setHighProtein] = useState(false)
-  const [favouritesOnly, setFavouritesOnly] = useState(false)
-  const [sort, setSort] = useState<SortKey>('default')
+  const [filters, setFilters] = useState<FilterValues>(NO_FILTERS)
+  const [showAll, setShowAll] = useState(false)
   const [customizing, setCustomizing] = useState<MenuItem | null>(null)
   const [toast, setToast] = useState('')
 
   const favouriteIds = useFavoritesStore((s) => s.ids)
   const addLine = useCartStore((s) => s.addLine)
-
   const sectionRef = useReveal<HTMLElement>()
-  const gridRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!toast) return
@@ -50,281 +45,130 @@ export default function MenuSection() {
     return () => clearTimeout(timer)
   }, [toast])
 
-  const items = useMemo(
-    () =>
-      filterMenu(MENU_ITEMS, { category, query, vegOnly, highProtein, favouritesOnly, favouriteIds, sort }),
-    [category, query, vegOnly, highProtein, favouritesOnly, favouriteIds, sort],
-  )
+  const filtered = isFiltered({ category, query, ...filters })
+  const items = useMemo(() => {
+    if (!filtered) return showAll ? MENU_ITEMS : RECOMMENDED
+    return filterMenu(MENU_ITEMS, { category, query, ...filters, favouriteIds })
+  }, [filtered, showAll, category, query, filters, favouriteIds])
 
-  // The default view reads like a real menu, course by course. Picking a course or a sort shows one flat list.
-  const grouped = category === 'all' && sort === 'default'
-  const courses = CATEGORIES.filter((c) => c.id !== 'all')
-    .map((c) => ({ ...c, dishes: items.filter((m) => m.category === c.id) }))
-    .filter((c) => c.dishes.length > 0)
+  const title = !filtered
+    ? showAll
+      ? 'All dishes'
+      : "Chef's recommendations"
+    : query.trim()
+      ? 'Search results'
+      : category !== 'all'
+        ? labelFor(category)
+        : 'Your filtered dishes'
+  const countText = `${items.length} ${items.length === 1 ? 'dish' : 'dishes'}`
 
-  // When filters change, only the cards that weren't showing before fade in.
-  // Cards that stay on screen are left alone, so filtering never feels like a reload.
-  const itemsKey = items.map((m) => m.id).join(',')
-  const shownIds = useRef<Set<number> | null>(null)
-
-  useGSAP(
-    () => {
-      const grid = gridRef.current
-      const ids = new Set(items.map((m) => m.id))
-      const before = shownIds.current
-      shownIds.current = ids
-      if (!grid || !before) return // first render: the scroll reveal handles it
-
-      const entering = Array.from(grid.querySelectorAll<HTMLElement>('[data-id]')).filter(
-        (el) => !before.has(Number(el.dataset.id)),
-      )
-      if (entering.length === 0) return
-
-      const mm = gsap.matchMedia()
-      mm.add(MOTION_OK, () => {
-        gsap.fromTo(
-          entering.slice(0, 8), // never animate a big batch at once
-          { autoAlpha: 0, y: 14 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.4,
-            ease: MOTION.ease,
-            stagger: 0.04,
-            overwrite: true,
-            clearProps: 'transform,opacity,visibility',
-          },
-        )
-      })
-      return () => mm.revert()
-    },
-    { dependencies: [itemsKey] },
-  )
+  // The "+ Add" button last pressed: the cart dot flies from there, even after the customise dialog.
+  const origin = useRef<HTMLElement | null>(null)
 
   const confirmLine = (line: Omit<CartLine, 'qty'>) => {
-    addLine(line)
     const item = MENU_ITEMS.find((m) => m.id === line.itemId)
     setToast(`${item?.title ?? 'Item'} added to cart`)
+    // With motion, the line joins the cart as the dot lands, so the badge pops on arrival.
+    const flight = flyToCart(origin.current)
+    if (flight) flight.then(() => addLine(line))
+    else addLine(line)
   }
 
-  const handleAdd = (item: MenuItem) => {
-    if (item.customizable) {
-      setCustomizing(item)
-    } else {
-      confirmLine({ itemId: item.id, portionId: 'regular', spice: 'Standard', addons: [] })
-    }
+  const handleAdd = (item: MenuItem, from: HTMLElement) => {
+    origin.current = from
+    if (item.customizable) setCustomizing(item)
+    else confirmLine({ itemId: item.id, portionId: 'regular', spice: 'Standard', addons: [] })
   }
 
-  const clearFilters = () => {
+  const clearAll = () => {
     setCategory('all')
     setQuery('')
-    setVegOnly(false)
-    setHighProtein(false)
-    setFavouritesOnly(false)
-    setSort('default')
+    setFilters(NO_FILTERS)
+    setShowAll(false)
   }
 
   return (
-    <section ref={sectionRef} id="menu" className="px-4 py-10 sm:px-6 sm:py-20 md:py-24">
-      <div className="mx-auto max-w-7xl">
-        <div data-reveal className="text-center">
+    <>
+      <section
+        ref={sectionRef}
+        id="menu"
+        tabIndex={-1}
+        aria-label="Menu"
+        className="px-4 pb-12 pt-6 outline-none sm:px-6 md:pb-16 lg:px-8 lg:pb-24 lg:pt-8"
+      >
+        <div className="mx-auto max-w-[77.5rem]">
+          <MenuToolbar
+            category={category}
+            onCategory={setCategory}
+            filters={filters}
+            onFilters={(next) => setFilters((f) => ({ ...f, ...next }))}
+            favouriteCount={favouriteIds.length}
+            onClearAll={() => setFilters(NO_FILTERS)}
+          />
 
-          <h2 className="relative mx-auto mt-4 inline-block font-display text-4xl font-extrabold leading-tight tracking-[-0.03em] sm:text-5xl">
-            Find Your Next{' '}
-            Favourite
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-lg text-muted">Made fresh, packed with flavour.</p>
-        </div>
+          <CategoryTiles category={category} onCategory={setCategory} />
 
-        {/* Category pills */}
-        <div data-reveal role="group" aria-label="Course" className="-mx-4 mt-5 flex justify-start gap-2.5 sm:mt-8 overflow-x-auto px-4 pb-2 sm:mx-0 sm:justify-center sm:px-0">
-          {CATEGORIES.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              aria-pressed={category === c.id}
-              onClick={() => setCategory(c.id)}
-              className={`min-h-11 shrink-0 rounded-full border px-6 py-2.5 text-sm font-semibold transition-colors ${
-                category === c.id
-                  ? 'border-gold bg-gold text-on-gold shadow-gold'
-                  : 'border-line-strong bg-surface hover:border-gold'
-              }`}
-            >
-              {c.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Search and filters */}
-        <div data-reveal className="mt-4 flex flex-col gap-3 sm:mt-8 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="relative w-full lg:max-w-md">
-            <label htmlFor="menu-search" className="sr-only">
-              Search dishes
-            </label>
-            <Search
-              size={18}
-              aria-hidden="true"
-              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted"
-            />
-            <input
-              id="menu-search"
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search dishes or ingredients..."
-              className="w-full rounded-full border border-field bg-surface py-3 pl-11 pr-11 text-sm placeholder:text-muted focus:border-gold"
-            />
-            {query && (
-              <button
-                type="button"
-                aria-label="Clear search"
-                onClick={() => setQuery('')}
-                className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-muted hover:bg-cream-deep hover:text-ink"
-              >
-                <X size={16} aria-hidden="true" />
-              </button>
-            )}
-          </div>
-
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-3 sm:gap-x-6">
-            <SwitchField
-              id="veg-only"
-              label="Veg only"
-              icon={<Leaf size={16} aria-hidden="true" className="fill-green-600 text-green-700" />}
-              checked={vegOnly}
-              onChange={setVegOnly}
-            />
-            <SwitchField
-              id="high-protein"
-              label="High protein (20g+)"
-              icon={<BicepsFlexed size={16} aria-hidden="true" />}
-              checked={highProtein}
-              onChange={setHighProtein}
-            />
-            <button
-              type="button"
-              aria-pressed={favouritesOnly}
-              onClick={() => setFavouritesOnly(!favouritesOnly)}
-              className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
-                favouritesOnly ? 'border-red-600 bg-red-50 text-red-700' : 'border-line-strong bg-surface hover:border-gold'
-              }`}
-            >
-              <Heart size={16} aria-hidden="true" fill={favouritesOnly ? 'currentColor' : 'none'} />
-              Favourites ({favouriteIds.length})
-            </button>
-            <div className="flex items-center gap-2 text-sm">
-              <label htmlFor="menu-sort" className="text-muted">
-                Sort:
-              </label>
-              <span className="relative">
-              <select
-                id="menu-sort"
-                value={sort}
-                onChange={(e) => setSort(e.target.value as SortKey)}
-                className="min-h-11 appearance-none rounded-full border border-field bg-surface py-2 pl-4 pr-10 font-medium hover:border-gold"
-              >
-                <option value="default">Recommended</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="rating-desc">Rating: High to Low</option>
-                <option value="protein-desc">Protein: High to Low</option>
-                <option value="prep-asc">Fastest prep</option>
-              </select>
-              <ChevronDown
-                size={16}
-                aria-hidden="true"
-                className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2"
-              />
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <p className="mt-5 text-sm text-muted" aria-live="polite">
-          Showing {items.length} {items.length === 1 ? 'dish' : 'dishes'}
-        </p>
-        <p className="mt-1 text-xs text-muted">Ratings and badges are demo data.</p>
-
-        {items.length === 0 ? (
-          <div className="mt-8 rounded-2xl border border-dashed border-line bg-surface p-10 text-center">
-            <p className="font-semibold">No dishes match your filters.</p>
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="mt-4 rounded-full bg-gold px-5 py-2 text-sm font-bold text-on-gold"
-            >
-              Clear filters
-            </button>
-          </div>
-        ) : grouped ? (
-          <div ref={gridRef} className="mt-6 space-y-10">
-            {courses.map(({ id, label, dishes }) => (
-              <div key={id}>
-                <h3 className="font-display text-2xl font-extrabold">{label}</h3>
-                <div className={`mt-4 ${GRID}`}>
-                  {dishes.map((item) => (
-                    <DishCard key={item.id} item={item} onAdd={handleAdd} featured={item.id === FEATURED_DISH_ID} />
-                  ))}
-                </div>
+          <DishRail
+            label="Our menu"
+            heading={
+              <>
+                {title}
+                {filtered && ' '}
+                {filtered && <span className="tabular ml-1 align-middle text-title font-semibold text-ink-600">({items.length})</span>}
+              </>
+            }
+            listName={`${title}, ${countText}`}
+            items={items}
+            onAdd={handleAdd}
+            empty={
+              <div className="rounded-md border border-dashed border-line-200 bg-cream-50 px-6 py-10 text-center">
+                <p className="font-display text-title font-semibold">No dishes match.</p>
+                <p className="mt-1 text-sm text-ink-600">Try another search, or clear your filters.</p>
+                <Button variant="secondary" onClick={clearAll} className="mt-5">
+                  Clear filters
+                </Button>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div ref={gridRef} className={`mt-4 ${GRID}`}>
-            {items.map((item) => (
-              <DishCard key={item.id} item={item} onAdd={handleAdd} />
-            ))}
-          </div>
+            }
+            footer={
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+                <p className="text-caption text-ink-600">
+                  <span aria-live="polite">
+                    {/* The number crossfades when it changes; the live region itself stays put */}
+                    <span key={countText} className="motion-fade">
+                      Showing {countText}.
+                    </span>
+                  </span>{' '}
+                  Ratings are demo data.
+                </p>
+                {!filtered && (
+                  <Button variant="secondary" onClick={() => setShowAll((v) => !v)}>
+                    {showAll ? "Show the chef's picks" : `See all ${MENU_ITEMS.length} dishes`}
+                  </Button>
+                )}
+              </div>
+            }
+          />
+        </div>
+
+        {customizing && (
+          <CustomizeDialog
+            key={customizing.id}
+            item={customizing}
+            onClose={() => setCustomizing(null)}
+            onConfirm={confirmLine}
+          />
         )}
-      </div>
+      </section>
 
-      {customizing && (
-        <CustomizeDialog
-          key={customizing.id}
-          item={customizing}
-          onClose={() => setCustomizing(null)}
-          onConfirm={confirmLine}
-        />
-      )}
-
+      {/* Outside the section: it is fixed to the screen, and the section's content-visibility
+          (index.css) would otherwise make the section its containing block. */}
       <div role="status" aria-live="polite" className="pointer-events-none fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
         {toast && (
-          <span className="rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-white shadow-card-hover">
+          <span className="motion-toast inline-block rounded-full bg-forest-800 px-5 py-2.5 text-sm font-semibold text-cream-50 shadow-lift">
             {toast}
           </span>
         )}
       </div>
-    </section>
-  )
-}
-
-function SwitchField({
-  id,
-  label,
-  icon,
-  checked,
-  onChange,
-}: {
-  id: string
-  label: string
-  icon?: ReactNode
-  checked: boolean
-  onChange: (value: boolean) => void
-}) {
-  return (
-    <div className="flex items-center gap-2.5">
-      <Switch.Root
-        id={id}
-        checked={checked}
-        onCheckedChange={onChange}
-        className="relative h-6 w-11 rounded-full bg-line-strong transition-colors before:absolute before:inset-x-0 before:-inset-y-2.5 before:content-[''] data-[state=checked]:bg-gold"
-      >
-        <Switch.Thumb className="block h-5 w-5 translate-x-0.5 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-[22px]" />
-      </Switch.Root>
-      <label htmlFor={id} className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 text-sm font-semibold">
-        {icon}
-        {label}
-      </label>
-    </div>
+    </>
   )
 }
